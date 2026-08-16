@@ -7,6 +7,16 @@
   <style>
     body { font-family: Arial, sans-serif; background-color: #ffffff; margin: 4px 10px; }
 
+    /* ŞİFRE EKRANI CSS KODLARI */
+    #login-screen { position: fixed; top:0; left:0; width: 100%; height: 100%; background: #f0f2f5; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; }
+    .login-box { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); text-align: center; }
+    .login-box h2 { margin-top: 0; color: #274e37; }
+    .login-box input { padding: 10px; font-size: 16px; margin: 15px 0; border: 1px solid #ccc; border-radius: 4px; width: 80%; box-sizing: border-box; text-align: center; }
+    .login-box button { padding: 10px 20px; font-size: 16px; cursor: pointer; background-color: #274e37; color: white; border: none; border-radius: 4px; font-weight: bold; width: 80%; }
+    
+    /* ANA UYGULAMA GİZLEME (Şifre girilene kadar) */
+    #main-app { display: none; }
+
     .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 2px solid #274e37; padding-bottom: 4px; flex-wrap: wrap; gap:10px; }
     .tab-bar { display: flex; gap: 5px; flex-wrap: wrap; }
     .tab-button { padding: 8px 16px; background-color: #f3f3f3; border: 1px solid #ccc; border-bottom: none; font-size: 12.5px; font-weight: bold; color: #333; cursor: pointer; border-radius: 4px 4px 0 0; }
@@ -34,52 +44,14 @@
     #anasayfa-tab td { padding: 2px 6px !important; height: 19px !important; font-size: 11.5px !important; line-height: 1.1; white-space: nowrap; }
     #anasayfa-tab .bosluk-satiri td { height: 5px !important; padding: 0 !important; }
 
-    /* SMART TV & MOBİL KUSURSUZ YAN YANA DÜZEN */
     .split-table-container { 
-        display: flex; 
-        gap: 10px; 
-        overflow-x: auto; 
-        padding-bottom: 10px; 
-        width: 100%; 
-        box-sizing: border-box; 
-        -webkit-overflow-scrolling: touch; 
+        display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; width: 100%; box-sizing: border-box; -webkit-overflow-scrolling: touch; 
     }
     
-    .split-table { 
-        background-color: white; 
-        border-collapse: collapse; 
-        flex: 1; 
-        min-width: 420px; 
-        table-layout: fixed; 
-        font-size: 11px; 
-    }
-    
+    .split-table { background-color: white; border-collapse: collapse; flex: 1; min-width: 420px; table-layout: fixed; font-size: 11px; }
     .split-table tr { height: 24px !important; }
-    
-    .split-table th { 
-        padding: 2px 1px; 
-        border: 1px solid #ccc; 
-        text-align: center; 
-        font-weight: bold; 
-        height: 24px !important; 
-        box-sizing: border-box; 
-        font-size: 10px; 
-        overflow: hidden; 
-        text-overflow: ellipsis; 
-        white-space: nowrap;
-    }
-    
-    .split-table td { 
-        padding: 2px 1px; 
-        border: 1px solid #ccc; 
-        text-align: center; 
-        height: 24px !important; 
-        box-sizing: border-box; 
-        font-size: 11px; 
-        white-space: nowrap; 
-        overflow: hidden; 
-        text-overflow: ellipsis; 
-    }
+    .split-table th { padding: 2px 1px; border: 1px solid #ccc; text-align: center; font-weight: bold; height: 24px !important; box-sizing: border-box; font-size: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .split-table td { padding: 2px 1px; border: 1px solid #ccc; text-align: center; height: 24px !important; box-sizing: border-box; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
     .split-table th:nth-child(1), .split-table td:nth-child(1) { width: 18%; } 
     .split-table th:nth-child(2), .split-table td:nth-child(2) { width: 12%; } 
@@ -122,12 +94,10 @@
     .text-left { text-align: left; font-weight: bold; }
     .data-bold { font-weight: bold; }
     
-    /* YENİ TV UYUMLU RENKLENDİRMELER (Mat Arkaplan + Metin Gölgesi) */
     .bg-yesil-dolu { background-color: #15803D !important; color: #ffffff !important; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.6); }
     .bg-kirmizi-dolu { background-color: #DC2626 !important; color: #ffffff !important; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.6); }
     
     .alt-hesap-hucre { font-weight: bold; font-size: 12px; }
-
     .bosluk-satiri td { height: 18px !important; border: none !important; background-color: transparent !important; }
     #loading { margin: 15px; font-weight: bold; color: #274e37; font-size: 13px; text-align: center; }
 
@@ -141,52 +111,78 @@
   </style>
 </head>
 <body>
-  <div class="top-header">
-    <div class="tab-bar">
-      <button class="tab-button active" onclick="sekmeAc(event, 'anasayfa-tab')">📊 Anasayfa</button>
-      <button class="tab-button" onclick="sekmeAc(event, 'maliyet-hisse-tab')">💼 Maliyet Hisse</button>
-      <button class="tab-button" onclick="sekmeAc(event, 'maliyet-fon-tab')">📈 Maliyet Fon</button>
-      <button class="tab-button" onclick="sekmeAc(event, 'temettu-tab')">💸 Temettü Hesaplama</button>
-      <button class="tab-button" onclick="sekmeAc(event, 'hisse-alimi-tab')">🛒 Hisse Alımı</button>
-    </div>
-    <div class="live-indicator">
-      <div id="dot-indicator" class="pulse-dot"></div>
-      <span id="update-status-text">CANLI GÜNCELLEME: <span id="son-guncelleme">Yükleniyor...</span></span>
+
+  <!-- ŞİFRE EKRANI -->
+  <div id="login-screen">
+    <div class="login-box">
+      <h2>Sistem Koruması</h2>
+      <p>Sisteme erişmek için şifrenizi girin.</p>
+      <input type="password" id="sifre-input" placeholder="Şifre" onkeypress="if(event.keyCode===13) girisYap();">
+      <button onclick="girisYap()">Giriş Yap</button>
     </div>
   </div>
 
-  <div id="loading">📡 Veriler API'den çekiliyor... Lütfen bekleyin.</div>
-
-  <div id="anasayfa-tab" class="tab-content active">
-    <div class="table-container">
-      <table>
-        <thead id="anasayfa-headers"></thead>
-        <tbody id="anasayfa-body"></tbody>
-      </table>
-      
-      <div class="split-table-container" id="anasayfa-split-container" style="display:none; margin-top: 15px;">
-        <table class="split-table">
-          <thead id="anasayfa-split-left-headers"></thead>
-          <tbody id="anasayfa-split-left-body"></tbody>
-        </table>
-        <table class="split-table">
-          <thead id="anasayfa-split-right-headers"></thead>
-          <tbody id="anasayfa-split-right-body"></tbody>
-        </table>
+  <!-- ANA UYGULAMA İÇERİĞİ -->
+  <div id="main-app">
+    <div class="top-header">
+      <div class="tab-bar">
+        <button class="tab-button active" onclick="sekmeAc(event, 'anasayfa-tab')">📊 Anasayfa</button>
+        <button class="tab-button" onclick="sekmeAc(event, 'maliyet-hisse-tab')">💼 Maliyet Hisse</button>
+        <button class="tab-button" onclick="sekmeAc(event, 'maliyet-fon-tab')">📈 Maliyet Fon</button>
+        <button class="tab-button" onclick="sekmeAc(event, 'temettu-tab')">💸 Temettü Hesaplama</button>
+        <button class="tab-button" onclick="sekmeAc(event, 'hisse-alimi-tab')">🛒 Hisse Alımı</button>
+      </div>
+      <div class="live-indicator">
+        <div id="dot-indicator" class="pulse-dot"></div>
+        <span id="update-status-text">CANLI GÜNCELLEME: <span id="son-guncelleme">Yükleniyor...</span></span>
       </div>
     </div>
-  </div>
 
-  <div id="maliyet-hisse-tab" class="tab-content"><div class="table-container"><table><thead><tr id="maliyet-hisse-headers"></tr></thead><tbody id="maliyet-hisse-body"></tbody></table></div></div>
-  <div id="maliyet-fon-tab" class="tab-content"><div class="table-container"><table><thead><tr id="maliyet-fon-headers"></tr></thead><tbody id="maliyet-fon-body"></tbody></table></div></div>
-  <div id="temettu-tab" class="tab-content"><div id="temettu-tab-container" class="split-table-container"></div></div>
-  <div id="hisse-alimi-tab" class="tab-content"><div class="table-container"><table id="hisse-alimi-table"></table></div></div>
+    <div id="loading">📡 Veriler API'den çekiliyor... Lütfen bekleyin.</div>
+
+    <div id="anasayfa-tab" class="tab-content active">
+      <div class="table-container">
+        <table>
+          <thead id="anasayfa-headers"></thead>
+          <tbody id="anasayfa-body"></tbody>
+        </table>
+        
+        <div class="split-table-container" id="anasayfa-split-container" style="display:none; margin-top: 15px;">
+          <table class="split-table">
+            <thead id="anasayfa-split-left-headers"></thead>
+            <tbody id="anasayfa-split-left-body"></tbody>
+          </table>
+          <table class="split-table">
+            <thead id="anasayfa-split-right-headers"></thead>
+            <tbody id="anasayfa-split-right-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div id="maliyet-hisse-tab" class="tab-content"><div class="table-container"><table><thead><tr id="maliyet-hisse-headers"></tr></thead><tbody id="maliyet-hisse-body"></tbody></table></div></div>
+    <div id="maliyet-fon-tab" class="tab-content"><div class="table-container"><table><thead><tr id="maliyet-fon-headers"></tr></thead><tbody id="maliyet-fon-body"></tbody></table></div></div>
+    <div id="temettu-tab" class="tab-content"><div id="temettu-tab-container" class="split-table-container"></div></div>
+    <div id="hisse-alimi-tab" class="tab-content"><div class="table-container"><table id="hisse-alimi-table"></table></div></div>
+  </div>
 
   <script>
     // =========================================================
-    // API LİNKİNİZ BAŞARIYLA EKLENDİ
+    // API LİNKİ GÜNCELLENDİ
     // =========================================================
-    const API_URL = "https://script.google.com/macros/s/AKfycbxa8bLw-z9jgTcvHd4_OwvnEdsFRTdw_2T79ViEXE-GvN5wxfK6w6xWO0nx-n8mpYsvqA/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbzRfCy604NNI9Dzmw-AdOaT8JO6Q4l6z0qSA8D7F_7-Q86MblXC32BUEwiE36b8ZE-L4g/exec";
+    
+    let API_SIFRE = sessionStorage.getItem("pusu_sifre") || "";
+
+    function girisYap() {
+      const val = document.getElementById("sifre-input").value;
+      if(!val) return;
+      API_SIFRE = val;
+      sessionStorage.setItem("pusu_sifre", API_SIFRE);
+      document.getElementById("login-screen").style.display = "none";
+      document.getElementById("main-app").style.display = "block";
+      verileriYukle();
+    }
 
     function sekmeAc(evt, tabId) {
       var i, tc, tb;
@@ -230,12 +226,21 @@
       return isaret + (sayi * 100).toFixed(2).replace(/\./g, ',') + "%";
     }
 
-    // Google Sheets'e hücre güncelleme komutu yollayan yeni Fetch fonksiyonu
     function uzakHucreGuncelle(sekmeAdi, satir, sutun, deger) {
-      var url = API_URL + "?islem=hucreGuncelle&sekme=" + encodeURIComponent(sekmeAdi) + "&satir=" + satir + "&sutun=" + sutun + "&deger=" + encodeURIComponent(deger);
+      var url = API_URL + "?islem=hucreGuncelle&sekme=" + encodeURIComponent(sekmeAdi) + "&satir=" + satir + "&sutun=" + sutun + "&deger=" + encodeURIComponent(deger) + "&sifre=" + encodeURIComponent(API_SIFRE);
       fetch(url)
         .then(res => res.json())
-        .then(data => { if (!data.basari) console.error("Hücre güncelleme hatası: ", data.hata); })
+        .then(data => { 
+            if (!data.basari) {
+                if(data.hata && data.hata.indexOf("Yetkisiz") > -1) {
+                    alert("Şifre Hatalı! Lütfen tekrar giriş yapın.");
+                    sessionStorage.removeItem("pusu_sifre");
+                    location.reload();
+                } else {
+                    console.error("Hücre güncelleme hatası: ", data.hata); 
+                }
+            }
+        })
         .catch(err => console.error("Güncelleme isteği başarısız oldu:", err));
     }
 
@@ -383,11 +388,19 @@
     }
 
     function verileriYukle() {
-      fetch(API_URL + "?islem=veriGetir")
+      if(!API_SIFRE) return; // Şifre yoksa yükleme yapma
+
+      fetch(API_URL + "?islem=veriGetir&sifre=" + encodeURIComponent(API_SIFRE))
         .then(response => response.json())
         .then(result => {
-          if (!result || !result.basari || !result.veri) {
-              console.error("API'den geçersiz veri geldi.");
+          if (!result || !result.basari) {
+              if(result && result.hata && result.hata.indexOf("Yetkisiz") > -1) {
+                  alert("Şifre Hatalı! Lütfen tekrar giriş yapın.");
+                  sessionStorage.removeItem("pusu_sifre");
+                  location.reload();
+              } else {
+                  console.error("API'den geçersiz veri geldi.", result);
+              }
               return;
           }
           var data = result.veri;
@@ -525,8 +538,15 @@
     }
 
     window.onload = function() {
-      verileriYukle();
-      setInterval(verileriYukle, 10000); 
+      if(!API_SIFRE) {
+         document.getElementById("login-screen").style.display = "flex";
+         document.getElementById("main-app").style.display = "none";
+      } else {
+         document.getElementById("login-screen").style.display = "none";
+         document.getElementById("main-app").style.display = "block";
+         verileriYukle();
+         setInterval(verileriYukle, 10000); 
+      }
     };
   </script>
 </body>
