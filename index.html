@@ -167,9 +167,6 @@
   </div>
 
   <script>
-    // =========================================================
-    // API LİNKİ GÜNCELLENDİ
-    // =========================================================
     const API_URL = "https://script.google.com/macros/s/AKfycbzRfCy604NNI9Dzmw-AdOaT8JO6Q4l6z0qSA8D7F_7-Q86MblXC32BUEwiE36b8ZE-L4g/exec";
     
     let API_SIFRE = sessionStorage.getItem("pusu_sifre") || "";
@@ -182,6 +179,7 @@
       document.getElementById("login-screen").style.display = "none";
       document.getElementById("main-app").style.display = "block";
       verileriYukle();
+      setInterval(verileriYukle, 10000); // 10 saniyede bir otomatik güncelleme aktif!
     }
 
     function sekmeAc(evt, tabId) {
@@ -388,7 +386,7 @@
     }
 
     function verileriYukle() {
-      if(!API_SIFRE) return; // Şifre yoksa yükleme yapma
+      if(!API_SIFRE) return;
 
       fetch(API_URL + "?islem=veriGetir&sifre=" + encodeURIComponent(API_SIFRE))
         .then(response => response.json())
