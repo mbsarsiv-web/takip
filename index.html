@@ -85,7 +85,7 @@
 
     /* GENEL TABLO MODERN TASARIM EKLENTİSİ (HİZALANMIŞ VE DARALTILMIŞ) */
     #genel-tablo-table { 
-        width: 75% !important; /* 4 Sütun olduğu için tablo genişliğini biraz kıstık */
+        width: 75% !important; 
         min-width: 600px;
         margin: 25px auto 35px auto; 
         border-collapse: separate; 
@@ -102,7 +102,7 @@
         font-weight: 600 !important;
         letter-spacing: 0.5px;
         border: none !important;
-        text-align: center !important; /* Başlıklar tam ortalandı */
+        text-align: center !important; 
         vertical-align: middle;
     }
     #genel-tablo-table td { 
@@ -112,8 +112,8 @@
         border: none !important;
         border-bottom: 1px solid #eef2f5 !important; 
         color: #444;
-        text-align: center !important; /* Tüm değerler tam ortalandı */
-        vertical-align: middle !important; /* Dikeyde de ortalandı */
+        text-align: center !important; 
+        vertical-align: middle !important; 
         background-color: #ffffff;
         transition: background-color 0.2s ease;
     }
@@ -424,14 +424,22 @@
           td0.innerText = row[0] || "";
           tr.appendChild(td0);
 
-          // Sütun 1: TL değeri üstte, Dolar ve Altın değeri onun altında yan yana
+          // Sütun 1: TL, Dolar ve Altın değerleri alt alta, aynı boyut ve kalınlıkta
           var td1 = document.createElement('td');
           var tlTutar = row[1] ? row[1].toString().trim() : "";
           var dolarTutar = row[2] ? row[2].toString().trim() : "";
           var altinTutar = row[3] ? row[3].toString().trim() : "";
           
-          td1.innerHTML = '<div style="font-size: 15px; font-weight: 800; color: #1e3c72;">' + tlTutar + '</div>' + 
-                          '<div style="font-size: 12px; font-weight: 600; color: #6c757d; margin-top: 4px;">' + dolarTutar + ' &nbsp;|&nbsp; ' + altinTutar + '</div>';
+          // DOLAR ve ALTIN ibarelerini ekliyoruz
+          if (dolarTutar && dolarTutar.indexOf("DOLAR") === -1) dolarTutar += " DOLAR";
+          if (altinTutar && altinTutar.indexOf("ALTIN") === -1) altinTutar += " ALTIN";
+
+          // Boyut, kalınlık ve renk açısından 3 veri de tamamen aynı oldu
+          var ortakStil = "font-size: 14.5px; font-weight: 700; color: #1e3c72; line-height: 1.6;";
+          
+          td1.innerHTML = '<div style="' + ortakStil + '">' + tlTutar + '</div>' + 
+                          '<div style="' + ortakStil + '">' + dolarTutar + '</div>' + 
+                          '<div style="' + ortakStil + '">' + altinTutar + '</div>';
           tr.appendChild(td1);
 
           // Sütun 4: K/Z 
