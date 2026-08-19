@@ -424,7 +424,7 @@
           td0.innerText = row[0] || "";
           tr.appendChild(td0);
 
-          // Sütun 1: TL, Dolar ve Altın değerleri alt alta, aynı boyut ve kalınlıkta
+          // Sütun 1: TL, Dolar ve Altın değerleri alt alta, İSTENİLEN BOYUT VE RENKTE
           var td1 = document.createElement('td');
           var tlTutar = row[1] ? row[1].toString().trim() : "";
           var dolarTutar = row[2] ? row[2].toString().trim() : "";
@@ -434,17 +434,21 @@
           if (dolarTutar && dolarTutar.indexOf("DOLAR") === -1) dolarTutar += " DOLAR";
           if (altinTutar && altinTutar.indexOf("ALTIN") === -1) altinTutar += " ALTIN";
 
-          // Boyut, kalınlık ve renk açısından 3 veri de tamamen aynı oldu
-          var ortakStil = "font-size: 14.5px; font-weight: 700; color: #1e3c72; line-height: 1.6;";
+          // TL için büyük font (16px), Dolar ve Altın için küçük font (12.5px) ve özel renkler
+          var tlStil = "font-size: 16px; font-weight: 700; color: #1e3c72; line-height: 1.6;";
+          var dolarStil = "font-size: 12.5px; font-weight: 600; color: #047857; line-height: 1.4;"; // Koyu yeşil
+          var altinStil = "font-size: 12.5px; font-weight: 600; color: #b45309; line-height: 1.4;"; // Koyu altın/turuncu
           
-          td1.innerHTML = '<div style="' + ortakStil + '">' + tlTutar + '</div>' + 
-                          '<div style="' + ortakStil + '">' + dolarTutar + '</div>' + 
-                          '<div style="' + ortakStil + '">' + altinTutar + '</div>';
+          td1.innerHTML = '<div style="' + tlStil + '">' + tlTutar + '</div>' + 
+                          '<div style="' + dolarStil + '">' + dolarTutar + '</div>' + 
+                          '<div style="' + altinStil + '">' + altinTutar + '</div>';
           tr.appendChild(td1);
 
           // Sütun 4: K/Z 
           var td4 = document.createElement('td');
           td4.innerText = row[4] || "";
+          td4.style.fontSize = "16px"; // TL boyutu ile tamamen aynı
+          td4.style.fontWeight = "700"; // TL kalınlığı ile aynı
           var bgClass4 = arkaPlanRenkSinifiAl(row[4]);
           if (bgClass4) td4.classList.add(bgClass4);
           tr.appendChild(td4);
@@ -452,6 +456,8 @@
           // Sütun 5: K/Z%
           var td5 = document.createElement('td');
           td5.innerText = row[5] || "";
+          td5.style.fontSize = "16px"; // TL boyutu ile tamamen aynı
+          td5.style.fontWeight = "700"; // TL kalınlığı ile aynı
           var bgClass5 = arkaPlanRenkSinifiAl(row[5]);
           if (bgClass5) td5.classList.add(bgClass5);
           tr.appendChild(td5);
@@ -597,13 +603,13 @@
                 var hacimGecerliMi = !gecersizMi(r[7]);
                 var degisimGecerliMi = !gecersizMi(r[8]);
 
-                var bGoster       = bGecerliMi     ? r[1] : (onceki.b       !== undefined ? onceki.b       : r[1]);
-                var rsiGoster     = rsiGecerliMi   ? r[2] : (onceki.rsi     !== undefined ? onceki.rsi     : "Bekleniyor..");
-                var ortGoster     = ortGecerliMi   ? r[3] : (onceki.ort     !== undefined ? onceki.ort     : r[3]);
-                var gunSGoster    = gunSGecerliMi  ? r[4] : (onceki.gunS    !== undefined ? onceki.gunS    : r[4]);
-                var tavsiyeGoster = tavsGecerliMi  ? r[5] : (onceki.tavs    !== undefined ? onceki.tavs    : "Bekleniyor..");
-                var hedefGoster   = hedefGecerliMi ? r[6] : (onceki.hedef   !== undefined ? onceki.hedef   : r[6]);
-                var hacimGoster   = hacimGecerliMi ? r[7] : (onceki.hacim   !== undefined ? onceki.hacim   : r[7]);
+                var bGoster       = bGecerliMi     ? r[1] : (onceki.b        !== undefined ? onceki.b        : r[1]);
+                var rsiGoster     = rsiGecerliMi   ? r[2] : (onceki.rsi      !== undefined ? onceki.rsi      : "Bekleniyor..");
+                var ortGoster     = ortGecerliMi   ? r[3] : (onceki.ort      !== undefined ? onceki.ort      : r[3]);
+                var gunSGoster    = gunSGecerliMi  ? r[4] : (onceki.gunS     !== undefined ? onceki.gunS     : r[4]);
+                var tavsiyeGoster = tavsGecerliMi  ? r[5] : (onceki.tavs     !== undefined ? onceki.tavs     : "Bekleniyor..");
+                var hedefGoster   = hedefGecerliMi ? r[6] : (onceki.hedef    !== undefined ? onceki.hedef    : r[6]);
+                var hacimGoster   = hacimGecerliMi ? r[7] : (onceki.hacim    !== undefined ? onceki.hacim    : r[7]);
                 var degisimGoster = degisimGecerliMi ? r[8] : (onceki.degisim !== undefined ? onceki.degisim : r[8]);
 
                 window.sonGecerliVeriler[anahtarKey] = {
