@@ -83,10 +83,10 @@
     #hisse-alimi-table tr.toplam-satiri td { background-color: #f4f6f9 !important; border-top: 2px solid #34495e !important; border-bottom: 2px solid #34495e !important; height: 20px !important; padding: 1px 15px !important; line-height: 1.2 !important; }
     #hisse-alimi-table td.toplam-baslik { text-align: left !important; padding-left: 15px !important; font-size: 13px !important; font-weight: bold !important; color: #34495e !important; }
 
-    /* GENEL TABLO MODERN TASARIM EKLENTİSİ */
+    /* GENEL TABLO MODERN TASARIM EKLENTİSİ (HİZALANMIŞ VE DARALTILMIŞ) */
     #genel-tablo-table { 
-        width: 85% !important; 
-        min-width: 650px;
+        width: 75% !important; /* 4 Sütun olduğu için tablo genişliğini biraz kıstık */
+        min-width: 600px;
         margin: 25px auto 35px auto; 
         border-collapse: separate; 
         border-spacing: 0;
@@ -97,21 +97,23 @@
     #genel-tablo-table th { 
         background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%) !important; 
         color: #ffffff !important; 
-        padding: 15px 20px !important; 
+        padding: 15px 15px !important; 
         font-size: 14px !important; 
         font-weight: 600 !important;
         letter-spacing: 0.5px;
         border: none !important;
-        text-align: center; 
+        text-align: center !important; /* Başlıklar tam ortalandı */
+        vertical-align: middle;
     }
     #genel-tablo-table td { 
-        padding: 14px 20px !important; 
+        padding: 12px 15px !important; 
         font-size: 14px !important; 
         font-weight: 600; 
         border: none !important;
         border-bottom: 1px solid #eef2f5 !important; 
         color: #444;
-        text-align: right; 
+        text-align: center !important; /* Tüm değerler tam ortalandı */
+        vertical-align: middle !important; /* Dikeyde de ortalandı */
         background-color: #ffffff;
         transition: background-color 0.2s ease;
     }
@@ -128,9 +130,10 @@
         font-weight: bold !important;
         font-size: 14.5px !important;
         border-right: 2px solid #eef2f5 !important; 
+        padding-left: 20px !important;
     }
 
-    /* Genel Tablo K/Z Sütunları İçin Soft ve Şık Renkler (Sadece bu tabloyu etkiler) */
+    /* Genel Tablo K/Z Sütunları İçin Soft ve Şık Renkler */
     #genel-tablo-table td.bg-yesil-dolu { 
         background-color: #e8f5e9 !important; 
         color: #1b5e20 !important; 
@@ -388,7 +391,7 @@
       table.appendChild(thead); table.appendChild(tbody);
     }
     
-    /* YENİ EKLENEN GENEL TABLO YAZDIRMA FONKSİYONU */
+    /* GÜNCELLENMİŞ YENİ GENEL TABLO YAZDIRMA FONKSİYONU */
     function genelTabloCiz(veriler, tabloId) {
       var table = document.getElementById(tabloId);
       if (!table) return;
@@ -401,25 +404,50 @@
       veriler.forEach(function(row, rIdx) {
         var tr = document.createElement('tr');
         if (rIdx === 0) {
-          row.forEach(function(cellData) {
+          // Başlık satırı: Sadece 0(Etiket), 1(TL), 4(K/Z), 5(K/Z%) sütunlarını ekliyoruz
+          var seciliSutunlar = [0, 1, 4, 5];
+          seciliSutunlar.forEach(function(idx) {
             var th = document.createElement('th');
-            th.innerText = cellData;
+            if (idx === 1) {
+              th.innerText = "TUTARLAR (TL | $ | GR)"; // Yeni birleşik başlık
+            } else {
+              th.innerText = row[idx] || "";
+            }
             tr.appendChild(th);
           });
           thead.appendChild(tr);
         } else {
-          row.forEach(function(cellData, cIdx) {
-            var td = document.createElement('td');
-            td.innerText = cellData;
-            // 4. (K/Z) ve 5. (K/Z%) sütunlarında renk kontrolleri yap
-            if (cIdx === 4 || cIdx === 5) {
-              var bgClass = arkaPlanRenkSinifiAl(cellData);
-              if (bgClass) {
-                td.className = bgClass;
-              }
-            }
-            tr.appendChild(td);
-          });
+          // Veri satırları
+          
+          // Sütun 0: Etiket (Toplam, Fonlar, Hisseler vs.)
+          var td0 = document.createElement('td');
+          td0.innerText = row[0] || "";
+          tr.appendChild(td0);
+
+          // Sütun 1: TL değeri üstte, Dolar ve Altın değeri onun altında yan yana
+          var td1 = document.createElement('td');
+          var tlTutar = row[1] ? row[1].toString().trim() : "";
+          var dolarTutar = row[2] ? row[2].toString().trim() : "";
+          var altinTutar = row[3] ? row[3].toString().trim() : "";
+          
+          td1.innerHTML = '<div style="font-size: 15px; font-weight: 800; color: #1e3c72;">' + tlTutar + '</div>' + 
+                          '<div style="font-size: 12px; font-weight: 600; color: #6c757d; margin-top: 4px;">' + dolarTutar + ' &nbsp;|&nbsp; ' + altinTutar + '</div>';
+          tr.appendChild(td1);
+
+          // Sütun 4: K/Z 
+          var td4 = document.createElement('td');
+          td4.innerText = row[4] || "";
+          var bgClass4 = arkaPlanRenkSinifiAl(row[4]);
+          if (bgClass4) td4.classList.add(bgClass4);
+          tr.appendChild(td4);
+
+          // Sütun 5: K/Z%
+          var td5 = document.createElement('td');
+          td5.innerText = row[5] || "";
+          var bgClass5 = arkaPlanRenkSinifiAl(row[5]);
+          if (bgClass5) td5.classList.add(bgClass5);
+          tr.appendChild(td5);
+
           tbody.appendChild(tr);
         }
       });
