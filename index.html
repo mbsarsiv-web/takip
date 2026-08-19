@@ -83,6 +83,12 @@
     #hisse-alimi-table tr.toplam-satiri td { background-color: #f4f6f9 !important; border-top: 2px solid #34495e !important; border-bottom: 2px solid #34495e !important; height: 20px !important; padding: 1px 15px !important; line-height: 1.2 !important; }
     #hisse-alimi-table td.toplam-baslik { text-align: left !important; padding-left: 15px !important; font-size: 13px !important; font-weight: bold !important; color: #34495e !important; }
 
+    /* GENEL TABLO CSS EKLENTİSİ */
+    #genel-tablo-table { width: auto !important; margin: 0 auto 15px auto; border-collapse: collapse; box-shadow: 0 0 10px rgba(0,0,0,0.05); }
+    #genel-tablo-table th { background-color: #34495e !important; color: #ffffff !important; padding: 8px 15px !important; font-size: 13px !important; border: 1px solid #ccc; text-align: center; }
+    #genel-tablo-table td { padding: 8px 15px !important; font-size: 13px !important; font-weight: bold; border: 1px solid #ccc; text-align: right; }
+    #genel-tablo-table td:first-child { text-align: left !important; background-color: #f4f6f9 !important; color: #2c3e50 !important; font-size: 14px !important; }
+
     .hisse-cell { font-weight: bold; background-color: #ffffff !important; text-align: center !important; width: 1%; vertical-align: middle; }
     #anasayfa-tab .hisse-cell .edit-input { background-color: transparent !important; border: 1px solid #e0e0e0; cursor: pointer; }
 
@@ -129,6 +135,7 @@
         <button class="tab-button active" onclick="sekmeAc(event, 'anasayfa-tab')">📊 Anasayfa</button>
         <button class="tab-button" onclick="sekmeAc(event, 'maliyet-hisse-tab')">💼 Maliyet Hisse</button>
         <button class="tab-button" onclick="sekmeAc(event, 'maliyet-fon-tab')">📈 Maliyet Fon</button>
+        <button class="tab-button" onclick="sekmeAc(event, 'genel-tablo-tab')">🌐 Genel Tablo</button>
         <button class="tab-button" onclick="sekmeAc(event, 'temettu-tab')">💸 Temettü Hesaplama</button>
         <button class="tab-button" onclick="sekmeAc(event, 'hisse-alimi-tab')">🛒 Hisse Alımı</button>
       </div>
@@ -162,6 +169,7 @@
 
     <div id="maliyet-hisse-tab" class="tab-content"><div class="table-container"><table><thead><tr id="maliyet-hisse-headers"></tr></thead><tbody id="maliyet-hisse-body"></tbody></table></div></div>
     <div id="maliyet-fon-tab" class="tab-content"><div class="table-container"><table><thead><tr id="maliyet-fon-headers"></tr></thead><tbody id="maliyet-fon-body"></tbody></table></div></div>
+    <div id="genel-tablo-tab" class="tab-content"><div class="table-container"><table id="genel-tablo-table"></table></div></div>
     <div id="temettu-tab" class="tab-content"><div id="temettu-tab-container" class="split-table-container"></div></div>
     <div id="hisse-alimi-tab" class="tab-content"><div class="table-container"><table id="hisse-alimi-table"></table></div></div>
   </div>
@@ -325,6 +333,45 @@
         if (isHeader) thead.appendChild(tr); else tbody.appendChild(tr);
       });
       table.appendChild(thead); table.appendChild(tbody);
+    }
+    
+    /* YENİ EKLENEN GENEL TABLO YAZDIRMA FONKSİYONU */
+    function genelTabloCiz(veriler, tabloId) {
+      var table = document.getElementById(tabloId);
+      if (!table) return;
+      table.innerHTML = '';
+      if (!veriler || veriler.length === 0) return;
+
+      var thead = document.createElement('thead');
+      var tbody = document.createElement('tbody');
+
+      veriler.forEach(function(row, rIdx) {
+        var tr = document.createElement('tr');
+        if (rIdx === 0) {
+          row.forEach(function(cellData) {
+            var th = document.createElement('th');
+            th.innerText = cellData;
+            tr.appendChild(th);
+          });
+          thead.appendChild(tr);
+        } else {
+          row.forEach(function(cellData, cIdx) {
+            var td = document.createElement('td');
+            td.innerText = cellData;
+            // 4. (K/Z) ve 5. (K/Z%) sütunlarında renk kontrolleri yap
+            if (cIdx === 4 || cIdx === 5) {
+              var bgClass = arkaPlanRenkSinifiAl(cellData);
+              if (bgClass) {
+                td.className = bgClass;
+              }
+            }
+            tr.appendChild(td);
+          });
+          tbody.appendChild(tr);
+        }
+      });
+      table.appendChild(thead);
+      table.appendChild(tbody);
     }
 
     function temettuTablosuCiz(veriler) {
@@ -522,6 +569,10 @@
 
           if (data.maliyetHisse) tabloOlustur(data.maliyetHisse, 'maliyet-hisse-headers', 'maliyet-hisse-body');
           if (data.maliyetFon) tabloOlustur(data.maliyetFon, 'maliyet-fon-headers', 'maliyet-fon-body');
+          
+          /* YENİ EKLENEN GENEL TABLO ÇİZİMİ */
+          if (data.genelTablo) { genelTabloCiz(data.genelTablo, 'genel-tablo-table'); }
+          
           if (data.temettuHesaplama && !temettuOdakliMi) { temettuTablosuCiz(data.temettuHesaplama); }
           if (data.hisseAlimi && !hisseAlimiOdakliMi) { hamTabloCiz(data.hisseAlimi, 'hisse-alimi-table'); }
 
