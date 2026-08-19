@@ -98,8 +98,8 @@
         background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%) !important; 
         color: #ffffff !important; 
         padding: 15px 15px !important; 
-        font-size: 14px !important; 
-        font-weight: 600 !important;
+        font-size: 17px !important; /* Başlık fontu büyütüldü */
+        font-weight: 800 !important; /* Başlık fontu kalınlaştırıldı */
         letter-spacing: 0.5px;
         border: none !important;
         text-align: center !important; 
@@ -409,7 +409,7 @@
           seciliSutunlar.forEach(function(idx) {
             var th = document.createElement('th');
             if (idx === 1) {
-              th.innerText = "TUTARLAR (TL | $ | GR)"; // Yeni birleşik başlık
+              th.innerText = "TUTARLAR (TL | DOLAR | ALTIN)"; // Başlık güncellendi
             } else {
               th.innerText = row[idx] || "";
             }
@@ -434,8 +434,8 @@
           if (dolarTutar && dolarTutar.indexOf("DOLAR") === -1) dolarTutar += " DOLAR";
           if (altinTutar && altinTutar.indexOf("ALTIN") === -1) altinTutar += " ALTIN";
 
-          // TL için büyük font (16px), Dolar ve Altın için küçük font (12.5px) ve özel renkler
-          var tlStil = "font-size: 16px; font-weight: 700; color: #1e3c72; line-height: 1.6;";
+          // TL için büyük font (16px) ve ekstra kalın (800) olacak şekilde important atamaları
+          var tlStil = "font-size: 16px !important; font-weight: 800 !important; color: #1e3c72; line-height: 1.6;";
           var dolarStil = "font-size: 12.5px; font-weight: 600; color: #047857; line-height: 1.4;"; // Koyu yeşil
           var altinStil = "font-size: 12.5px; font-weight: 600; color: #b45309; line-height: 1.4;"; // Koyu altın/turuncu
           
@@ -444,20 +444,20 @@
                           '<div style="' + altinStil + '">' + altinTutar + '</div>';
           tr.appendChild(td1);
 
-          // Sütun 4: K/Z 
+          // Sütun 4: K/Z (TL Satırı ile Birebir Aynı Font Boyutu ve Kalınlığı - CSS'den Ezilmemesi İçin SetProperty ile Important)
           var td4 = document.createElement('td');
           td4.innerText = row[4] || "";
-          td4.style.fontSize = "16px"; // TL boyutu ile tamamen aynı
-          td4.style.fontWeight = "700"; // TL kalınlığı ile aynı
+          td4.style.setProperty("font-size", "16px", "important");
+          td4.style.setProperty("font-weight", "800", "important");
           var bgClass4 = arkaPlanRenkSinifiAl(row[4]);
           if (bgClass4) td4.classList.add(bgClass4);
           tr.appendChild(td4);
 
-          // Sütun 5: K/Z%
+          // Sütun 5: K/Z% (TL Satırı ile Birebir Aynı Font Boyutu ve Kalınlığı - CSS'den Ezilmemesi İçin SetProperty ile Important)
           var td5 = document.createElement('td');
           td5.innerText = row[5] || "";
-          td5.style.fontSize = "16px"; // TL boyutu ile tamamen aynı
-          td5.style.fontWeight = "700"; // TL kalınlığı ile aynı
+          td5.style.setProperty("font-size", "16px", "important");
+          td5.style.setProperty("font-weight", "800", "important");
           var bgClass5 = arkaPlanRenkSinifiAl(row[5]);
           if (bgClass5) td5.classList.add(bgClass5);
           tr.appendChild(td5);
