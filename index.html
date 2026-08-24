@@ -12,7 +12,7 @@
     .login-box h2 { margin-top: 0; color: #274e37; }
     .login-box input { padding: 10px; font-size: 16px; margin: 15px 0; border: 1px solid #ccc; border-radius: 4px; width: 80%; box-sizing: border-box; text-align: center; }
     .login-box button { padding: 10px 20px; font-size: 16px; cursor: pointer; background-color: #274e37; color: white; border: none; border-radius: 4px; font-weight: bold; width: 80%; }
-    
+
     #main-app { display: none; }
 
     .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 2px solid #274e37; padding-bottom: 4px; flex-wrap: wrap; gap:10px; }
@@ -55,7 +55,7 @@
     .split-table th:nth-child(5), .split-table td:nth-child(5) { width: 18%; } 
     .split-table th:nth-child(6), .split-table td:nth-child(6) { width: 11%; } 
     .split-table th:nth-child(7), .split-table td:nth-child(7) { width: 16%; } 
-    
+
     .text-left-merged { text-align: left !important; font-weight: bold; padding-left: 6px !important; }
     .table1-header { background-color: #217346 !important; color: #ffffff !important; border-left: 1px solid #185232 !important; border-right: 1px solid #185232 !important; }
     .table2-header { background-color: #2b5797 !important; color: #ffffff !important; border-left: 1px solid #1e3f6e !important; border-right: 1px solid #1e3f6e !important; }
@@ -89,7 +89,7 @@
         box-shadow: 0 8px 25px rgba(0,0,0,0.08); 
     }
     #genel-tablo-table th { 
-        background-color: #21438b !important; /* Görseldeki Tok Lacivert Renk Sabitlendi */
+        background-color: #21438b !important; 
         color: #ffffff !important; 
         padding: 16px 15px !important; 
         font-size: 15.5px !important; 
@@ -124,11 +124,11 @@
     .tavsiye-cell { font-weight: bold; text-align: left !important; width: 1%; }
     .text-left { text-align: left; font-weight: bold; }
     .data-bold { font-weight: bold; }
-    
-    /* STANDART RENK SINIFLARI (Tüm sayfalarda ortaktır) */
+
+    /* STANDART RENK SINIFLARI */
     .bg-yesil-dolu { background-color: #15803D !important; color: #ffffff !important; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.6); }
     .bg-kirmizi-dolu { background-color: #DC2626 !important; color: #ffffff !important; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.6); }
-    
+
     .alt-hesap-hucre { font-weight: bold; font-size: 12px; }
     .bosluk-satiri td { height: 18px !important; border: none !important; background-color: transparent !important; }
     #loading { margin: 15px; font-weight: bold; color: #274e37; font-size: 13px; text-align: center; }
@@ -210,7 +210,7 @@
     }
 
     function arkaPlanRenkSinifiAl(deger) {
-      if (!deger || deger === "0,00TL" || deger === "0,00" || deger === "0%") return "";
+      if (!deger || deger === "0,00TL" || deger === "0,00" || deger === "0%" || deger === "-") return "";
       var t = deger.toString().replace(/%/g, "").replace(/\./g, "").replace(/,/g, ".").trim();
       var s = parseFloat(t);
       if (isNaN(s)) return deger.toString().indexOf("-") > -1 ? "bg-kirmizi-dolu" : "";
@@ -230,13 +230,13 @@
              d.indexOf("#N/A") > -1 || d.indexOf("YOK") > -1 || d.indexOf("LOADING") > -1 ||
              d.indexOf("#REF") > -1 || d.indexOf("#VALUE") > -1 || d.indexOf("#DEĞER") > -1 ||
              d.indexOf("#BAŞV") > -1 || d.indexOf("#DIV/0") > -1 || d.indexOf("#ERROR") > -1 ||
-             d.indexOf("#NAME") > -1;
+             d.indexOf("#NAME") > -1 || d === "-";
     }
 
     window.sonGecerliVeriler = window.sonGecerliVeriler || {};
 
     function yuzdeFormatla(deger) {
-      if (!deger || deger === "Veri Bekleniyor...") return deger;
+      if (!deger || deger === "Veri Bekleniyor..." || deger === "-") return deger;
       if (deger.toString().indexOf("%") > -1) return deger;
       var sayi = parseFloat(deger.toString().replace(/,/g, '.'));
       if (isNaN(sayi)) return deger;
@@ -346,7 +346,8 @@
       s = s.replace(',', '.');
       return parseFloat(s) || 0;
     }
-    
+
+    // YENİ OTOPİLOT - SIFIR HATA TOLERANSLI GENEL TABLO ÇİZİM FONKSİYONU
     function genelTabloCiz(veriler, dunkuVeriler, tabloId) {
       var table = document.getElementById(tabloId);
       if (!table) return;
@@ -359,7 +360,7 @@
       veriler.forEach(function(row, rIdx) {
         var dunRow = (dunkuVeriler && dunkuVeriler[rIdx]) ? dunkuVeriler[rIdx] : [];
         var tr = document.createElement('tr');
-        
+
         if (rIdx === 0) {
           tr.innerHTML = '<th>' + (row[0] || "") + '</th>' +
                          '<th>TUTARLAR (TL | DOLAR | ALTIN)</th>' +
@@ -376,82 +377,82 @@
 
           var td1 = document.createElement('td');
           td1.style.backgroundColor = "#ffffff";
-          
-          // ZIRH 2: Ön Yüz Hata Ayıklaması
+
           var tlTutar = row[1] ? row[1].toString().trim() : "";
           var dolarTutar = row[2] ? row[2].toString().trim() : "";
           var altinTutar = row[3] ? row[3].toString().trim() : "";
-          
-          if (gecersizMi(tlTutar)) tlTutar = "Bekleniyor...";
-          if (gecersizMi(dolarTutar)) dolarTutar = "Bekleniyor...";
-          if (gecersizMi(altinTutar)) altinTutar = "Bekleniyor...";
-          
-          if (dolarTutar !== "Bekleniyor..." && dolarTutar !== "" && dolarTutar.indexOf("DOLAR") === -1) dolarTutar += " DOLAR";
-          if (altinTutar !== "Bekleniyor..." && altinTutar !== "" && altinTutar.indexOf("ALTIN") === -1) altinTutar += " ALTIN";
+
+          // OTOPİLOT KORUMASI: Canlı veri yoksa, dünkü sağlam kapanış rakamlarına yaslan
+          if (gecersizMi(tlTutar)) tlTutar = dunRow[1] || "0,00";
+          if (gecersizMi(dolarTutar)) dolarTutar = dunRow[2] || "0,00";
+          if (gecersizMi(altinTutar)) altinTutar = dunRow[3] || "0,00";
+
+          if (dolarTutar !== "0,00" && dolarTutar.indexOf("DOLAR") === -1) dolarTutar += " DOLAR";
+          if (altinTutar !== "0,00" && altinTutar.indexOf("ALTIN") === -1) altinTutar += " ALTIN";
 
           td1.innerHTML = '<div style="font-size: 16px; font-weight: 900; color: #1e3c72; line-height: 1.4;">' + tlTutar + '</div>' + 
                           '<div style="font-size: 12.5px; font-weight: 800; color: #00897b; line-height: 1.4;">' + dolarTutar + '</div>' + 
                           '<div style="font-size: 12.5px; font-weight: 800; color: #d84315; line-height: 1.4;">' + altinTutar + '</div>';
           tr.appendChild(td1);
 
-          // GÜNLÜK DEĞİŞİM SÜTUNU
+          // GÜNLÜK DEĞİŞİM SÜTUNU HESAPLAMASI
           var td2 = document.createElement('td');
-          var b = parseSayi(row[1]);
+          var b = parseSayi(tlTutar);
           var d = parseSayi(dunRow[1] || "0");
 
-          if (d === 0 || gecersizMi(row[1])) {
-             td2.innerHTML = '<span style="color:#888; font-size:12px; font-weight:bold;">Bekleniyor...</span>';
-             td2.style.backgroundColor = "#ffffff";
+          if (d === 0 || b === d) {
+              td2.innerHTML = '<span style="color:#888; font-size:13px; font-weight:bold;">Değişim Yok</span>';
+              td2.style.backgroundColor = "#ffffff";
           } else {
-             var farkTL = b - d;
-             var farkYuzde = (farkTL / d) * 100;
-             
-             if (Math.abs(farkTL) < 1) {
-                 td2.innerHTML = '<span style="color:#888; font-size:13px; font-weight:bold;">Değişim Yok</span>';
-                 td2.style.backgroundColor = "#ffffff";
-             } else {
-                 var isaret = farkTL > 0 ? "▲ +" : "▼ ";
-                 var strTL = Math.abs(farkTL).toLocaleString('tr-TR', {minimumFractionDigits: 0, maximumFractionDigits: 2});
-                 var strYuzde = Math.abs(farkYuzde).toLocaleString('tr-TR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+              var farkTL = b - d;
+              var farkYuzde = (farkTL / d) * 100;
 
-                 td2.innerHTML = '<div style="font-size: 15px; font-weight: 900; margin-bottom: 2px;">' + isaret + strTL + ' TL</div>' +
-                                 '<div style="font-size: 13px; font-weight: 800;">' + isaret + '%' + strYuzde + '</div>';
-                 
-                 if (farkTL > 0) {
-                     td2.style.color = "#1b5e20";
-                     td2.style.backgroundColor = "#e8f5e9";
-                 } else {
-                     td2.style.color = "#b71c1c";
-                     td2.style.backgroundColor = "#ffebee";
-                 }
-             }
+              if (Math.abs(farkTL) < 1) {
+                  td2.innerHTML = '<span style="color:#888; font-size:13px; font-weight:bold;">Değişim Yok</span>';
+                  td2.style.backgroundColor = "#ffffff";
+              } else {
+                  var isaret = farkTL > 0 ? "▲ +" : "▼ ";
+                  var strTL = Math.abs(farkTL).toLocaleString('tr-TR', {minimumFractionDigits: 0, maximumFractionDigits: 2});
+                  var strYuzde = Math.abs(farkYuzde).toLocaleString('tr-TR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+                  td2.innerHTML = '<div style="font-size: 15px; font-weight: 900; margin-bottom: 2px;">' + isaret + strTL + ' TL</div>' +
+                                  '<div style="font-size: 13px; font-weight: 800;">' + isaret + '%' + strYuzde + '</div>';
+
+                  if (farkTL > 0) {
+                      td2.style.color = "#1b5e20";
+                      td2.style.backgroundColor = "#e8f5e9";
+                  } else {
+                      td2.style.color = "#b71c1c";
+                      td2.style.backgroundColor = "#ffebee";
+                  }
+              }
           }
           td2.style.verticalAlign = "middle";
           tr.appendChild(td2);
 
-          // K/Z Sütunu
+          // K/Z Sütunu (Hata varsa kapanış kar/zararını gösterir, boş bırakmaz)
           var td4 = document.createElement('td');
           var v4 = row[4] ? row[4].toString().trim() : "";
-          if (gecersizMi(v4)) { v4 = "Bekleniyor..."; td4.style.color = "#888"; td4.style.backgroundColor = "#ffffff"; }
+          if (gecersizMi(v4)) { v4 = dunRow[4] || "0,00"; }
           td4.innerText = v4;
           td4.style.fontSize = "16px";
           td4.style.fontWeight = "900";
-          var bgClass4 = arkaPlanRenkSinifiAl(row[4]);
-          if (v4 !== "Bekleniyor...") {
+          var bgClass4 = arkaPlanRenkSinifiAl(v4);
+          if (v4 !== "0,00" && v4 !== "-") {
             if (bgClass4 === "bg-yesil-dolu") { td4.style.color = "#1b5e20"; td4.style.backgroundColor = "#e8f5e9"; }
             else if (bgClass4 === "bg-kirmizi-dolu") { td4.style.color = "#b71c1c"; td4.style.backgroundColor = "#ffebee"; }
           }
           tr.appendChild(td4);
 
-          // K/Z% Sütunu
+          // K/Z% Sütunu (Hata varsa kapanış kar/zarar yüzdesini gösterir)
           var td5 = document.createElement('td');
           var v5 = row[5] ? row[5].toString().trim() : "";
-          if (gecersizMi(v5)) { v5 = "Bekleniyor..."; td5.style.color = "#888"; td5.style.backgroundColor = "#ffffff"; }
+          if (gecersizMi(v5)) { v5 = dunRow[5] || "%0,00"; }
           td5.innerText = v5;
           td5.style.fontSize = "16px";
           td5.style.fontWeight = "900";
-          var bgClass5 = arkaPlanRenkSinifiAl(row[5]);
-          if (v5 !== "Bekleniyor...") {
+          var bgClass5 = arkaPlanRenkSinifiAl(v5);
+          if (v5 !== "%0,00" && v5 !== "-") {
             if (bgClass5 === "bg-yesil-dolu") { td5.style.color = "#1b5e20"; td5.style.backgroundColor = "#e8f5e9"; }
             else if (bgClass5 === "bg-kirmizi-dolu") { td5.style.color = "#b71c1c"; td5.style.backgroundColor = "#ffebee"; }
           }
@@ -535,7 +536,7 @@
 
           window.tümHisseler = (data.acilirListe && data.acilirListe.length > 0) ? data.acilirListe : [];
           var aktifEleman = document.activeElement; var aktifTag = aktifEleman ? aktifEleman.tagName.toUpperCase() : ""; var isEditing = (aktifTag === 'INPUT' || aktifTag === 'SELECT');
-          
+
           var anasayfaOdakliMi = isEditing && ((document.getElementById('anasayfa-body') && document.getElementById('anasayfa-body').contains(aktifEleman)) || (document.getElementById('anasayfa-split-left-body') && document.getElementById('anasayfa-split-left-body').contains(aktifEleman)) || (document.getElementById('anasayfa-split-right-body') && document.getElementById('anasayfa-split-right-body').contains(aktifEleman)));
           var temettuOdakliMi = document.getElementById('temettu-tab-container') && document.getElementById('temettu-tab-container').contains(aktifEleman) && isEditing;
           var hisseAlimiOdakliMi = document.getElementById('hisse-alimi-table') && document.getElementById('hisse-alimi-table').contains(aktifEleman) && isEditing;
@@ -557,7 +558,7 @@
             var abody = document.getElementById('anasayfa-body'); abody.innerHTML = '';
             var slBody = document.getElementById('anasayfa-split-left-body'); slBody.innerHTML = '';
             var srBody = document.getElementById('anasayfa-split-right-body'); srBody.innerHTML = '';
-            
+
             document.getElementById('anasayfa-split-container').style.display = 'flex';
 
             if (data.anasayfa.satirlar) {
@@ -583,10 +584,10 @@
                 var tdHisse = document.createElement('td'); tdHisse.className = "hisse-cell";
                 if (dropdownGecildi) { var select = createHisseDropdown(hisseAdi, "ANASAYFA", r[9], 1); tdHisse.appendChild(select); } else { tdHisse.innerText = hisseAdi; }
                 tr.appendChild(tdHisse);
-                
+
                 var tdB = document.createElement('td'); tdB.className = "bold-cell"; tdB.innerText = bGoster; tr.appendChild(tdB);
                 var tdC = document.createElement('td'); tdC.className = "bold-cell"; tdC.innerText = rsiGoster; tr.appendChild(tdC);
-                
+
                 if (!dropdownGecildi) {
                   var tdH = document.createElement('td'); tdH.className = "ortalamalar-cell"; tdH.innerText = ortGoster; tr.appendChild(tdH);
                   var tdI = document.createElement('td'); tdI.className = "gunort-cell"; tdI.innerText = gunSGoster; tr.appendChild(tdI);
