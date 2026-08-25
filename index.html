@@ -188,7 +188,6 @@
   </div>
 
   <script>
-    // YENİ DAĞITIM LİNKİNİZ EKLENDİ
     const API_URL = "https://script.google.com/macros/s/AKfycbzkk6l2j9rY6hkvAkWLOAbVNZdLR093UXAcv7PW7WRfwe8eEgxSIu-4Ci872kjNw6oCcQ/exec";
     let API_SIFRE = sessionStorage.getItem("pusu_sifre") || "";
 
@@ -223,6 +222,7 @@
       return m.toString().replace(/İ/g, "I").replace(/ı/g, "i").replace(/Ş/g, "S").replace(/ş/g, "s").replace(/Ğ/g, "G").replace(/ğ/g, "g").replace(/Ç/g, "C").replace(/ç/g, "c").replace(/Ö/g, "O").replace(/ö/g, "o").replace(/Ü/g, "U").replace(/ü/g, "u").trim().toUpperCase();
     }
 
+    // TAMAMEN SİZİN İLK VERDİĞİNİZ ORİJİNAL HATA KONTROLÜ
     function gecersizMi(deger) {
       if (deger === null || deger === undefined) return true;
       var d = deger.toString().trim().toUpperCase();
@@ -348,7 +348,7 @@
       return parseFloat(s) || 0;
     }
 
-    // YENİ MUTLAK SIFIR KORUMALI GENEL TABLO ÇİZİM FONKSİYONU
+    // GENEL TABLO İÇİN YAZILAN MUTLAK KORUMA
     function genelTabloCiz(veriler, dunkuVeriler, tabloId) {
       var table = document.getElementById(tabloId);
       if (!table) return;
@@ -358,7 +358,6 @@
       var thead = document.createElement('thead');
       var tbody = document.createElement('tbody');
 
-      // MUTLAK KORUMA
       var sifirMi = function(deger) {
           if (!deger) return true;
           var sayi = parseFloat(deger.toString().replace(/\./g, '').replace(',', '.'));
@@ -390,7 +389,6 @@
           var dolarTutar = row[2] ? row[2].toString().trim() : "";
           var altinTutar = row[3] ? row[3].toString().trim() : "";
 
-          // ZIRH DEVREDE: Eğer canlı veri 0 veya hata gelirse, dünkü sağlam veriyi zorla çek
           if (gecersizMi(tlTutar) || sifirMi(tlTutar)) {
               tlTutar = (dunRow && dunRow[1] && !sifirMi(dunRow[1])) ? dunRow[1] : tlTutar;
           }
