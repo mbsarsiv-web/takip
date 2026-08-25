@@ -222,6 +222,7 @@
       return m.toString().replace(/İ/g, "I").replace(/ı/g, "i").replace(/Ş/g, "S").replace(/ş/g, "s").replace(/Ğ/g, "G").replace(/ğ/g, "g").replace(/Ç/g, "C").replace(/ç/g, "c").replace(/Ö/g, "O").replace(/ö/g, "o").replace(/Ü/g, "U").replace(/ü/g, "u").trim().toUpperCase();
     }
 
+    // ZIRH EKLENDİ: EŞLEŞMEDİ VE ALINAMADI GİBİ METİNLERİ HATA OLARAK TANIMLADIK
     function gecersizMi(deger) {
       if (deger === null || deger === undefined) return true;
       var d = deger.toString().trim().toUpperCase();
@@ -230,7 +231,8 @@
              d.indexOf("#N/A") > -1 || d.indexOf("YOK") > -1 || d.indexOf("LOADING") > -1 ||
              d.indexOf("#REF") > -1 || d.indexOf("#VALUE") > -1 || d.indexOf("#DEĞER") > -1 ||
              d.indexOf("#BAŞV") > -1 || d.indexOf("#DIV/0") > -1 || d.indexOf("#ERROR") > -1 ||
-             d.indexOf("#NAME") > -1 || d === "-";
+             d.indexOf("#NAME") > -1 || d === "-" ||
+             d.indexOf("EŞLEŞMEDİ") > -1 || d.indexOf("ESLESMEDI") > -1 || d.indexOf("ALINAMADI") > -1 || d.indexOf("HATA") > -1;
     }
 
     window.sonGecerliVeriler = window.sonGecerliVeriler || {};
@@ -347,6 +349,7 @@
       return parseFloat(s) || 0;
     }
 
+    // GENEL TABLO İÇİN ZIRH (SIFIR GÖSTERMEME) EKLENDİ
     function genelTabloCiz(veriler, dunkuVeriler, tabloId) {
       var table = document.getElementById(tabloId);
       if (!table) return;
@@ -355,6 +358,12 @@
 
       var thead = document.createElement('thead');
       var tbody = document.createElement('tbody');
+
+      var sifirMi = function(deger) {
+          if (!deger) return true;
+          var sayi = parseFloat(deger.toString().replace(/\./g, '').replace(',', '.'));
+          return isNaN(sayi) || sayi === 0;
+      };
 
       veriler.forEach(function(row, rIdx) {
         var dunRow = (dunkuVeriler && dunkuVeriler[rIdx]) ? dunkuVeriler[rIdx] : [];
@@ -381,10 +390,16 @@
           var dolarTutar = row[2] ? row[2].toString().trim() : "";
           var altinTutar = row[3] ? row[3].toString().trim() : "";
 
-          // OTOPİLOT KORUMASI: Canlı veri yoksa, dünkü sağlam kapanış rakamlarına yaslan
-          if (gecersizMi(tlTutar)) tlTutar = dunRow[1] || "0,00";
-          if (gecersizMi(dolarTutar)) dolarTutar = dunRow[2] || "0,00";
-          if (gecersizMi(altinTutar)) altinTutar = dunRow[3] || "0,00";
+          // ZIRH DEVREDE
+          if (gecersizMi(tlTutar) || sifirMi(tlTutar)) {
+              tlTutar = (dunRow && dunRow[1] && !sifirMi(dunRow[1])) ? dunRow[1] : tlTutar;
+          }
+          if (gecersizMi(dolarTutar) || sifirMi(dolarTutar)) {
+              dolarTutar = (dunRow && dunRow[2] && !sifirMi(dunRow[2])) ? dunRow[2] : dolarTutar;
+          }
+          if (gecersizMi(altinTutar) || sifirMi(altinTutar)) {
+              altinTutar = (dunRow && dunRow[3] && !sifirMi(dunRow[3])) ? dunRow[3] : altinTutar;
+          }
 
           if (dolarTutar !== "0,00" && dolarTutar.indexOf("DOLAR") === -1) dolarTutar += " DOLAR";
           if (altinTutar !== "0,00" && altinTutar.indexOf("ALTIN") === -1) altinTutar += " ALTIN";
@@ -394,7 +409,6 @@
                           '<div style="font-size: 12.5px; font-weight: 800; color: #d84315; line-height: 1.4;">' + altinTutar + '</div>';
           tr.appendChild(td1);
 
-          // GÜNLÜK DEĞİŞİM SÜTUNU HESAPLAMASI
           var td2 = document.createElement('td');
           var b = parseSayi(tlTutar);
           var d = parseSayi(dunRow[1] || "0");
@@ -405,7 +419,6 @@
           } else {
               var farkTL = b - d;
               var farkYuzde = (farkTL / d) * 100;
-
               if (Math.abs(farkTL) < 1) {
                   td2.innerHTML = '<span style="color:#888; font-size:13px; font-weight:bold;">Değişim Yok</span>';
                   td2.style.backgroundColor = "#ffffff";
@@ -413,23 +426,15 @@
                   var isaret = farkTL > 0 ? "▲ +" : "▼ ";
                   var strTL = Math.abs(farkTL).toLocaleString('tr-TR', {minimumFractionDigits: 0, maximumFractionDigits: 2});
                   var strYuzde = Math.abs(farkYuzde).toLocaleString('tr-TR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-
                   td2.innerHTML = '<div style="font-size: 15px; font-weight: 900; margin-bottom: 2px;">' + isaret + strTL + ' TL</div>' +
                                   '<div style="font-size: 13px; font-weight: 800;">' + isaret + '%' + strYuzde + '</div>';
-
-                  if (farkTL > 0) {
-                      td2.style.color = "#1b5e20";
-                      td2.style.backgroundColor = "#e8f5e9";
-                  } else {
-                      td2.style.color = "#b71c1c";
-                      td2.style.backgroundColor = "#ffebee";
-                  }
+                  if (farkTL > 0) { td2.style.color = "#1b5e20"; td2.style.backgroundColor = "#e8f5e9"; } 
+                  else { td2.style.color = "#b71c1c"; td2.style.backgroundColor = "#ffebee"; }
               }
           }
           td2.style.verticalAlign = "middle";
           tr.appendChild(td2);
 
-          // K/Z Sütunu (Hata varsa kapanış kar/zararını gösterir, boş bırakmaz)
           var td4 = document.createElement('td');
           var v4 = row[4] ? row[4].toString().trim() : "";
           if (gecersizMi(v4)) { v4 = dunRow[4] || "0,00"; }
@@ -443,7 +448,6 @@
           }
           tr.appendChild(td4);
 
-          // K/Z% Sütunu (Hata varsa kapanış kar/zarar yüzdesini gösterir)
           var td5 = document.createElement('td');
           var v5 = row[5] ? row[5].toString().trim() : "";
           if (gecersizMi(v5)) { v5 = dunRow[5] || "%0,00"; }
