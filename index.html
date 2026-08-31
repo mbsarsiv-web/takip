@@ -347,7 +347,7 @@
       return parseFloat(s) || 0;
     }
 
-    function genelTabloCiz(veriler, dunkuVeriler, tabloId) {
+    function genelTabloCiz(veriler, dunkuVeriler, tabloId, tumVeri) {
       var table = document.getElementById(tabloId);
       if (!table) return;
       table.innerHTML = '';
@@ -359,6 +359,7 @@
       veriler.forEach(function(row, rIdx) {
         var dunRow = (dunkuVeriler && dunkuVeriler[rIdx]) ? dunkuVeriler[rIdx] : [];
         var tr = document.createElement('tr');
+        var satirIsmi = row[0] ? row[0].toString().trim().toUpperCase() : "";
 
         if (rIdx === 0) {
           tr.innerHTML = '<th>' + (row[0] || "") + '</th>' +
@@ -376,7 +377,6 @@
 
           var td1 = document.createElement('td');
           td1.style.backgroundColor = "#ffffff";
-
           var tlTutar = row[1] ? row[1].toString().trim() : "";
           var dolarTutar = row[2] ? row[2].toString().trim() : "";
           var altinTutar = row[3] ? row[3].toString().trim() : "";
@@ -384,7 +384,6 @@
           if (gecersizMi(tlTutar)) tlTutar = dunRow[1] || "0,00";
           if (gecersizMi(dolarTutar)) dolarTutar = dunRow[2] || "0,00";
           if (gecersizMi(altinTutar)) altinTutar = dunRow[3] || "0,00";
-
           if (dolarTutar !== "0,00" && dolarTutar.indexOf("DOLAR") === -1) dolarTutar += " DOLAR";
           if (altinTutar !== "0,00" && altinTutar.indexOf("ALTIN") === -1) altinTutar += " ALTIN";
 
@@ -396,15 +395,47 @@
           var td2 = document.createElement('td');
           var b = parseSayi(tlTutar);
           var d = parseSayi(dunRow[1] || "0");
+          
+          var farkTL = b - d; 
+          var gercekDegisimBulundu = false;
 
-          if (d === 0 || b === d) {
+          if (tumVeri) {
+              var hisseFark = 0, fonFark = 0;
+              
+              if (tumVeri.maliyetHisse && tumVeri.maliyetHisse.altHesaplamalar) {
+                  var gkzSutunHisse = -1;
+                  tumVeri.maliyetHisse.basliklar.forEach(function(baslik, i) { if (turkceKarakterTemizle(baslik).indexOf("GUNLUK") > -1) gkzSutunHisse = i; });
+                  if (gkzSutunHisse > -1 && tumVeri.maliyetHisse.altHesaplamalar.length > 0) {
+                      hisseFark = parseSayi(tumVeri.maliyetHisse.altHesaplamalar[0][gkzSutunHisse]);
+                  }
+              }
+              
+              if (tumVeri.maliyetFon && tumVeri.maliyetFon.altHesaplamalar) {
+                  var gkzSutunFon = -1;
+                  tumVeri.maliyetFon.basliklar.forEach(function(baslik, i) { if (turkceKarakterTemizle(baslik).indexOf("GUNLUK") > -1) gkzSutunFon = i; });
+                  if (gkzSutunFon > -1 && tumVeri.maliyetFon.altHesaplamalar.length > 0) {
+                      fonFark = parseSayi(tumVeri.maliyetFon.altHesaplamalar[0][gkzSutunFon]);
+                  }
+              }
+
+              if (satirIsmi === "HİSSELER" && hisseFark !== 0) {
+                  farkTL = hisseFark; gercekDegisimBulundu = true;
+              } else if (satirIsmi === "FONLAR" && fonFark !== 0) {
+                  farkTL = fonFark; gercekDegisimBulundu = true;
+              } else if (satirIsmi === "TOPLAM") {
+                  farkTL = hisseFark + fonFark;
+                  if (farkTL !== 0) gercekDegisimBulundu = true;
+              }
+          }
+
+          if (!gercekDegisimBulundu && (d === 0 || b === d)) {
               td2.innerHTML = '<span style="color:#888; font-size:13px; font-weight:bold;">Değişim Yok</span>';
               td2.style.backgroundColor = "#ffffff";
           } else {
-              var farkTL = b - d;
-              var farkYuzde = (farkTL / d) * 100;
+              var dGercek = b - farkTL; 
+              var farkYuzde = dGercek !== 0 ? (farkTL / dGercek) * 100 : 0;
 
-              if (Math.abs(farkTL) < 1) {
+              if (Math.abs(farkTL) < 0.01) {
                   td2.innerHTML = '<span style="color:#888; font-size:13px; font-weight:bold;">Değişim Yok</span>';
                   td2.style.backgroundColor = "#ffffff";
               } else {
@@ -416,11 +447,9 @@
                                   '<div style="font-size: 13px; font-weight: 800;">' + isaret + '%' + strYuzde + '</div>';
 
                   if (farkTL > 0) {
-                      td2.style.color = "#1b5e20";
-                      td2.style.backgroundColor = "#e8f5e9";
+                      td2.style.color = "#1b5e20"; td2.style.backgroundColor = "#e8f5e9";
                   } else {
-                      td2.style.color = "#b71c1c";
-                      td2.style.backgroundColor = "#ffebee";
+                      td2.style.color = "#b71c1c"; td2.style.backgroundColor = "#ffebee";
                   }
               }
           }
@@ -430,9 +459,7 @@
           var td4 = document.createElement('td');
           var v4 = row[4] ? row[4].toString().trim() : "";
           if (gecersizMi(v4)) { v4 = dunRow[4] || "0,00"; }
-          td4.innerText = v4;
-          td4.style.fontSize = "16px";
-          td4.style.fontWeight = "900";
+          td4.innerText = v4; td4.style.fontSize = "16px"; td4.style.fontWeight = "900";
           var bgClass4 = arkaPlanRenkSinifiAl(v4);
           if (v4 !== "0,00" && v4 !== "-") {
             if (bgClass4 === "bg-yesil-dolu") { td4.style.color = "#1b5e20"; td4.style.backgroundColor = "#e8f5e9"; }
@@ -443,16 +470,13 @@
           var td5 = document.createElement('td');
           var v5 = row[5] ? row[5].toString().trim() : "";
           if (gecersizMi(v5)) { v5 = dunRow[5] || "%0,00"; }
-          td5.innerText = v5;
-          td5.style.fontSize = "16px";
-          td5.style.fontWeight = "900";
+          td5.innerText = v5; td5.style.fontSize = "16px"; td5.style.fontWeight = "900";
           var bgClass5 = arkaPlanRenkSinifiAl(v5);
           if (v5 !== "%0,00" && v5 !== "-") {
             if (bgClass5 === "bg-yesil-dolu") { td5.style.color = "#1b5e20"; td5.style.backgroundColor = "#e8f5e9"; }
             else if (bgClass5 === "bg-kirmizi-dolu") { td5.style.color = "#b71c1c"; td5.style.backgroundColor = "#ffebee"; }
           }
           tr.appendChild(td5);
-
           tbody.appendChild(tr);
         }
       });
@@ -530,7 +554,9 @@
           document.getElementById('loading').style.display = 'none';
 
           window.tümHisseler = (data.acilirListe && data.acilirListe.length > 0) ? data.acilirListe : [];
-          var aktifEleman = document.activeElement; var aktifTag = aktifEleman ? aktifEleman.tagName.toUpperCase() : ""; var isEditing = (aktifTag === 'INPUT' || aktifTag === 'SELECT');
+          var aktifEleman = document.activeElement; 
+          var aktifTag = aktifEleman ? aktifEleman.tagName.toUpperCase() : ""; 
+          var isEditing = (aktifTag === 'INPUT' || aktifTag === 'SELECT');
 
           var anasayfaOdakliMi = isEditing && ((document.getElementById('anasayfa-body') && document.getElementById('anasayfa-body').contains(aktifEleman)) || (document.getElementById('anasayfa-split-left-body') && document.getElementById('anasayfa-split-left-body').contains(aktifEleman)) || (document.getElementById('anasayfa-split-right-body') && document.getElementById('anasayfa-split-right-body').contains(aktifEleman)));
           var temettuOdakliMi = document.getElementById('temettu-tab-container') && document.getElementById('temettu-tab-container').contains(aktifEleman) && isEditing;
@@ -565,13 +591,13 @@
 
                 var bGecerliMi     = !gecersizMi(r[1]); var rsiGecerliMi   = !gecersizMi(r[2]); var ortGecerliMi   = !gecersizMi(r[3]); var gunSGecerliMi  = !gecersizMi(r[4]); var tavsGecerliMi  = !gecersizMi(r[5]); var hedefGecerliMi = !gecersizMi(r[6]); var hacimGecerliMi = !gecersizMi(r[7]); var degisimGecerliMi = !gecersizMi(r[8]);
                 var bGoster       = bGecerliMi     ? r[1] : (onceki.b        !== undefined ? onceki.b        : r[1]);
-                var rsiGoster     = rsiGecerliMi   ? r[2] : (onceki.rsi      !== undefined ? onceki.rsi      : "Bekleniyor..");
-                var ortGoster     = ortGecerliMi   ? r[3] : (onceki.ort      !== undefined ? onceki.ort      : r[3]);
-                var gunSGoster    = gunSGecerliMi  ? r[4] : (onceki.gunS     !== undefined ? onceki.gunS     : r[4]);
-                var tavsiyeGoster = tavsGecerliMi  ? r[5] : (onceki.tavs     !== undefined ? onceki.tavs     : "Bekleniyor..");
-                var hedefGoster   = hedefGecerliMi ? r[6] : (onceki.hedef    !== undefined ? onceki.hedef    : r[6]);
-                var hacimGoster   = hacimGecerliMi ? r[7] : (onceki.hacim    !== undefined ? onceki.hacim    : r[7]);
-                var degisimGoster = degisimGecerliMi ? r[8] : (onceki.degisim !== undefined ? onceki.degisim : r[8]);
+                var rsiGoster     = rsiGecerliMi   ? r[2] : (onceki.rsi       !== undefined ? onceki.rsi      : "Bekleniyor..");
+                var ortGoster     = ortGecerliMi   ? r[3] : (onceki.ort       !== undefined ? onceki.ort      : r[3]);
+                var gunSGoster    = gunSGecerliMi  ? r[4] : (onceki.gunS      !== undefined ? onceki.gunS     : r[4]);
+                var tavsiyeGoster = tavsGecerliMi  ? r[5] : (onceki.tavs      !== undefined ? onceki.tavs     : "Bekleniyor..");
+                var hedefGoster   = hedefGecerliMi ? r[6] : (onceki.hedef     !== undefined ? onceki.hedef    : r[6]);
+                var hacimGoster   = hacimGecerliMi ? r[7] : (onceki.hacim     !== undefined ? onceki.hacim    : r[7]);
+                var degisimGoster = degisimGecerliMi ? r[8] : (onceki.degisim !== undefined ? onceki.degisim  : r[8]);
 
                 window.sonGecerliVeriler[anahtarKey] = { b: bGecerliMi ? r[1] : onceki.b, rsi: rsiGecerliMi ? r[2] : onceki.rsi, ort: ortGecerliMi ? r[3] : onceki.ort, gunS: gunSGecerliMi ? r[4] : onceki.gunS, tavs: tavsGecerliMi ? r[5] : onceki.tavs, hedef: hedefGecerliMi ? r[6] : onceki.hedef, hacim: hacimGecerliMi ? r[7] : onceki.hacim, degisim: degisimGecerliMi ? r[8] : onceki.degisim };
 
@@ -603,7 +629,7 @@
 
           if (data.maliyetHisse) tabloOlustur(data.maliyetHisse, 'maliyet-hisse-headers', 'maliyet-hisse-body');
           if (data.maliyetFon) tabloOlustur(data.maliyetFon, 'maliyet-fon-headers', 'maliyet-fon-body');
-          if (data.genelTablo) { genelTabloCiz(data.genelTablo, data.genelTabloDun, 'genel-tablo-table'); }
+          if (data.genelTablo) { genelTabloCiz(data.genelTablo, data.genelTabloDun, 'genel-tablo-table', data); }
           if (data.temettuHesaplama && !temettuOdakliMi) { temettuTablosuCiz(data.temettuHesaplama); }
           if (data.hisseAlimi && !hisseAlimiOdakliMi) { hamTabloCiz(data.hisseAlimi, 'hisse-alimi-table'); }
 
