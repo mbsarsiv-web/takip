@@ -175,13 +175,13 @@
 
     <div id="anasayfa-tab" class="tab-content active">
       <div class="table-container">
-        <!-- ÜST TABLO (16 Hisse - 8 Sol, 8 Sağ) -->
+        <!-- ÜST TABLO (Hisse - Sol/Sağ orantılı) -->
         <div class="split-table-container" id="anasayfa-top-split-container" style="margin-bottom: 15px;">
           <table class="split-table-top"><thead id="anasayfa-top-split-left-headers"></thead><tbody id="anasayfa-top-split-left-body"></tbody></table>
           <table class="split-table-top"><thead id="anasayfa-top-split-right-headers"></thead><tbody id="anasayfa-top-split-right-body"></tbody></table>
         </div>
 
-        <!-- ALT TABLO (Açılır Listeli İkiye Bölünmüş) -->
+        <!-- ALT TABLO (Açılır Listeli İkiye Bölünmüş - orantılı) -->
         <div class="split-table-container" id="anasayfa-split-container" style="display:none;">
           <table class="split-table"><thead id="anasayfa-split-left-headers"></thead><tbody id="anasayfa-split-left-body"></tbody></table>
           <table class="split-table"><thead id="anasayfa-split-right-headers"></thead><tbody id="anasayfa-split-right-body"></tbody></table>
@@ -551,6 +551,70 @@
       container.appendChild(table1); container.appendChild(table2);
     }
 
+    /**
+     * Anasayfa üst/alt bloklar için tek bir <tr> satırı üretir.
+     * altMi=false ise üst blok (HİSSE, FİYAT, RSI, GÜN.ORT., TAVSİYE) düzeninde,
+     * altMi=true ise alt blok (dropdown, HEDEF, HACİM, GÜN.DEĞİŞİM) düzeninde satır oluşturur.
+     */
+    function anasayfaSatiriOlustur(r, altMi) {
+      var hisseAdi = r[0];
+      var bolgeKey = (r[9] >= 20) ? "ALT" : "UST";
+      var anahtarKey = hisseAdi + "_" + bolgeKey;
+      var onceki = window.sonGecerliVeriler[anahtarKey] || {};
+
+      var bGecerliMi     = !gecersizMi(r[1]);
+      var rsiGecerliMi   = !gecersizMi(r[2]);
+      var ortGecerliMi   = !gecersizMi(r[3]);
+      var gunSGecerliMi  = !gecersizMi(r[4]);
+      var tavsGecerliMi  = !gecersizMi(r[5]);
+      var hedefGecerliMi = !gecersizMi(r[6]);
+      var hacimGecerliMi = !gecersizMi(r[7]);
+      var degisimGecerliMi = !gecersizMi(r[8]);
+
+      var bGoster       = bGecerliMi     ? r[1] : (onceki.b        !== undefined ? onceki.b       : r[1]);
+      var rsiGoster     = rsiGecerliMi   ? r[2] : (onceki.rsi       !== undefined ? onceki.rsi      : "Bekleniyor..");
+      var gunSGoster    = gunSGecerliMi  ? r[4] : (onceki.gunS      !== undefined ? onceki.gunS     : r[4]);
+      var tavsiyeGoster = tavsGecerliMi  ? r[5] : (onceki.tavs      !== undefined ? onceki.tavs     : "Bekleniyor..");
+      var hedefGoster   = hedefGecerliMi ? r[6] : (onceki.hedef     !== undefined ? onceki.hedef    : r[6]);
+      var hacimGoster   = hacimGecerliMi ? r[7] : (onceki.hacim     !== undefined ? onceki.hacim    : r[7]);
+      var degisimGoster = degisimGecerliMi ? r[8] : (onceki.degisim !== undefined ? onceki.degisim  : r[8]);
+
+      window.sonGecerliVeriler[anahtarKey] = {
+        b: bGecerliMi ? r[1] : onceki.b,
+        rsi: rsiGecerliMi ? r[2] : onceki.rsi,
+        ort: ortGecerliMi ? r[3] : onceki.ort,
+        gunS: gunSGecerliMi ? r[4] : onceki.gunS,
+        tavs: tavsGecerliMi ? r[5] : onceki.tavs,
+        hedef: hedefGecerliMi ? r[6] : onceki.hedef,
+        hacim: hacimGecerliMi ? r[7] : onceki.hacim,
+        degisim: degisimGecerliMi ? r[8] : onceki.degisim
+      };
+
+      var tr = document.createElement('tr');
+      var tdHisse = document.createElement('td'); tdHisse.className = "hisse-cell";
+      if (altMi) {
+        tdHisse.appendChild(createHisseDropdown(hisseAdi, "ANASAYFA", r[9], 1));
+      } else {
+        tdHisse.innerText = hisseAdi;
+      }
+      tr.appendChild(tdHisse);
+
+      var tdB = document.createElement('td'); tdB.className = "bold-cell"; tdB.innerText = bGoster; tr.appendChild(tdB);
+      var tdC = document.createElement('td'); tdC.className = "bold-cell"; tdC.innerText = rsiGoster; tr.appendChild(tdC);
+      var tdI = document.createElement('td'); tdI.className = "gunort-cell"; tdI.innerText = gunSGoster; tr.appendChild(tdI);
+
+      if (!altMi) {
+        var tdJ = document.createElement('td'); tdJ.className = "tavsiye-cell"; tdJ.innerText = tavsiyeGoster; tr.appendChild(tdJ);
+      } else {
+        var tdHedef = document.createElement('td'); tdHedef.className = "bold-cell text-left"; tdHedef.innerText = hedefGoster; tr.appendChild(tdHedef);
+        var tdHacim = document.createElement('td'); tdHacim.className = "bold-cell"; tdHacim.innerText = hacimGoster; tr.appendChild(tdHacim);
+        var tdDegisim = document.createElement('td'); tdDegisim.className = "bold-cell"; tdDegisim.innerText = yuzdeFormatla(degisimGoster);
+        var bgClass = arkaPlanRenkSinifiAl(degisimGoster); if (bgClass) tdDegisim.classList.add(bgClass);
+        tr.appendChild(tdDegisim);
+      }
+      return tr;
+    }
+
     function verileriYukle() {
       if(!API_SIFRE) return;
 
@@ -601,56 +665,28 @@
             document.getElementById('anasayfa-split-container').style.display = 'flex';
 
             if (data.anasayfa.satirlar) {
-                var dropdownGecildi = false; 
-                var topSatirSayaci = 0;
-                var altSatirSayaci = 0;
+                // ÖNCE tüm satırları üst/alt olarak ayır (dropdown ayırıcı satırından önce/sonra)
+                var topRows = [];
+                var altRows = [];
+                var dropdownGecildi = false;
 
                 data.anasayfa.satirlar.forEach(function(r) {
                     if (r[0] === "" && r[9] === -1) { dropdownGecildi = true; return; }
+                    (dropdownGecildi ? altRows : topRows).push(r);
+                });
 
-                    var hisseAdi = r[0]; 
-                    var bolgeKey = (r[9] >= 20) ? "ALT" : "UST";
-                    var anahtarKey = hisseAdi + "_" + bolgeKey; 
-                    
-                    var onceki = window.sonGecerliVeriler[anahtarKey] || {};
+                // SONRA her bloğu, satır sayısına göre DAİMA ORANTILI şekilde sol/sağ tablolara dağıt.
+                // Tek sayı olduğunda fazla satır sol tabloya gider (Math.ceil).
+                var topMid = Math.ceil(topRows.length / 2);
+                topRows.forEach(function(r, idx) {
+                    var tr = anasayfaSatiriOlustur(r, false);
+                    (idx < topMid ? tslBody : tsrBody).appendChild(tr);
+                });
 
-                    var bGecerliMi     = !gecersizMi(r[1]); var rsiGecerliMi   = !gecersizMi(r[2]); var ortGecerliMi   = !gecersizMi(r[3]); var gunSGecerliMi  = !gecersizMi(r[4]); var tavsGecerliMi  = !gecersizMi(r[5]); var hedefGecerliMi = !gecersizMi(r[6]); var hacimGecerliMi = !gecersizMi(r[7]); var degisimGecerliMi = !gecersizMi(r[8]);
-                    
-                    var bGoster       = bGecerliMi     ? r[1] : (onceki.b        !== undefined ? onceki.b       : r[1]);
-                    var rsiGoster     = rsiGecerliMi   ? r[2] : (onceki.rsi       !== undefined ? onceki.rsi      : "Bekleniyor..");
-                    var ortGoster     = ortGecerliMi   ? r[3] : (onceki.ort       !== undefined ? onceki.ort      : r[3]);
-                    var gunSGoster    = gunSGecerliMi  ? r[4] : (onceki.gunS      !== undefined ? onceki.gunS     : r[4]);
-                    var tavsiyeGoster = tavsGecerliMi  ? r[5] : (onceki.tavs      !== undefined ? onceki.tavs     : "Bekleniyor..");
-                    var hedefGoster   = hedefGecerliMi ? r[6] : (onceki.hedef     !== undefined ? onceki.hedef    : r[6]);
-                    var hacimGoster   = hacimGecerliMi ? r[7] : (onceki.hacim     !== undefined ? onceki.hacim    : r[7]);
-                    var degisimGoster = degisimGecerliMi ? r[8] : (onceki.degisim !== undefined ? onceki.degisim  : r[8]);
-
-                    window.sonGecerliVeriler[anahtarKey] = { b: bGecerliMi ? r[1] : onceki.b, rsi: rsiGecerliMi ? r[2] : onceki.rsi, ort: ortGecerliMi ? r[3] : onceki.ort, gunS: gunSGecerliMi ? r[4] : onceki.gunS, tavs: tavsGecerliMi ? r[5] : onceki.tavs, hedef: hedefGecerliMi ? r[6] : onceki.hedef, hacim: hacimGecerliMi ? r[7] : onceki.hacim, degisim: degisimGecerliMi ? r[8] : onceki.degisim };
-
-                    var tr = document.createElement('tr');
-                    var tdHisse = document.createElement('td'); tdHisse.className = "hisse-cell";
-                    if (dropdownGecildi) { var select = createHisseDropdown(hisseAdi, "ANASAYFA", r[9], 1); tdHisse.appendChild(select); } else { tdHisse.innerText = hisseAdi; }
-                    tr.appendChild(tdHisse);
-
-                    var tdB = document.createElement('td'); tdB.className = "bold-cell"; tdB.innerText = bGoster; tr.appendChild(tdB);
-                    var tdC = document.createElement('td'); tdC.className = "bold-cell"; tdC.innerText = rsiGoster; tr.appendChild(tdC);
-
-                    if (!dropdownGecildi) {
-                        var tdI = document.createElement('td'); tdI.className = "gunort-cell"; tdI.innerText = gunSGoster; tr.appendChild(tdI);
-                        var tdJ = document.createElement('td'); tdJ.className = "tavsiye-cell"; tdJ.innerText = tavsiyeGoster; tr.appendChild(tdJ);
-                        
-                        if (topSatirSayaci < 8) { tslBody.appendChild(tr); } else { tsrBody.appendChild(tr); }
-                        topSatirSayaci++;
-                    } else {
-                        var tdI = document.createElement('td'); tdI.className = "gunort-cell"; tdI.innerText = gunSGoster; tr.appendChild(tdI);
-                        var tdHedef = document.createElement('td'); tdHedef.className = "bold-cell text-left"; tdHedef.innerText = hedefGoster; tr.appendChild(tdHedef);
-                        var tdHacim = document.createElement('td'); tdHacim.className = "bold-cell"; tdHacim.innerText = hacimGoster; tr.appendChild(tdHacim);
-                        var tdDegisim = document.createElement('td'); tdDegisim.className = "bold-cell"; tdDegisim.innerText = yuzdeFormatla(degisimGoster); 
-                        var bgClass = arkaPlanRenkSinifiAl(degisimGoster); if (bgClass) tdDegisim.classList.add(bgClass); tr.appendChild(tdDegisim);
-                        
-                        if (altSatirSayaci < 6) { slBody.appendChild(tr); } else { srBody.appendChild(tr); }
-                        altSatirSayaci++;
-                    }
+                var altMid = Math.ceil(altRows.length / 2);
+                altRows.forEach(function(r, idx) {
+                    var tr = anasayfaSatiriOlustur(r, true);
+                    (idx < altMid ? slBody : srBody).appendChild(tr);
                 });
             }
           }
