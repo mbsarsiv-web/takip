@@ -37,46 +37,13 @@
     th { background-color: #274e37; color: #ffffff; padding: 5px 8px; border: 1px solid #ccc; text-align: center; font-weight: bold; }
     td { padding: 4px 6px; border: 1px solid #ccc; text-align: center; }
 
-    /* --- GÜNCELLENEN CSS BÖLÜMÜ BAŞLANGICI --- */
-    .split-table-container { 
-        display: flex; 
-        align-items: flex-start; 
-        gap: 15px; 
-        overflow-x: auto; 
-        padding-bottom: 10px; 
-        width: 100%; 
-        box-sizing: border-box; 
-        -webkit-overflow-scrolling: touch; 
-    }
-    
-    .split-table-top { 
-        background-color: white; 
-        border-collapse: collapse; 
-        width: calc(50% - 7.5px) !important; 
-        min-width: 420px; 
-        table-layout: fixed; 
-        font-size: 11px; 
-    }
-    
-    .split-table { 
-        background-color: white; 
-        border-collapse: collapse; 
-        width: calc(50% - 7.5px) !important; 
-        min-width: 420px; 
-        table-layout: fixed; 
-        font-size: 11px; 
-    }
-    /* --- GÜNCELLENEN CSS BÖLÜMÜ BİTİŞİ --- */
+    #anasayfa-tab table { margin-bottom: 5px !important; border-collapse: collapse; }
+    #anasayfa-tab th { padding: 4px 6px !important; height: 21px !important; font-size: 11.5px !important; line-height: 1.1; }
+    #anasayfa-tab td { padding: 2px 6px !important; height: 19px !important; font-size: 11.5px !important; line-height: 1.1; white-space: nowrap; }
+    #anasayfa-tab .bosluk-satiri td { height: 5px !important; padding: 0 !important; }
 
-    .split-table-top tr { height: 24px !important; }
-    .split-table-top th, .split-table-top td { padding: 2px 4px; border: 1px solid #ccc; text-align: center; height: 24px !important; box-sizing: border-box; font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .split-table-top th { font-weight: bold; font-size: 10px; }
-    .split-table-top th:nth-child(1), .split-table-top td:nth-child(1) { width: 18%; } 
-    .split-table-top th:nth-child(2), .split-table-top td:nth-child(2) { width: 14%; } 
-    .split-table-top th:nth-child(3), .split-table-top td:nth-child(3) { width: 14%; } 
-    .split-table-top th:nth-child(4), .split-table-top td:nth-child(4) { width: 14%; } 
-    .split-table-top th:nth-child(5), .split-table-top td:nth-child(5) { width: 40%; text-align: left; }
-
+    .split-table-container { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; width: 100%; box-sizing: border-box; -webkit-overflow-scrolling: touch; }
+    .split-table { background-color: white; border-collapse: collapse; flex: 1; min-width: 420px; table-layout: fixed; font-size: 11px; }
     .split-table tr { height: 24px !important; }
     .split-table th { padding: 2px 1px; border: 1px solid #ccc; text-align: center; font-weight: bold; height: 24px !important; box-sizing: border-box; font-size: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .split-table td { padding: 2px 1px; border: 1px solid #ccc; text-align: center; height: 24px !important; box-sizing: border-box; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -110,6 +77,7 @@
     #hisse-alimi-table tr.toplam-satiri td { background-color: #f4f6f9 !important; border-top: 2px solid #34495e !important; border-bottom: 2px solid #34495e !important; height: 20px !important; padding: 1px 15px !important; line-height: 1.2 !important; }
     #hisse-alimi-table td.toplam-baslik { text-align: left !important; padding-left: 15px !important; font-size: 13px !important; font-weight: bold !important; color: #34495e !important; }
 
+    /* GENEL TABLO EKLENTİSİ - GÜNCELLENMİŞ BAŞLIK TASARIMI */
     #genel-tablo-table { 
         width: 85% !important; 
         min-width: 750px;
@@ -157,6 +125,7 @@
     .text-left { text-align: left; font-weight: bold; }
     .data-bold { font-weight: bold; }
 
+    /* STANDART RENK SINIFLARI */
     .bg-yesil-dolu { background-color: #15803D !important; color: #ffffff !important; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.6); }
     .bg-kirmizi-dolu { background-color: #DC2626 !important; color: #ffffff !important; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.6); }
 
@@ -203,14 +172,8 @@
 
     <div id="anasayfa-tab" class="tab-content active">
       <div class="table-container">
-        <!-- ÜST TABLO (Hisse - Sol/Sağ orantılı) -->
-        <div class="split-table-container" id="anasayfa-top-split-container" style="margin-bottom: 15px;">
-          <table class="split-table-top"><thead id="anasayfa-top-split-left-headers"></thead><tbody id="anasayfa-top-split-left-body"></tbody></table>
-          <table class="split-table-top"><thead id="anasayfa-top-split-right-headers"></thead><tbody id="anasayfa-top-split-right-body"></tbody></table>
-        </div>
-
-        <!-- ALT TABLO (Açılır Listeli İkiye Bölünmüş - orantılı) -->
-        <div class="split-table-container" id="anasayfa-split-container" style="display:none;">
+        <table><thead id="anasayfa-headers"></thead><tbody id="anasayfa-body"></tbody></table>
+        <div class="split-table-container" id="anasayfa-split-container" style="display:none; margin-top: 15px;">
           <table class="split-table"><thead id="anasayfa-split-left-headers"></thead><tbody id="anasayfa-split-left-body"></tbody></table>
           <table class="split-table"><thead id="anasayfa-split-right-headers"></thead><tbody id="anasayfa-split-right-body"></tbody></table>
         </div>
@@ -579,68 +542,6 @@
       container.appendChild(table1); container.appendChild(table2);
     }
 
-    /**
-     * Anasayfa üst/alt bloklar için tek bir <tr> satırı üretir.
-     */
-    function anasayfaSatiriOlustur(r, altMi) {
-      var hisseAdi = r[0];
-      var bolgeKey = (r[9] >= 20) ? "ALT" : "UST";
-      var anahtarKey = hisseAdi + "_" + bolgeKey;
-      var onceki = window.sonGecerliVeriler[anahtarKey] || {};
-
-      var bGecerliMi     = !gecersizMi(r[1]);
-      var rsiGecerliMi   = !gecersizMi(r[2]);
-      var ortGecerliMi   = !gecersizMi(r[3]);
-      var gunSGecerliMi  = !gecersizMi(r[4]);
-      var tavsGecerliMi  = !gecersizMi(r[5]);
-      var hedefGecerliMi = !gecersizMi(r[6]);
-      var hacimGecerliMi = !gecersizMi(r[7]);
-      var degisimGecerliMi = !gecersizMi(r[8]);
-
-      var bGoster       = bGecerliMi     ? r[1] : (onceki.b        !== undefined ? onceki.b       : r[1]);
-      var rsiGoster     = rsiGecerliMi   ? r[2] : (onceki.rsi      !== undefined ? onceki.rsi      : "Bekleniyor..");
-      var gunSGoster    = gunSGecerliMi  ? r[4] : (onceki.gunS     !== undefined ? onceki.gunS     : r[4]);
-      var tavsiyeGoster = tavsGecerliMi  ? r[5] : (onceki.tavs     !== undefined ? onceki.tavs     : "Bekleniyor..");
-      var hedefGoster   = hedefGecerliMi ? r[6] : (onceki.hedef    !== undefined ? onceki.hedef    : r[6]);
-      var hacimGoster   = hacimGecerliMi ? r[7] : (onceki.hacim    !== undefined ? onceki.hacim    : r[7]);
-      var degisimGoster = degisimGecerliMi ? r[8] : (onceki.degisim !== undefined ? onceki.degisim  : r[8]);
-
-      window.sonGecerliVeriler[anahtarKey] = {
-        b: bGecerliMi ? r[1] : onceki.b,
-        rsi: rsiGecerliMi ? r[2] : onceki.rsi,
-        ort: ortGecerliMi ? r[3] : onceki.ort,
-        gunS: gunSGecerliMi ? r[4] : onceki.gunS,
-        tavs: tavsGecerliMi ? r[5] : onceki.tavs,
-        hedef: hedefGecerliMi ? r[6] : onceki.hedef,
-        hacim: hacimGecerliMi ? r[7] : onceki.hacim,
-        degisim: degisimGecerliMi ? r[8] : onceki.degisim
-      };
-
-      var tr = document.createElement('tr');
-      var tdHisse = document.createElement('td'); tdHisse.className = "hisse-cell";
-      if (altMi) {
-        tdHisse.appendChild(createHisseDropdown(hisseAdi, "ANASAYFA", r[9], 1));
-      } else {
-        tdHisse.innerText = hisseAdi;
-      }
-      tr.appendChild(tdHisse);
-
-      var tdB = document.createElement('td'); tdB.className = "bold-cell"; tdB.innerText = bGoster; tr.appendChild(tdB);
-      var tdC = document.createElement('td'); tdC.className = "bold-cell"; tdC.innerText = rsiGoster; tr.appendChild(tdC);
-      var tdI = document.createElement('td'); tdI.className = "gunort-cell"; tdI.innerText = gunSGoster; tr.appendChild(tdI);
-
-      if (!altMi) {
-        var tdJ = document.createElement('td'); tdJ.className = "tavsiye-cell"; tdJ.innerText = tavsiyeGoster; tr.appendChild(tdJ);
-      } else {
-        var tdHedef = document.createElement('td'); tdHedef.className = "bold-cell text-left"; tdHedef.innerText = hedefGoster; tr.appendChild(tdHedef);
-        var tdHacim = document.createElement('td'); tdHacim.className = "bold-cell"; tdHacim.innerText = hacimGoster; tr.appendChild(tdHacim);
-        var tdDegisim = document.createElement('td'); tdDegisim.className = "bold-cell"; tdDegisim.innerText = yuzdeFormatla(degisimGoster);
-        var bgClass = arkaPlanRenkSinifiAl(degisimGoster); if (bgClass) tdDegisim.classList.add(bgClass);
-        tr.appendChild(tdDegisim);
-      }
-      return tr;
-    }
-
     function verileriYukle() {
       if(!API_SIFRE) return;
 
@@ -657,60 +558,72 @@
           var aktifTag = aktifEleman ? aktifEleman.tagName.toUpperCase() : ""; 
           var isEditing = (aktifTag === 'INPUT' || aktifTag === 'SELECT');
 
-          var anasayfaOdakliMi = isEditing && ((document.getElementById('anasayfa-top-split-left-body') && document.getElementById('anasayfa-top-split-left-body').contains(aktifEleman)) || (document.getElementById('anasayfa-top-split-right-body') && document.getElementById('anasayfa-top-split-right-body').contains(aktifEleman)) || (document.getElementById('anasayfa-split-left-body') && document.getElementById('anasayfa-split-left-body').contains(aktifEleman)) || (document.getElementById('anasayfa-split-right-body') && document.getElementById('anasayfa-split-right-body').contains(aktifEleman)));
+          var anasayfaOdakliMi = isEditing && ((document.getElementById('anasayfa-body') && document.getElementById('anasayfa-body').contains(aktifEleman)) || (document.getElementById('anasayfa-split-left-body') && document.getElementById('anasayfa-split-left-body').contains(aktifEleman)) || (document.getElementById('anasayfa-split-right-body') && document.getElementById('anasayfa-split-right-body').contains(aktifEleman)));
           var temettuOdakliMi = document.getElementById('temettu-tab-container') && document.getElementById('temettu-tab-container').contains(aktifEleman) && isEditing;
           var hisseAlimiOdakliMi = document.getElementById('hisse-alimi-table') && document.getElementById('hisse-alimi-table').contains(aktifEleman) && isEditing;
 
           if (data.anasayfa && data.anasayfa.basliklar && !anasayfaOdakliMi) {
-            
-            // Üst Tablo Başlıkları
-            var tslhRow = document.getElementById('anasayfa-top-split-left-headers'); tslhRow.innerHTML = '';
-            var tsrhRow = document.getElementById('anasayfa-top-split-right-headers'); tsrhRow.innerHTML = '';
-            var topHeaders = [0, 1, 2, 4, 5]; 
-
-            topHeaders.forEach(function(i) { 
-                var thL = document.createElement('th'); thL.className = 'table1-header'; thL.innerText = data.anasayfa.basliklar[i]; tslhRow.appendChild(thL);
-                var thR = document.createElement('th'); thR.className = 'table2-header'; thR.innerText = data.anasayfa.basliklar[i]; tsrhRow.appendChild(thR); 
-            });
-
-            // Alt Tablo Başlıkları
+            var ahRow = document.getElementById('anasayfa-headers'); ahRow.innerHTML = '';
             var slhRow = document.getElementById('anasayfa-split-left-headers'); slhRow.innerHTML = '';
             var srhRow = document.getElementById('anasayfa-split-right-headers'); srhRow.innerHTML = '';
+
+            var topHeaders = [0, 1, 2, 3, 4, 5]; 
+            topHeaders.forEach(function(i) { var th = document.createElement('th'); th.innerText = data.anasayfa.basliklar[i]; ahRow.appendChild(th); });
+
             var bottomHeaders = [0, 1, 2, 4, 6, 7, 8];
             bottomHeaders.forEach(function(i) {
                 var thL = document.createElement('th'); thL.className = 'table1-header'; thL.innerText = data.anasayfa.basliklar[i]; slhRow.appendChild(thL);
                 var thR = document.createElement('th'); thR.className = 'table2-header'; thR.innerText = data.anasayfa.basliklar[i]; srhRow.appendChild(thR);
             });
 
-            // Tablo Gövdelerini Temizle
-            var tslBody = document.getElementById('anasayfa-top-split-left-body'); tslBody.innerHTML = '';
-            var tsrBody = document.getElementById('anasayfa-top-split-right-body'); tsrBody.innerHTML = '';
+            var abody = document.getElementById('anasayfa-body'); abody.innerHTML = '';
             var slBody = document.getElementById('anasayfa-split-left-body'); slBody.innerHTML = '';
             var srBody = document.getElementById('anasayfa-split-right-body'); srBody.innerHTML = '';
 
             document.getElementById('anasayfa-split-container').style.display = 'flex';
 
             if (data.anasayfa.satirlar) {
-                var topRows = [];
-                var altRows = [];
-                var dropdownGecildi = false;
+              var dropdownGecildi = false; var altSatirSayaci = 0;
+              data.anasayfa.satirlar.forEach(function(r) {
+                if (r[0] === "" && r[9] === -1) { dropdownGecildi = true; return; }
 
-                data.anasayfa.satirlar.forEach(function(r) {
-                    if (r[0] === "" && r[9] === -1) { dropdownGecildi = true; return; }
-                    (dropdownGecildi ? altRows : topRows).push(r);
-                });
+                var hisseAdi = r[0]; var anahtarKey = hisseAdi + "_" + r[9]; var onceki = window.sonGecerliVeriler[anahtarKey] || {};
 
-                var topMid = Math.ceil(topRows.length / 2);
-                topRows.forEach(function(r, idx) {
-                    var tr = anasayfaSatiriOlustur(r, false);
-                    (idx < topMid ? tslBody : tsrBody).appendChild(tr);
-                });
+                var bGecerliMi     = !gecersizMi(r[1]); var rsiGecerliMi   = !gecersizMi(r[2]); var ortGecerliMi   = !gecersizMi(r[3]); var gunSGecerliMi  = !gecersizMi(r[4]); var tavsGecerliMi  = !gecersizMi(r[5]); var hedefGecerliMi = !gecersizMi(r[6]); var hacimGecerliMi = !gecersizMi(r[7]); var degisimGecerliMi = !gecersizMi(r[8]);
+                var bGoster       = bGecerliMi     ? r[1] : (onceki.b        !== undefined ? onceki.b        : r[1]);
+                var rsiGoster     = rsiGecerliMi   ? r[2] : (onceki.rsi       !== undefined ? onceki.rsi      : "Bekleniyor..");
+                var ortGoster     = ortGecerliMi   ? r[3] : (onceki.ort       !== undefined ? onceki.ort      : r[3]);
+                var gunSGoster    = gunSGecerliMi  ? r[4] : (onceki.gunS      !== undefined ? onceki.gunS     : r[4]);
+                var tavsiyeGoster = tavsGecerliMi  ? r[5] : (onceki.tavs      !== undefined ? onceki.tavs     : "Bekleniyor..");
+                var hedefGoster   = hedefGecerliMi ? r[6] : (onceki.hedef     !== undefined ? onceki.hedef    : r[6]);
+                var hacimGoster   = hacimGecerliMi ? r[7] : (onceki.hacim     !== undefined ? onceki.hacim    : r[7]);
+                var degisimGoster = degisimGecerliMi ? r[8] : (onceki.degisim !== undefined ? onceki.degisim  : r[8]);
 
-                var altMid = Math.ceil(altRows.length / 2);
-                altRows.forEach(function(r, idx) {
-                    var tr = anasayfaSatiriOlustur(r, true);
-                    (idx < altMid ? slBody : srBody).appendChild(tr);
-                });
+                window.sonGecerliVeriler[anahtarKey] = { b: bGecerliMi ? r[1] : onceki.b, rsi: rsiGecerliMi ? r[2] : onceki.rsi, ort: ortGecerliMi ? r[3] : onceki.ort, gunS: gunSGecerliMi ? r[4] : onceki.gunS, tavs: tavsGecerliMi ? r[5] : onceki.tavs, hedef: hedefGecerliMi ? r[6] : onceki.hedef, hacim: hacimGecerliMi ? r[7] : onceki.hacim, degisim: degisimGecerliMi ? r[8] : onceki.degisim };
+
+                var tr = document.createElement('tr');
+                var tdHisse = document.createElement('td'); tdHisse.className = "hisse-cell";
+                if (dropdownGecildi) { var select = createHisseDropdown(hisseAdi, "ANASAYFA", r[9], 1); tdHisse.appendChild(select); } else { tdHisse.innerText = hisseAdi; }
+                tr.appendChild(tdHisse);
+
+                var tdB = document.createElement('td'); tdB.className = "bold-cell"; tdB.innerText = bGoster; tr.appendChild(tdB);
+                var tdC = document.createElement('td'); tdC.className = "bold-cell"; tdC.innerText = rsiGoster; tr.appendChild(tdC);
+
+                if (!dropdownGecildi) {
+                  var tdH = document.createElement('td'); tdH.className = "ortalamalar-cell"; tdH.innerText = ortGoster; tr.appendChild(tdH);
+                  var tdI = document.createElement('td'); tdI.className = "gunort-cell"; tdI.innerText = gunSGoster; tr.appendChild(tdI);
+                  var tdJ = document.createElement('td'); tdJ.className = "tavsiye-cell"; tdJ.innerText = tavsiyeGoster; tr.appendChild(tdJ);
+                  abody.appendChild(tr);
+                } else {
+                  var tdI = document.createElement('td'); tdI.className = "gunort-cell"; tdI.innerText = gunSGoster; tr.appendChild(tdI);
+                  var tdHedef = document.createElement('td'); tdHedef.className = "bold-cell text-left"; tdHedef.innerText = hedefGoster; tr.appendChild(tdHedef);
+                  var tdHacim = document.createElement('td'); tdHacim.className = "bold-cell"; tdHacim.innerText = hacimGoster; tr.appendChild(tdHacim);
+                  var tdDegisim = document.createElement('td'); tdDegisim.className = "bold-cell"; tdDegisim.innerText = yuzdeFormatla(degisimGoster); 
+                  var bgClass = arkaPlanRenkSinifiAl(degisimGoster); if (bgClass) tdDegisim.classList.add(bgClass); tr.appendChild(tdDegisim);
+                  if (altSatirSayaci < 6) { slBody.appendChild(tr); } else { srBody.appendChild(tr); }
+                  altSatirSayaci++;
+                }
+              });
             }
           }
 
