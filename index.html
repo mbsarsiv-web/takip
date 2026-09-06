@@ -37,7 +37,37 @@
     th { background-color: #274e37; color: #ffffff; padding: 5px 8px; border: 1px solid #ccc; text-align: center; font-weight: bold; }
     td { padding: 4px 6px; border: 1px solid #ccc; text-align: center; }
 
-    .split-table-top { background-color: white; border-collapse: collapse; flex: 1; min-width: 420px; table-layout: fixed; font-size: 11px; }
+    /* --- GÜNCELLENEN CSS BÖLÜMÜ BAŞLANGICI --- */
+    .split-table-container { 
+        display: flex; 
+        align-items: flex-start; 
+        gap: 15px; 
+        overflow-x: auto; 
+        padding-bottom: 10px; 
+        width: 100%; 
+        box-sizing: border-box; 
+        -webkit-overflow-scrolling: touch; 
+    }
+    
+    .split-table-top { 
+        background-color: white; 
+        border-collapse: collapse; 
+        width: calc(50% - 7.5px) !important; 
+        min-width: 420px; 
+        table-layout: fixed; 
+        font-size: 11px; 
+    }
+    
+    .split-table { 
+        background-color: white; 
+        border-collapse: collapse; 
+        width: calc(50% - 7.5px) !important; 
+        min-width: 420px; 
+        table-layout: fixed; 
+        font-size: 11px; 
+    }
+    /* --- GÜNCELLENEN CSS BÖLÜMÜ BİTİŞİ --- */
+
     .split-table-top tr { height: 24px !important; }
     .split-table-top th, .split-table-top td { padding: 2px 4px; border: 1px solid #ccc; text-align: center; height: 24px !important; box-sizing: border-box; font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .split-table-top th { font-weight: bold; font-size: 10px; }
@@ -47,8 +77,6 @@
     .split-table-top th:nth-child(4), .split-table-top td:nth-child(4) { width: 14%; } 
     .split-table-top th:nth-child(5), .split-table-top td:nth-child(5) { width: 40%; text-align: left; }
 
-    .split-table-container { display: flex; align-items: flex-start; gap: 10px; overflow-x: auto; padding-bottom: 10px; width: 100%; box-sizing: border-box; -webkit-overflow-scrolling: touch; }
-    .split-table { background-color: white; border-collapse: collapse; flex: 1; min-width: 420px; table-layout: fixed; font-size: 11px; }
     .split-table tr { height: 24px !important; }
     .split-table th { padding: 2px 1px; border: 1px solid #ccc; text-align: center; font-weight: bold; height: 24px !important; box-sizing: border-box; font-size: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .split-table td { padding: 2px 1px; border: 1px solid #ccc; text-align: center; height: 24px !important; box-sizing: border-box; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -553,8 +581,6 @@
 
     /**
      * Anasayfa üst/alt bloklar için tek bir <tr> satırı üretir.
-     * altMi=false ise üst blok (HİSSE, FİYAT, RSI, GÜN.ORT., TAVSİYE) düzeninde,
-     * altMi=true ise alt blok (dropdown, HEDEF, HACİM, GÜN.DEĞİŞİM) düzeninde satır oluşturur.
      */
     function anasayfaSatiriOlustur(r, altMi) {
       var hisseAdi = r[0];
@@ -572,11 +598,11 @@
       var degisimGecerliMi = !gecersizMi(r[8]);
 
       var bGoster       = bGecerliMi     ? r[1] : (onceki.b        !== undefined ? onceki.b       : r[1]);
-      var rsiGoster     = rsiGecerliMi   ? r[2] : (onceki.rsi       !== undefined ? onceki.rsi      : "Bekleniyor..");
-      var gunSGoster    = gunSGecerliMi  ? r[4] : (onceki.gunS      !== undefined ? onceki.gunS     : r[4]);
-      var tavsiyeGoster = tavsGecerliMi  ? r[5] : (onceki.tavs      !== undefined ? onceki.tavs     : "Bekleniyor..");
-      var hedefGoster   = hedefGecerliMi ? r[6] : (onceki.hedef     !== undefined ? onceki.hedef    : r[6]);
-      var hacimGoster   = hacimGecerliMi ? r[7] : (onceki.hacim     !== undefined ? onceki.hacim    : r[7]);
+      var rsiGoster     = rsiGecerliMi   ? r[2] : (onceki.rsi      !== undefined ? onceki.rsi      : "Bekleniyor..");
+      var gunSGoster    = gunSGecerliMi  ? r[4] : (onceki.gunS     !== undefined ? onceki.gunS     : r[4]);
+      var tavsiyeGoster = tavsGecerliMi  ? r[5] : (onceki.tavs     !== undefined ? onceki.tavs     : "Bekleniyor..");
+      var hedefGoster   = hedefGecerliMi ? r[6] : (onceki.hedef    !== undefined ? onceki.hedef    : r[6]);
+      var hacimGoster   = hacimGecerliMi ? r[7] : (onceki.hacim    !== undefined ? onceki.hacim    : r[7]);
       var degisimGoster = degisimGecerliMi ? r[8] : (onceki.degisim !== undefined ? onceki.degisim  : r[8]);
 
       window.sonGecerliVeriler[anahtarKey] = {
@@ -637,10 +663,10 @@
 
           if (data.anasayfa && data.anasayfa.basliklar && !anasayfaOdakliMi) {
             
-            // Üst Tablo Başlıkları (EMA - Endeks 3 hariç tutuluyor)
+            // Üst Tablo Başlıkları
             var tslhRow = document.getElementById('anasayfa-top-split-left-headers'); tslhRow.innerHTML = '';
             var tsrhRow = document.getElementById('anasayfa-top-split-right-headers'); tsrhRow.innerHTML = '';
-            var topHeaders = [0, 1, 2, 4, 5]; // HİSSE, FİYAT, RSI, GÜN. ORT., TAVSİYE
+            var topHeaders = [0, 1, 2, 4, 5]; 
 
             topHeaders.forEach(function(i) { 
                 var thL = document.createElement('th'); thL.className = 'table1-header'; thL.innerText = data.anasayfa.basliklar[i]; tslhRow.appendChild(thL);
@@ -665,7 +691,6 @@
             document.getElementById('anasayfa-split-container').style.display = 'flex';
 
             if (data.anasayfa.satirlar) {
-                // ÖNCE tüm satırları üst/alt olarak ayır (dropdown ayırıcı satırından önce/sonra)
                 var topRows = [];
                 var altRows = [];
                 var dropdownGecildi = false;
@@ -675,8 +700,6 @@
                     (dropdownGecildi ? altRows : topRows).push(r);
                 });
 
-                // SONRA her bloğu, satır sayısına göre DAİMA ORANTILI şekilde sol/sağ tablolara dağıt.
-                // Tek sayı olduğunda fazla satır sol tabloya gider (Math.ceil).
                 var topMid = Math.ceil(topRows.length / 2);
                 topRows.forEach(function(r, idx) {
                     var tr = anasayfaSatiriOlustur(r, false);
