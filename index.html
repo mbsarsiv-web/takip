@@ -37,7 +37,6 @@
     th { background-color: #274e37; color: #ffffff; padding: 5px 8px; border: 1px solid #ccc; text-align: center; font-weight: bold; }
     td { padding: 4px 6px; border: 1px solid #ccc; text-align: center; }
 
-    /* YENİ ÜST BÖLÜNME TABLOSU CSS */
     .split-table-top { background-color: white; border-collapse: collapse; flex: 1; min-width: 420px; table-layout: fixed; font-size: 11px; }
     .split-table-top tr { height: 24px !important; }
     .split-table-top th, .split-table-top td { padding: 2px 4px; border: 1px solid #ccc; text-align: center; height: 24px !important; box-sizing: border-box; font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -48,7 +47,8 @@
     .split-table-top th:nth-child(4), .split-table-top td:nth-child(4) { width: 14%; } 
     .split-table-top th:nth-child(5), .split-table-top td:nth-child(5) { width: 40%; text-align: left; }
 
-    .split-table-container { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; width: 100%; box-sizing: border-box; -webkit-overflow-scrolling: touch; }
+    /* Flex-start eklenerek esneme (stretch) durduruldu */
+    .split-table-container { display: flex; align-items: flex-start; gap: 10px; overflow-x: auto; padding-bottom: 10px; width: 100%; box-sizing: border-box; -webkit-overflow-scrolling: touch; }
     .split-table { background-color: white; border-collapse: collapse; flex: 1; min-width: 420px; table-layout: fixed; font-size: 11px; }
     .split-table tr { height: 24px !important; }
     .split-table th { padding: 2px 1px; border: 1px solid #ccc; text-align: center; font-weight: bold; height: 24px !important; box-sizing: border-box; font-size: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -83,7 +83,6 @@
     #hisse-alimi-table tr.toplam-satiri td { background-color: #f4f6f9 !important; border-top: 2px solid #34495e !important; border-bottom: 2px solid #34495e !important; height: 20px !important; padding: 1px 15px !important; line-height: 1.2 !important; }
     #hisse-alimi-table td.toplam-baslik { text-align: left !important; padding-left: 15px !important; font-size: 13px !important; font-weight: bold !important; color: #34495e !important; }
 
-    /* GENEL TABLO EKLENTİSİ - GÜNCELLENMİŞ BAŞLIK TASARIMI */
     #genel-tablo-table { 
         width: 85% !important; 
         min-width: 750px;
@@ -131,7 +130,6 @@
     .text-left { text-align: left; font-weight: bold; }
     .data-bold { font-weight: bold; }
 
-    /* STANDART RENK SINIFLARI */
     .bg-yesil-dolu { background-color: #15803D !important; color: #ffffff !important; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.6); }
     .bg-kirmizi-dolu { background-color: #DC2626 !important; color: #ffffff !important; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.6); }
 
