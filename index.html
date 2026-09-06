@@ -605,6 +605,17 @@
 
             if (data.anasayfa.satirlar) {
               var dropdownGecildi = false; var altSatirSayaci = 0; var ustSatirSayaci = 0;
+              
+              // >>> KOD DÜZELTMESİ: Boş satırlar doldurulana kadar dengesizlik yaşanmaması için,
+              // okunan toplam geçerli (dolu) üst tablo eleman sayısını bulup, tam ortadan ikiye bölüyoruz.
+              var ustTabloGecerliElemanSayisi = 0;
+              data.anasayfa.satirlar.forEach(function(r) {
+                  if (r[0] === "" && r[9] === -1) { dropdownGecildi = true; return; }
+                  if (!dropdownGecildi) ustTabloGecerliElemanSayisi++;
+              });
+              var yariNokta = Math.ceil(ustTabloGecerliElemanSayisi / 2);
+              dropdownGecildi = false; // Döngü için tekrar sıfırlıyoruz
+
               data.anasayfa.satirlar.forEach(function(r) {
                 if (r[0] === "" && r[9] === -1) { dropdownGecildi = true; return; }
 
@@ -633,7 +644,8 @@
                   var tdI = document.createElement('td'); tdI.className = "gunort-cell"; tdI.innerText = gunSGoster; tr.appendChild(tdI);
                   var tdJ = document.createElement('td'); tdJ.className = "tavsiye-cell"; tdJ.innerText = tavsiyeGoster; tr.appendChild(tdJ);
                   
-                  if (ustSatirSayaci < 8) { tlBody.appendChild(tr); } else { trBody.appendChild(tr); }
+                  // >>> SABİT "8" YERİNE, BULUNAN ELEMAN SAYISININ YARISI BAZ ALINARAK TABLO HER ZAMAN EŞİT İKİYE BÖLÜNÜR. (Sen 16'ya tamamlayınca tam 8x8 olacak)
+                  if (ustSatirSayaci < yariNokta) { tlBody.appendChild(tr); } else { trBody.appendChild(tr); }
                   ustSatirSayaci++;
                 } else {
                   var tdI = document.createElement('td'); tdI.className = "gunort-cell"; tdI.innerText = gunSGoster; tr.appendChild(tdI);
