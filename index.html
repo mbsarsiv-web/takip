@@ -48,11 +48,13 @@
     .split-table th { padding: 2px 1px; border: 1px solid #ccc; text-align: center; font-weight: bold; height: 24px !important; box-sizing: border-box; font-size: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .split-table td { padding: 2px 1px; border: 1px solid #ccc; text-align: center; height: 24px !important; box-sizing: border-box; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-    .top-split-table th:nth-child(1), .top-split-table td:nth-child(1) { width: 15%; } 
-    .top-split-table th:nth-child(2), .top-split-table td:nth-child(2) { width: 15%; } 
-    .top-split-table th:nth-child(3), .top-split-table td:nth-child(3) { width: 15%; } 
-    .top-split-table th:nth-child(4), .top-split-table td:nth-child(4) { width: 15%; } 
-    .top-split-table th:nth-child(5), .top-split-table td:nth-child(5) { width: 40%; text-align: left; }
+    /* ÜST TABLO İÇİN YENİ SÜTUN GENİŞLİKLERİ (6 Sütunlu Formata Göre) */
+    .top-split-table th:nth-child(1), .top-split-table td:nth-child(1) { width: 14%; } /* HİSSE */
+    .top-split-table th:nth-child(2), .top-split-table td:nth-child(2) { width: 13%; } /* FİYAT */
+    .top-split-table th:nth-child(3), .top-split-table td:nth-child(3) { width: 15%; } /* GÜN. DEĞİŞİM */
+    .top-split-table th:nth-child(4), .top-split-table td:nth-child(4) { width: 10%; } /* RSI */
+    .top-split-table th:nth-child(5), .top-split-table td:nth-child(5) { width: 13%; } /* GÜN. ORT. */
+    .top-split-table th:nth-child(6), .top-split-table td:nth-child(6) { width: 35%; text-align: left; } /* TAVSİYE */
     .top-split-table .tavsiye-cell { text-align: left !important; }
 
     #anasayfa-split-container .split-table th:nth-child(1), #anasayfa-split-container .split-table td:nth-child(1) { width: 18%; } 
@@ -584,7 +586,8 @@
             var slhRow = document.getElementById('anasayfa-split-left-headers'); slhRow.innerHTML = '';
             var srhRow = document.getElementById('anasayfa-split-right-headers'); srhRow.innerHTML = '';
 
-            var topHeaders = [0, 1, 2, 4, 5]; 
+            // >>> YENİ EKLENEN KISIM: 8 (GÜN DEĞİŞİM) INDEX'İ ÜST TABLO BAŞLIKLARINA EKLENDİ
+            var topHeaders = [0, 1, 8, 2, 4, 5]; 
             topHeaders.forEach(function(i) { 
                 var thL = document.createElement('th'); thL.className = 'table1-header'; thL.innerText = data.anasayfa.basliklar[i]; tlhRow.appendChild(thL);
                 var thR = document.createElement('th'); thR.className = 'table2-header'; thR.innerText = data.anasayfa.basliklar[i]; trhRow.appendChild(thR);
@@ -606,15 +609,13 @@
             if (data.anasayfa.satirlar) {
               var dropdownGecildi = false; var altSatirSayaci = 0; var ustSatirSayaci = 0;
               
-              // >>> KOD DÜZELTMESİ: Boş satırlar doldurulana kadar dengesizlik yaşanmaması için,
-              // okunan toplam geçerli (dolu) üst tablo eleman sayısını bulup, tam ortadan ikiye bölüyoruz.
               var ustTabloGecerliElemanSayisi = 0;
               data.anasayfa.satirlar.forEach(function(r) {
                   if (r[0] === "" && r[9] === -1) { dropdownGecildi = true; return; }
                   if (!dropdownGecildi) ustTabloGecerliElemanSayisi++;
               });
               var yariNokta = Math.ceil(ustTabloGecerliElemanSayisi / 2);
-              dropdownGecildi = false; // Döngü için tekrar sıfırlıyoruz
+              dropdownGecildi = false; 
 
               data.anasayfa.satirlar.forEach(function(r) {
                 if (r[0] === "" && r[9] === -1) { dropdownGecildi = true; return; }
@@ -638,19 +639,28 @@
                 tr.appendChild(tdHisse);
 
                 var tdB = document.createElement('td'); tdB.className = "bold-cell"; tdB.innerText = bGoster; tr.appendChild(tdB);
-                var tdC = document.createElement('td'); tdC.className = "bold-cell"; tdC.innerText = rsiGoster; tr.appendChild(tdC);
 
                 if (!dropdownGecildi) {
+                  // >>> YENİ EKLENEN KISIM: ÜST TABLO İÇİN DEĞİŞİM YÜZDESİ BURAYA BASILIYOR (Renkleriyle Birlikte)
+                  var tdDegisimUst = document.createElement('td'); 
+                  tdDegisimUst.className = "bold-cell"; 
+                  tdDegisimUst.innerText = yuzdeFormatla(degisimGoster); 
+                  var bgClassUst = arkaPlanRenkSinifiAl(degisimGoster); 
+                  if (bgClassUst) tdDegisimUst.classList.add(bgClassUst); 
+                  tr.appendChild(tdDegisimUst);
+
+                  var tdC = document.createElement('td'); tdC.className = "bold-cell"; tdC.innerText = rsiGoster; tr.appendChild(tdC);
                   var tdI = document.createElement('td'); tdI.className = "gunort-cell"; tdI.innerText = gunSGoster; tr.appendChild(tdI);
                   var tdJ = document.createElement('td'); tdJ.className = "tavsiye-cell"; tdJ.innerText = tavsiyeGoster; tr.appendChild(tdJ);
                   
-                  // >>> SABİT "8" YERİNE, BULUNAN ELEMAN SAYISININ YARISI BAZ ALINARAK TABLO HER ZAMAN EŞİT İKİYE BÖLÜNÜR. (Sen 16'ya tamamlayınca tam 8x8 olacak)
                   if (ustSatirSayaci < yariNokta) { tlBody.appendChild(tr); } else { trBody.appendChild(tr); }
                   ustSatirSayaci++;
                 } else {
+                  var tdC = document.createElement('td'); tdC.className = "bold-cell"; tdC.innerText = rsiGoster; tr.appendChild(tdC);
                   var tdI = document.createElement('td'); tdI.className = "gunort-cell"; tdI.innerText = gunSGoster; tr.appendChild(tdI);
                   var tdHedef = document.createElement('td'); tdHedef.className = "bold-cell text-left"; tdHedef.innerText = hedefGoster; tr.appendChild(tdHedef);
                   var tdHacim = document.createElement('td'); tdHacim.className = "bold-cell"; tdHacim.innerText = hacimGoster; tr.appendChild(tdHacim);
+                  
                   var tdDegisim = document.createElement('td'); tdDegisim.className = "bold-cell"; tdDegisim.innerText = yuzdeFormatla(degisimGoster); 
                   var bgClass = arkaPlanRenkSinifiAl(degisimGoster); if (bgClass) tdDegisim.classList.add(bgClass); tr.appendChild(tdDegisim);
                   
