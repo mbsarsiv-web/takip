@@ -56,6 +56,7 @@
     .top-split-table th:nth-child(6), .top-split-table td:nth-child(6) { width: 35%; text-align: left; } 
     .top-split-table .tavsiye-cell { text-align: left !important; }
 
+    /* CSS düzenlemeleri - Yenilenen sıraya uygun yüzdelikler */
     #anasayfa-split-container .split-table th:nth-child(1), #anasayfa-split-container .split-table td:nth-child(1) { width: 18%; } 
     #anasayfa-split-container .split-table th:nth-child(2), #anasayfa-split-container .split-table td:nth-child(2) { width: 12%; } 
     #anasayfa-split-container .split-table th:nth-child(3), #anasayfa-split-container .split-table td:nth-child(3) { width: 16%; } 
@@ -591,6 +592,7 @@
                 var thR = document.createElement('th'); thR.className = 'table2-header'; thR.innerText = data.anasayfa.basliklar[i]; trhRow.appendChild(thR);
             });
 
+            // Alt tablonun başlık sıralaması tam istediğiniz gibi
             var bottomHeaders = [0, 1, 8, 2, 4, 7, 6];
             bottomHeaders.forEach(function(i) {
                 var thL = document.createElement('th'); thL.className = 'table1-header'; thL.innerText = data.anasayfa.basliklar[i]; slhRow.appendChild(thL);
@@ -653,6 +655,7 @@
                   if (ustSatirSayaci < yariNokta) { tlBody.appendChild(tr); } else { trBody.appendChild(tr); }
                   ustSatirSayaci++;
                 } else {
+                  // Alt tablo sütunlarının sizin sıranıza (GÜN. DEĞİŞİM -> RSI -> GÜN. ORT. -> HACİM -> HEDEF) göre basılması
                   var tdDegisim = document.createElement('td'); tdDegisim.className = "bold-cell"; tdDegisim.innerText = yuzdeFormatla(degisimGoster); 
                   var bgClass = arkaPlanRenkSinifiAl(degisimGoster); if (bgClass) tdDegisim.classList.add(bgClass); tr.appendChild(tdDegisim);
                   
