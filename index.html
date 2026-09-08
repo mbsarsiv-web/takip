@@ -48,13 +48,12 @@
     .split-table th { padding: 2px 1px; border: 1px solid #ccc; text-align: center; font-weight: bold; height: 24px !important; box-sizing: border-box; font-size: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .split-table td { padding: 2px 1px; border: 1px solid #ccc; text-align: center; height: 24px !important; box-sizing: border-box; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-    /* ÜST TABLO İÇİN YENİ SÜTUN GENİŞLİKLERİ (6 Sütunlu Formata Göre) */
-    .top-split-table th:nth-child(1), .top-split-table td:nth-child(1) { width: 14%; } /* HİSSE */
-    .top-split-table th:nth-child(2), .top-split-table td:nth-child(2) { width: 13%; } /* FİYAT */
-    .top-split-table th:nth-child(3), .top-split-table td:nth-child(3) { width: 15%; } /* GÜN. DEĞİŞİM */
-    .top-split-table th:nth-child(4), .top-split-table td:nth-child(4) { width: 10%; } /* RSI */
-    .top-split-table th:nth-child(5), .top-split-table td:nth-child(5) { width: 13%; } /* GÜN. ORT. */
-    .top-split-table th:nth-child(6), .top-split-table td:nth-child(6) { width: 35%; text-align: left; } /* TAVSİYE */
+    .top-split-table th:nth-child(1), .top-split-table td:nth-child(1) { width: 14%; } 
+    .top-split-table th:nth-child(2), .top-split-table td:nth-child(2) { width: 13%; } 
+    .top-split-table th:nth-child(3), .top-split-table td:nth-child(3) { width: 15%; } 
+    .top-split-table th:nth-child(4), .top-split-table td:nth-child(4) { width: 10%; } 
+    .top-split-table th:nth-child(5), .top-split-table td:nth-child(5) { width: 13%; } 
+    .top-split-table th:nth-child(6), .top-split-table td:nth-child(6) { width: 35%; text-align: left; } 
     .top-split-table .tavsiye-cell { text-align: left !important; }
 
     #anasayfa-split-container .split-table th:nth-child(1), #anasayfa-split-container .split-table td:nth-child(1) { width: 18%; } 
@@ -586,7 +585,6 @@
             var slhRow = document.getElementById('anasayfa-split-left-headers'); slhRow.innerHTML = '';
             var srhRow = document.getElementById('anasayfa-split-right-headers'); srhRow.innerHTML = '';
 
-            // >>> YENİ EKLENEN KISIM: 8 (GÜN DEĞİŞİM) INDEX'İ ÜST TABLO BAŞLIKLARINA EKLENDİ
             var topHeaders = [0, 1, 8, 2, 4, 5]; 
             topHeaders.forEach(function(i) { 
                 var thL = document.createElement('th'); thL.className = 'table1-header'; thL.innerText = data.anasayfa.basliklar[i]; tlhRow.appendChild(thL);
@@ -641,7 +639,6 @@
                 var tdB = document.createElement('td'); tdB.className = "bold-cell"; tdB.innerText = bGoster; tr.appendChild(tdB);
 
                 if (!dropdownGecildi) {
-                  // >>> YENİ EKLENEN KISIM: ÜST TABLO İÇİN DEĞİŞİM YÜZDESİ BURAYA BASILIYOR (Renkleriyle Birlikte)
                   var tdDegisimUst = document.createElement('td'); 
                   tdDegisimUst.className = "bold-cell"; 
                   tdDegisimUst.innerText = yuzdeFormatla(degisimGoster); 
