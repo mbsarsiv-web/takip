@@ -58,11 +58,11 @@
 
     #anasayfa-split-container .split-table th:nth-child(1), #anasayfa-split-container .split-table td:nth-child(1) { width: 18%; } 
     #anasayfa-split-container .split-table th:nth-child(2), #anasayfa-split-container .split-table td:nth-child(2) { width: 12%; } 
-    #anasayfa-split-container .split-table th:nth-child(3), #anasayfa-split-container .split-table td:nth-child(3) { width: 12%; } 
-    #anasayfa-split-container .split-table th:nth-child(4), #anasayfa-split-container .split-table td:nth-child(4) { width: 13%; } 
-    #anasayfa-split-container .split-table th:nth-child(5), #anasayfa-split-container .split-table td:nth-child(5) { width: 18%; } 
+    #anasayfa-split-container .split-table th:nth-child(3), #anasayfa-split-container .split-table td:nth-child(3) { width: 16%; } 
+    #anasayfa-split-container .split-table th:nth-child(4), #anasayfa-split-container .split-table td:nth-child(4) { width: 12%; } 
+    #anasayfa-split-container .split-table th:nth-child(5), #anasayfa-split-container .split-table td:nth-child(5) { width: 13%; } 
     #anasayfa-split-container .split-table th:nth-child(6), #anasayfa-split-container .split-table td:nth-child(6) { width: 11%; } 
-    #anasayfa-split-container .split-table th:nth-child(7), #anasayfa-split-container .split-table td:nth-child(7) { width: 16%; } 
+    #anasayfa-split-container .split-table th:nth-child(7), #anasayfa-split-container .split-table td:nth-child(7) { width: 18%; } 
 
     .text-left-merged { text-align: left !important; font-weight: bold; padding-left: 6px !important; }
     .table1-header { background-color: #217346 !important; color: #ffffff !important; border-left: 1px solid #185232 !important; border-right: 1px solid #185232 !important; }
@@ -591,7 +591,7 @@
                 var thR = document.createElement('th'); thR.className = 'table2-header'; thR.innerText = data.anasayfa.basliklar[i]; trhRow.appendChild(thR);
             });
 
-            var bottomHeaders = [0, 1, 2, 4, 6, 7, 8];
+            var bottomHeaders = [0, 1, 8, 2, 4, 7, 6];
             bottomHeaders.forEach(function(i) {
                 var thL = document.createElement('th'); thL.className = 'table1-header'; thL.innerText = data.anasayfa.basliklar[i]; slhRow.appendChild(thL);
                 var thR = document.createElement('th'); thR.className = 'table2-header'; thR.innerText = data.anasayfa.basliklar[i]; srhRow.appendChild(thR);
@@ -622,7 +622,7 @@
 
                 var bGecerliMi     = !gecersizMi(r[1]); var rsiGecerliMi   = !gecersizMi(r[2]); var ortGecerliMi   = !gecersizMi(r[3]); var gunSGecerliMi  = !gecersizMi(r[4]); var tavsGecerliMi  = !gecersizMi(r[5]); var hedefGecerliMi = !gecersizMi(r[6]); var hacimGecerliMi = !gecersizMi(r[7]); var degisimGecerliMi = !gecersizMi(r[8]);
                 var bGoster       = bGecerliMi     ? r[1] : (onceki.b        !== undefined ? onceki.b       : r[1]);
-                var rsiGoster     = rsiGecerliMi   ? r[2] : (onceki.rsi      !== undefined ? onceki.rsi     : "Bekleniyor..");
+                var rsiGoster     = rsiGecerliMi   ? r[2] : (onceki.rsi       !== undefined ? onceki.rsi     : "Bekleniyor..");
                 var gunSGoster    = gunSGecerliMi  ? r[4] : (onceki.gunS     !== undefined ? onceki.gunS    : r[4]);
                 var tavsiyeGoster = tavsGecerliMi  ? r[5] : (onceki.tavs     !== undefined ? onceki.tavs    : "Bekleniyor..");
                 var hedefGoster   = hedefGecerliMi ? r[6] : (onceki.hedef    !== undefined ? onceki.hedef   : r[6]);
@@ -653,13 +653,15 @@
                   if (ustSatirSayaci < yariNokta) { tlBody.appendChild(tr); } else { trBody.appendChild(tr); }
                   ustSatirSayaci++;
                 } else {
-                  var tdC = document.createElement('td'); tdC.className = "bold-cell"; tdC.innerText = rsiGoster; tr.appendChild(tdC);
-                  var tdI = document.createElement('td'); tdI.className = "gunort-cell"; tdI.innerText = gunSGoster; tr.appendChild(tdI);
-                  var tdHedef = document.createElement('td'); tdHedef.className = "bold-cell text-left"; tdHedef.innerText = hedefGoster; tr.appendChild(tdHedef);
-                  var tdHacim = document.createElement('td'); tdHacim.className = "bold-cell"; tdHacim.innerText = hacimGoster; tr.appendChild(tdHacim);
-                  
                   var tdDegisim = document.createElement('td'); tdDegisim.className = "bold-cell"; tdDegisim.innerText = yuzdeFormatla(degisimGoster); 
                   var bgClass = arkaPlanRenkSinifiAl(degisimGoster); if (bgClass) tdDegisim.classList.add(bgClass); tr.appendChild(tdDegisim);
+                  
+                  var tdC = document.createElement('td'); tdC.className = "bold-cell"; tdC.innerText = rsiGoster; tr.appendChild(tdC);
+                  var tdI = document.createElement('td'); tdI.className = "gunort-cell"; tdI.innerText = gunSGoster; tr.appendChild(tdI);
+                  
+                  var tdHacim = document.createElement('td'); tdHacim.className = "bold-cell"; tdHacim.innerText = hacimGoster; tr.appendChild(tdHacim);
+                  
+                  var tdHedef = document.createElement('td'); tdHedef.className = "bold-cell text-left"; tdHedef.innerText = hedefGoster; tr.appendChild(tdHedef);
                   
                   if (altSatirSayaci < 6) { slBody.appendChild(tr); } else { srBody.appendChild(tr); }
                   altSatirSayaci++;
