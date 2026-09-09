@@ -56,7 +56,6 @@
     .top-split-table th:nth-child(6), .top-split-table td:nth-child(6) { width: 35%; text-align: left; } 
     .top-split-table .tavsiye-cell { text-align: left !important; }
 
-    /* CSS düzenlemeleri - Yenilenen sıraya uygun yüzdelikler */
     #anasayfa-split-container .split-table th:nth-child(1), #anasayfa-split-container .split-table td:nth-child(1) { width: 18%; } 
     #anasayfa-split-container .split-table th:nth-child(2), #anasayfa-split-container .split-table td:nth-child(2) { width: 12%; } 
     #anasayfa-split-container .split-table th:nth-child(3), #anasayfa-split-container .split-table td:nth-child(3) { width: 16%; } 
@@ -77,14 +76,6 @@
     input[type=checkbox] { width: 14px; height: 14px; cursor: pointer; margin: 0; vertical-align: middle; }
 
     #temettu-tab-container .edit-input { width: 60px; height: 19px; font-size: 11px; padding: 1px; }
-
-    #hisse-alimi-table { width: auto !important; margin-bottom: 15px; border-collapse: collapse; }
-    #hisse-alimi-table th, #hisse-alimi-table td { padding: 2px 15px !important; height: 22px !important; }
-    #hisse-alimi-table .edit-input { height: 20px; font-size: 11px; padding: 1px; }
-    #hisse-alimi-table .bosluk-satiri td { height: 6px !important; padding: 0 !important; }
-    #hisse-alimi-table th.hisse-alimi-header { background-color: #1976D2 !important; color: #ffffff !important; font-weight: bold; border: 1px solid #ccc !important; font-size: 12px !important; letter-spacing: 0.5px; height: 22px !important; padding: 1px 15px !important; line-height: 1.2 !important; }
-    #hisse-alimi-table tr.toplam-satiri td { background-color: #f4f6f9 !important; border-top: 2px solid #34495e !important; border-bottom: 2px solid #34495e !important; height: 20px !important; padding: 1px 15px !important; line-height: 1.2 !important; }
-    #hisse-alimi-table td.toplam-baslik { text-align: left !important; padding-left: 15px !important; font-size: 13px !important; font-weight: bold !important; color: #34495e !important; }
 
     #genel-tablo-table { 
         width: 85% !important; 
@@ -167,7 +158,7 @@
         <button class="tab-button" onclick="sekmeAc(event, 'maliyet-fon-tab')">📈 Maliyet Fon</button>
         <button class="tab-button" onclick="sekmeAc(event, 'genel-tablo-tab')">🌐 Genel Tablo</button>
         <button class="tab-button" onclick="sekmeAc(event, 'temettu-tab')">💸 Temettü Hesaplama</button>
-        <button class="tab-button" onclick="sekmeAc(event, 'hisse-alimi-tab')">🛒 Hisse Alımı</button>
+        <button class="tab-button" onclick="sekmeAc(event, 'veri-girisi-tab')">📥 Veri Girişi</button>
       </div>
       <div class="live-indicator">
         <div id="dot-indicator" class="pulse-dot"></div>
@@ -195,7 +186,67 @@
     <div id="maliyet-fon-tab" class="tab-content"><div class="table-container"><table><thead><tr id="maliyet-fon-headers"></tr></thead><tbody id="maliyet-fon-body"></tbody></table></div></div>
     <div id="genel-tablo-tab" class="tab-content"><div class="table-container"><table id="genel-tablo-table"></table></div></div>
     <div id="temettu-tab" class="tab-content"><div id="temettu-tab-container" class="split-table-container"></div></div>
-    <div id="hisse-alimi-tab" class="tab-content"><div class="table-container"><table id="hisse-alimi-table"></table></div></div>
+    
+    <div id="veri-girisi-tab" class="tab-content">
+      <div style="display:flex; flex-wrap:wrap; gap:20px; padding: 15px; font-size: 13px;">
+        
+        <!-- HİSSE BÖLÜMÜ -->
+        <div style="flex:1; min-width:300px; background:#f9f9f9; padding:20px; border-radius:8px; border:1px solid #ddd; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+           <h3 style="margin-top:0; color:#185232; border-bottom: 2px solid #ccc; padding-bottom:5px;">📈 Hisse İşlemleri</h3>
+           
+           <label style="font-weight:bold; color:#555;">İşlem Tipi:</label>
+           <select id="hisse-islem-tipi" class="edit-input" style="margin-bottom:15px; height: 30px;">
+               <option value="ALIŞ">🟢 ALIŞ YAPTIM</option>
+               <option value="SATIŞ">🔴 SATIŞ YAPTIM</option>
+           </select>
+           
+           <label style="font-weight:bold; color:#555;">Hisse Kodu:</label>
+           <input type="text" id="hisse-kod" class="edit-input" style="margin-bottom:15px; height: 30px; text-transform: uppercase;" placeholder="Örn: THYAO">
+           
+           <label style="font-weight:bold; color:#555;">İşlem Fiyatı:</label>
+           <input type="number" id="hisse-fiyat" class="edit-input" style="margin-bottom:15px; height: 30px;" placeholder="Örn: 300.50">
+           
+           <label style="font-weight:bold; color:#555;">Miktar (Lot):</label>
+           <input type="number" id="hisse-lot" class="edit-input" style="margin-bottom:20px; height: 30px;" placeholder="Örn: 50">
+           
+           <button onclick="islemGonder('HİSSE')" style="width:100%; padding:12px; background:#185232; color:white; font-size:14px; font-weight:bold; border:none; border-radius:4px; cursor:pointer;">HİSSEYİ İŞLE</button>
+        </div>
+
+        <!-- FON BÖLÜMÜ -->
+        <div style="flex:1; min-width:300px; background:#f9f9f9; padding:20px; border-radius:8px; border:1px solid #ddd; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+           
+           <!-- SÖZLÜK TANITMA -->
+           <h3 style="margin-top:0; color:#21438b; border-bottom: 2px solid #ccc; padding-bottom:5px;">📖 Yeni Fon Tanıt (Sözlük)</h3>
+           <label style="font-weight:bold; color:#555;">Fon Kodu:</label>
+           <input type="text" id="yeni-fon-kod" class="edit-input" style="margin-bottom:10px; height: 30px; text-transform: uppercase;" placeholder="Örn: KZL">
+           
+           <label style="font-weight:bold; color:#555;">ING Uzun Adı:</label>
+           <input type="text" id="yeni-fon-ad" class="edit-input" style="margin-bottom:10px; height: 30px; text-transform: uppercase;" placeholder="Örn: KUVEYT TÜRK PORTFÖY...">
+           
+           <button onclick="fonTanitCagir()" style="width:100%; padding:10px; background:#21438b; color:white; font-size:12px; font-weight:bold; border:none; border-radius:4px; margin-bottom:25px; cursor:pointer;">SİSTEME TANIT</button>
+
+           <!-- FON ALIM SATIM -->
+           <h3 style="margin-top:0; color:#d84315; border-bottom: 2px solid #ccc; padding-bottom:5px;">📊 Fon İşlemleri</h3>
+           
+           <label style="font-weight:bold; color:#555;">İşlem Tipi:</label>
+           <select id="fon-islem-tipi" class="edit-input" style="margin-bottom:10px; height: 30px;">
+               <option value="ALIŞ">🟢 ALIŞ YAPTIM</option>
+               <option value="SATIŞ">🔴 SATIŞ YAPTIM</option>
+           </select>
+           
+           <label style="font-weight:bold; color:#555;">Fon Kodu:</label>
+           <input type="text" id="fon-kod" class="edit-input" style="margin-bottom:10px; height: 30px; text-transform: uppercase;" placeholder="Örn: KZL">
+           
+           <label style="font-weight:bold; color:#555;">İşlem Fiyatı:</label>
+           <input type="number" id="fon-fiyat" class="edit-input" style="margin-bottom:10px; height: 30px;" placeholder="Örn: 8.10">
+           
+           <label style="font-weight:bold; color:#555;">Miktar (Lot):</label>
+           <input type="number" id="fon-lot" class="edit-input" style="margin-bottom:20px; height: 30px;" placeholder="Örn: 41829">
+           
+           <button onclick="islemGonder('FON')" style="width:100%; padding:12px; background:#d84315; color:white; font-size:14px; font-weight:bold; border:none; border-radius:4px; cursor:pointer;">FONU İŞLE</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -218,6 +269,62 @@
       tc = document.getElementsByClassName("tab-content"); for (i = 0; i < tc.length; i++) tc[i].classList.remove("active");
       tb = document.getElementsByClassName("tab-button"); for (i = 0; i < tb.length; i++) tb[i].classList.remove("active");
       document.getElementById(tabId).classList.add("active"); evt.currentTarget.classList.add("active");
+    }
+
+    function islemGonder(varlikTipi) {
+       var prefix = varlikTipi === 'HİSSE' ? 'hisse' : 'fon';
+       var islemTipi = document.getElementById(prefix + '-islem-tipi').value;
+       var kod = document.getElementById(prefix + '-kod').value;
+       var fiyat = document.getElementById(prefix + '-fiyat').value;
+       var lot = document.getElementById(prefix + '-lot').value;
+
+       if(!kod || !fiyat || !lot) { alert("Lütfen Kod, Fiyat ve Lot alanlarını doldurun!"); return; }
+
+       var url = API_URL + "?islem=islemKaydet&sifre=" + encodeURIComponent(API_SIFRE) +
+                 "&varlikTipi=" + encodeURIComponent(varlikTipi) +
+                 "&islemTipi=" + encodeURIComponent(islemTipi) +
+                 "&kod=" + encodeURIComponent(kod) +
+                 "&fiyat=" + encodeURIComponent(fiyat) +
+                 "&lot=" + encodeURIComponent(lot);
+
+       document.getElementById('loading').style.display = 'block';
+       document.getElementById('loading').innerText = '⏳ İşlem kaydediliyor ve portföy vitrinleri güncelleniyor...';
+
+       fetch(url).then(r=>r.json()).then(data => {
+           if(data.basari) {
+               alert(varlikTipi + " işlemi başarıyla kaydedildi! Vitrinler otomatik güncellendi.");
+               document.getElementById(prefix + '-kod').value = '';
+               document.getElementById(prefix + '-fiyat').value = '';
+               document.getElementById(prefix + '-lot').value = '';
+               verileriYukle();
+           } else { alert("Hata oluştu: " + data.hata); }
+       }).catch(err => {
+           alert("Bağlantı koptu. Arka planda işlenmiş olabilir, sayfayı yenileyin.");
+           verileriYukle();
+       });
+    }
+
+    function fonTanitCagir() {
+       var kod = document.getElementById('yeni-fon-kod').value;
+       var ad = document.getElementById('yeni-fon-ad').value;
+       
+       if(!kod || !ad) { alert("Lütfen fon kodu ve uzun adını boş bırakmayın!"); return; }
+
+       var url = API_URL + "?islem=fonTanit&sifre=" + encodeURIComponent(API_SIFRE) +
+                 "&kod=" + encodeURIComponent(kod) +
+                 "&ad=" + encodeURIComponent(ad);
+
+       document.getElementById('loading').style.display = 'block';
+       document.getElementById('loading').innerText = '⏳ Fon sisteme tanıtılıyor...';
+
+       fetch(url).then(r=>r.json()).then(data => {
+           if(data.basari) {
+               alert("Tebrikler! Fon başarıyla sisteme (sözlüğe) eklendi.");
+               document.getElementById('yeni-fon-kod').value = '';
+               document.getElementById('yeni-fon-ad').value = '';
+               document.getElementById('loading').style.display = 'none';
+           } else { alert("Hata: " + data.hata); }
+       });
     }
 
     function arkaPlanRenkSinifiAl(deger) {
@@ -318,38 +425,6 @@
       }
     }
 
-    function hamTabloCiz(veriler, tabloId) {
-      var table = document.getElementById(tabloId); table.innerHTML = ''; if(!veriler || veriler.length === 0) return;
-      var thead = document.createElement('thead'), tbody = document.createElement('tbody');
-      var lotColIdx = -1;
-      if (veriler.length > 0) { veriler[0].forEach(function(cellText, cIdx) { if (turkceKarakterTemizle(cellText).indexOf("ALINACAK LOT") > -1) lotColIdx = cIdx; }); }
-      veriler.forEach(function(row, rIdx) {
-        var isHeader = (rIdx === 0); var isBlankRow = row.join("").trim() === "";
-        var isToplamRow = !isHeader && ((row[0] && row[0].toString().toUpperCase().indexOf("TOPLAM") > -1) || (row[1] && row[1].toString().toUpperCase().indexOf("TOPLAM") > -1));
-        var tr = document.createElement('tr');
-        if (isBlankRow) { tr.className = "bosluk-satiri"; var td = document.createElement('td'); td.colSpan = row.length; td.innerHTML = "&nbsp;"; tr.appendChild(td); tbody.appendChild(tr); return; }
-        if (isToplamRow) {
-            tr.className = "toplam-satiri"; var veriBaslayanSutun = -1;
-            for (var k = 0; k < row.length; k++) { var hStr = row[k] ? row[k].toString().trim() : ""; if (hStr !== "" && hStr.toUpperCase().indexOf("TOPLAM") === -1 && veriBaslayanSutun === -1) { veriBaslayanSutun = k; } }
-            if (veriBaslayanSutun === -1) veriBaslayanSutun = 2;
-            var tdLabel = document.createElement('td'); tdLabel.colSpan = Math.max(1, veriBaslayanSutun); tdLabel.innerText = "TOPLAM"; tdLabel.className = "toplam-baslik"; tr.appendChild(tdLabel);
-            for (var m = veriBaslayanSutun; m < row.length; m++) { var tdData = document.createElement('td'); tdData.innerText = row[m] || ""; tdData.className = "data-bold"; tr.appendChild(tdData); }
-            tbody.appendChild(tr); return;
-        }
-        row.forEach(function(cellData, cIdx) {
-          var cell = document.createElement(isHeader ? 'th' : 'td');
-          if (isHeader) { cell.innerText = cellData; cell.className = "hisse-alimi-header"; } else {
-            if (cIdx === 1) { var select = createHisseDropdown(cellData, "HİSSE ALIMI", rIdx + 1, cIdx + 1); cell.appendChild(select); }
-            else if (cIdx === lotColIdx) { var inp = document.createElement('input'); inp.type = 'text'; inp.className = 'edit-input'; inp.value = cellData; inp.onchange = function() { uzakHucreGuncelle("HİSSE ALIMI", rIdx + 1, cIdx + 1, this.value); }; cell.appendChild(inp); }
-            else { cell.innerText = cellData; cell.className = "data-bold"; }
-          }
-          tr.appendChild(cell);
-        });
-        if (isHeader) thead.appendChild(tr); else tbody.appendChild(tr);
-      });
-      table.appendChild(thead); table.appendChild(tbody);
-    }
-
     function parseSayi(val) {
       if(!val) return 0;
       var s = val.toString().replace(/[^0-9,\.-]/g, '');
@@ -417,7 +492,12 @@
                   var gkzSutunHisse = -1;
                   tumVeri.maliyetHisse.basliklar.forEach(function(baslik, i) { if (turkceKarakterTemizle(baslik).indexOf("GUNLUK") > -1) gkzSutunHisse = i; });
                   if (gkzSutunHisse > -1 && tumVeri.maliyetHisse.altHesaplamalar.length > 0) {
-                      hisseFark = parseSayi(tumVeri.maliyetHisse.altHesaplamalar[0][gkzSutunHisse]);
+                      for (var mh = 0; mh < tumVeri.maliyetHisse.altHesaplamalar.length; mh++) {
+                          if (tumVeri.maliyetHisse.altHesaplamalar[mh][gkzSutunHisse] && tumVeri.maliyetHisse.altHesaplamalar[mh][gkzSutunHisse].toString().trim() !== "") {
+                              hisseFark = parseSayi(tumVeri.maliyetHisse.altHesaplamalar[mh][gkzSutunHisse]);
+                              break;
+                          }
+                      }
                   }
               }
               
@@ -425,7 +505,12 @@
                   var gkzSutunFon = -1;
                   tumVeri.maliyetFon.basliklar.forEach(function(baslik, i) { if (turkceKarakterTemizle(baslik).indexOf("GUNLUK") > -1) gkzSutunFon = i; });
                   if (gkzSutunFon > -1 && tumVeri.maliyetFon.altHesaplamalar.length > 0) {
-                      fonFark = parseSayi(tumVeri.maliyetFon.altHesaplamalar[0][gkzSutunFon]);
+                      for (var mf = 0; mf < tumVeri.maliyetFon.altHesaplamalar.length; mf++) {
+                          if (tumVeri.maliyetFon.altHesaplamalar[mf][gkzSutunFon] && tumVeri.maliyetFon.altHesaplamalar[mf][gkzSutunFon].toString().trim() !== "") {
+                              fonFark = parseSayi(tumVeri.maliyetFon.altHesaplamalar[mf][gkzSutunFon]);
+                              break;
+                          }
+                      }
                   }
               }
 
@@ -577,7 +662,6 @@
           );
           
           var temettuOdakliMi = document.getElementById('temettu-tab-container') && document.getElementById('temettu-tab-container').contains(aktifEleman) && isEditing;
-          var hisseAlimiOdakliMi = document.getElementById('hisse-alimi-table') && document.getElementById('hisse-alimi-table').contains(aktifEleman) && isEditing;
 
           if (data.anasayfa && data.anasayfa.basliklar && !anasayfaOdakliMi) {
             
@@ -592,7 +676,6 @@
                 var thR = document.createElement('th'); thR.className = 'table2-header'; thR.innerText = data.anasayfa.basliklar[i]; trhRow.appendChild(thR);
             });
 
-            // Alt tablonun başlık sıralaması tam istediğiniz gibi
             var bottomHeaders = [0, 1, 8, 2, 4, 7, 6];
             bottomHeaders.forEach(function(i) {
                 var thL = document.createElement('th'); thL.className = 'table1-header'; thL.innerText = data.anasayfa.basliklar[i]; slhRow.appendChild(thL);
@@ -655,7 +738,6 @@
                   if (ustSatirSayaci < yariNokta) { tlBody.appendChild(tr); } else { trBody.appendChild(tr); }
                   ustSatirSayaci++;
                 } else {
-                  // Alt tablo sütunlarının sizin sıranıza (GÜN. DEĞİŞİM -> RSI -> GÜN. ORT. -> HACİM -> HEDEF) göre basılması
                   var tdDegisim = document.createElement('td'); tdDegisim.className = "bold-cell"; tdDegisim.innerText = yuzdeFormatla(degisimGoster); 
                   var bgClass = arkaPlanRenkSinifiAl(degisimGoster); if (bgClass) tdDegisim.classList.add(bgClass); tr.appendChild(tdDegisim);
                   
@@ -677,7 +759,6 @@
           if (data.maliyetFon) tabloOlustur(data.maliyetFon, 'maliyet-fon-headers', 'maliyet-fon-body');
           if (data.genelTablo) { genelTabloCiz(data.genelTablo, data.genelTabloDun, 'genel-tablo-table', data); }
           if (data.temettuHesaplama && !temettuOdakliMi) { temettuTablosuCiz(data.temettuHesaplama); }
-          if (data.hisseAlimi && !hisseAlimiOdakliMi) { hamTabloCiz(data.hisseAlimi, 'hisse-alimi-table'); }
 
           var simdi = new Date();
           document.getElementById('son-guncelleme').innerText = simdi.getHours().toString().padStart(2, '0') + ':' + simdi.getMinutes().toString().padStart(2, '0') + ':' + simdi.getSeconds().toString().padStart(2, '0');
