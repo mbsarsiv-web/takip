@@ -159,6 +159,7 @@
         <button class="tab-button" onclick="sekmeAc(event, 'genel-tablo-tab')">🌐 Genel Tablo</button>
         <button class="tab-button" onclick="sekmeAc(event, 'temettu-tab')">💸 Temettü Hesaplama</button>
         <button class="tab-button" onclick="sekmeAc(event, 'veri-girisi-tab')">📥 Veri Girişi</button>
+        <button class="tab-button" onclick="sekmeAc(event, 'islem-gecmisi-tab')">📜 İşlem Geçmişi</button>
       </div>
       <div class="live-indicator">
         <div id="dot-indicator" class="pulse-dot"></div>
@@ -247,6 +248,23 @@
         </div>
       </div>
     </div>
+    
+    <!-- YENİ İŞLEM GEÇMİŞİ VE DÜZENLEME MODÜLÜ -->
+    <div id="islem-gecmisi-tab" class="tab-content">
+      <div style="padding: 15px;">
+        <h3 style="color:#185232; margin-top:0; border-bottom: 2px solid #ccc; padding-bottom:5px;">📜 Son 50 İşlem Geçmişi (Düzenle / Sil)</h3>
+        <p style="font-size:12px; color:#666; margin-bottom: 15px;">Aşağıdan daha önce girdiğiniz işlemleri tamamen silebilir veya fiyat/lot bilgisini güncelleyebilirsiniz. İşlem anında portföyünüze (vitrine) yansır.</p>
+        <div class="table-container">
+           <table style="width:100%; border-collapse: collapse;">
+             <thead>
+               <tr><th>TARİH</th><th>VARLIK</th><th>YÖN</th><th>KOD</th><th>FİYAT</th><th>LOT</th><th>İŞLEM</th></tr>
+             </thead>
+             <tbody id="islem-gecmisi-body"></tbody>
+           </table>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <script>
@@ -269,6 +287,30 @@
       tc = document.getElementsByClassName("tab-content"); for (i = 0; i < tc.length; i++) tc[i].classList.remove("active");
       tb = document.getElementsByClassName("tab-button"); for (i = 0; i < tb.length; i++) tb[i].classList.remove("active");
       document.getElementById(tabId).classList.add("active"); evt.currentTarget.classList.add("active");
+    }
+    
+    // YENİ İŞLEM SİLME VE GÜNCELLEME KODU
+    function islemGuncelleSil(satir, aksiyon) {
+       if (aksiyon === 'SİL' && !confirm("Bu işlemi tamamen silmek istediğinize emin misiniz?")) return;
+       
+       var fiyat = document.getElementById('fiyat_' + satir) ? document.getElementById('fiyat_' + satir).value : 0;
+       var lot = document.getElementById('lot_' + satir) ? document.getElementById('lot_' + satir).value : 0;
+       
+       var url = API_URL + "?islem=islemGuncelleSil&sifre=" + encodeURIComponent(API_SIFRE) +
+                 "&satir=" + satir + "&aksiyon=" + encodeURIComponent(aksiyon) + 
+                 "&fiyat=" + encodeURIComponent(fiyat) + "&miktar=" + encodeURIComponent(lot);
+
+       document.getElementById('loading').style.display = 'block';
+       document.getElementById('loading').innerText = '⏳ İşlem ' + (aksiyon === 'SİL' ? 'siliniyor' : 'güncelleniyor') + ' ve portföy yeniden hesaplanıyor...';
+
+       fetch(url).then(r=>r.json()).then(data => {
+           if(data.basari) {
+               alert("İşlem başarıyla " + (aksiyon === 'SİL' ? 'silindi.' : 'güncellendi.'));
+               verileriYukle();
+           } else { alert("Hata oluştu: " + data.hata); }
+       }).catch(err => {
+           alert("Bağlantı hatası oluştu."); verileriYukle();
+       });
     }
 
     function islemGonder(varlikTipi) {
@@ -663,6 +705,30 @@
           
           var temettuOdakliMi = document.getElementById('temettu-tab-container') && document.getElementById('temettu-tab-container').contains(aktifEleman) && isEditing;
 
+          // YENİ: İŞLEM GEÇMİŞİ TABLOSUNU DOLDUR
+          if (data.islemGecmisi && (!isEditing || document.getElementById('islem-gecmisi-tab').style.display !== 'block')) {
+              var tBodyIslem = document.getElementById('islem-gecmisi-body');
+              if(tBodyIslem) {
+                  tBodyIslem.innerHTML = '';
+                  data.islemGecmisi.forEach(function(row) {
+                     var tr = document.createElement('tr');
+                     var islemRenk = row.islem.indexOf("AL") > -1 ? "#1b5e20" : "#b71c1c";
+                     
+                     tr.innerHTML = '<td>' + row.tarih + '</td>' +
+                                    '<td>' + row.varlik + '</td>' +
+                                    '<td style="color:' + islemRenk + '; font-weight:bold;">' + row.islem + '</td>' +
+                                    '<td style="font-weight:bold;">' + row.kod + '</td>' +
+                                    '<td><input type="number" id="fiyat_' + row.satir + '" value="' + parseFloat(row.fiyat.toString().replace(',','.')) + '" class="edit-input" style="width:80px; font-weight:normal;"></td>' +
+                                    '<td><input type="number" id="lot_' + row.satir + '" value="' + parseFloat(row.miktar.toString().replace(',','.')) + '" class="edit-input" style="width:80px; font-weight:normal;"></td>' +
+                                    '<td>' +
+                                      '<button onclick="islemGuncelleSil(' + row.satir + ', \'GÜNCELLE\')" style="background:#185232; color:white; border:none; padding:4px 8px; border-radius:3px; cursor:pointer; font-size:11px; margin-right:5px; font-weight:bold;">Kaydet</button>' +
+                                      '<button onclick="islemGuncelleSil(' + row.satir + ', \'SİL\')" style="background:#b71c1c; color:white; border:none; padding:4px 8px; border-radius:3px; cursor:pointer; font-size:11px; font-weight:bold;">Sil</button>' +
+                                    '</td>';
+                     tBodyIslem.appendChild(tr);
+                  });
+              }
+          }
+
           if (data.anasayfa && data.anasayfa.basliklar && !anasayfaOdakliMi) {
             
             var tlhRow = document.getElementById('anasayfa-top-split-left-headers'); tlhRow.innerHTML = '';
@@ -707,7 +773,7 @@
 
                 var bGecerliMi     = !gecersizMi(r[1]); var rsiGecerliMi   = !gecersizMi(r[2]); var ortGecerliMi   = !gecersizMi(r[3]); var gunSGecerliMi  = !gecersizMi(r[4]); var tavsGecerliMi  = !gecersizMi(r[5]); var hedefGecerliMi = !gecersizMi(r[6]); var hacimGecerliMi = !gecersizMi(r[7]); var degisimGecerliMi = !gecersizMi(r[8]);
                 var bGoster       = bGecerliMi     ? r[1] : (onceki.b        !== undefined ? onceki.b       : r[1]);
-                var rsiGoster     = rsiGecerliMi   ? r[2] : (onceki.rsi       !== undefined ? onceki.rsi     : "Bekleniyor..");
+                var rsiGoster     = rsiGecerliMi   ? r[2] : (onceki.rsi      !== undefined ? onceki.rsi     : "Bekleniyor..");
                 var gunSGoster    = gunSGecerliMi  ? r[4] : (onceki.gunS     !== undefined ? onceki.gunS    : r[4]);
                 var tavsiyeGoster = tavsGecerliMi  ? r[5] : (onceki.tavs     !== undefined ? onceki.tavs    : "Bekleniyor..");
                 var hedefGoster   = hedefGecerliMi ? r[6] : (onceki.hedef    !== undefined ? onceki.hedef   : r[6]);
