@@ -290,11 +290,10 @@
     }
     
     function islemGuncelleSil(satir, aksiyon) {
-       // KESİN ONAY MEKANİZMASI EKLENDİ
        if (aksiyon === 'SİL') {
            var kullaniciOnayi = confirm("DİKKAT: Bu işlemi kalıcı olarak silmek üzeresiniz. Bu işlem geri alınamaz.\n\nSilme işlemini onaylıyor musunuz?");
            if (!kullaniciOnayi) {
-               return; // Kullanıcı iptal ederse fonksiyon anında durur.
+               return; 
            }
        }
        
