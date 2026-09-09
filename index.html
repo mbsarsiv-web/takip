@@ -289,9 +289,14 @@
       document.getElementById(tabId).classList.add("active"); evt.currentTarget.classList.add("active");
     }
     
-    // YENİ İŞLEM SİLME VE GÜNCELLEME KODU
     function islemGuncelleSil(satir, aksiyon) {
-       if (aksiyon === 'SİL' && !confirm("Bu işlemi tamamen silmek istediğinize emin misiniz?")) return;
+       // KESİN ONAY MEKANİZMASI EKLENDİ
+       if (aksiyon === 'SİL') {
+           var kullaniciOnayi = confirm("DİKKAT: Bu işlemi kalıcı olarak silmek üzeresiniz. Bu işlem geri alınamaz.\n\nSilme işlemini onaylıyor musunuz?");
+           if (!kullaniciOnayi) {
+               return; // Kullanıcı iptal ederse fonksiyon anında durur.
+           }
+       }
        
        var fiyat = document.getElementById('fiyat_' + satir) ? document.getElementById('fiyat_' + satir).value : 0;
        var lot = document.getElementById('lot_' + satir) ? document.getElementById('lot_' + satir).value : 0;
@@ -705,7 +710,6 @@
           
           var temettuOdakliMi = document.getElementById('temettu-tab-container') && document.getElementById('temettu-tab-container').contains(aktifEleman) && isEditing;
 
-          // YENİ: İŞLEM GEÇMİŞİ TABLOSUNU DOLDUR
           if (data.islemGecmisi && (!isEditing || document.getElementById('islem-gecmisi-tab').style.display !== 'block')) {
               var tBodyIslem = document.getElementById('islem-gecmisi-body');
               if(tBodyIslem) {
