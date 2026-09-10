@@ -283,6 +283,9 @@
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbyKM3BYiKZmjZ40h4gMjccDYdQxm8eTuUqYyuKhUmdSgBoh-xsixPWUsyf-VZX5wBRi5Q/exec";
     let API_SIFRE = sessionStorage.getItem("pusu_sifre") || "";
+    
+    // --- ÇİFT TIKLAMA KORUMASI KİLİDİ ---
+    let isRequestActive = false;
 
     function girisYap() {
       const val = document.getElementById("sifre-input").value;
@@ -303,6 +306,8 @@
     }
     
     function islemGuncelleSil(satir, aksiyon) {
+       if (isRequestActive) return; // Çift tıklama engeli
+       
        if (aksiyon === 'SİL') {
            var kullaniciOnayi = confirm("DİKKAT: Bu işlemi kalıcı olarak silmek üzeresiniz. Bu işlem geri alınamaz.\n\nSilme işlemini onaylıyor musunuz?");
            if (!kullaniciOnayi) {
@@ -317,20 +322,25 @@
                  "&satir=" + satir + "&aksiyon=" + encodeURIComponent(aksiyon) + 
                  "&fiyat=" + encodeURIComponent(fiyat) + "&miktar=" + encodeURIComponent(lot);
 
+       isRequestActive = true; // Kilidi kapat
        document.getElementById('loading').style.display = 'block';
        document.getElementById('loading').innerText = '⏳ İşlem ' + (aksiyon === 'SİL' ? 'siliniyor' : 'güncelleniyor') + ' ve portföy yeniden hesaplanıyor...';
 
        fetch(url).then(r=>r.json()).then(data => {
+           isRequestActive = false; // Kilidi aç
            if(data.basari) {
                alert("İşlem başarıyla " + (aksiyon === 'SİL' ? 'silindi.' : 'güncellendi.'));
                verileriYukle();
            } else { alert("Hata oluştu: " + data.hata); }
        }).catch(err => {
+           isRequestActive = false; // Kilidi aç
            alert("Bağlantı hatası oluştu."); verileriYukle();
        });
     }
 
     function islemGonder(varlikTipi) {
+       if (isRequestActive) return; // Çift tıklama engeli
+       
        var prefix = varlikTipi === 'HİSSE' ? 'hisse' : 'fon';
        var islemTipi = document.getElementById(prefix + '-islem-tipi').value;
        var kod = document.getElementById(prefix + '-kod').value;
@@ -352,10 +362,12 @@
                  "&lot=" + encodeURIComponent(lot) +
                  "&kategori=" + encodeURIComponent(kategori);
 
+       isRequestActive = true; // Kilidi kapat
        document.getElementById('loading').style.display = 'block';
-       document.getElementById('loading').innerText = '⏳ İşlem kaydediliyor ve portföy vitrinleri güncelleniyor...';
+       document.getElementById('loading').innerText = '⏳ İşlem kaydediliyor ve portföy vitrinleri güncelleniyor... Lütfen bekleyin.';
 
        fetch(url).then(r=>r.json()).then(data => {
+           isRequestActive = false; // Kilidi aç
            if(data.basari) {
                alert(varlikTipi + " işlemi başarıyla kaydedildi! Vitrinler otomatik güncellendi.");
                document.getElementById(prefix + '-kod').value = '';
@@ -364,12 +376,15 @@
                verileriYukle();
            } else { alert("Hata oluştu: " + data.hata); }
        }).catch(err => {
+           isRequestActive = false; // Kilidi aç
            alert("Bağlantı koptu. Arka planda işlenmiş olabilir, sayfayı yenileyin.");
            verileriYukle();
        });
     }
 
     function fonTanitCagir() {
+       if (isRequestActive) return; // Çift tıklama engeli
+       
        var kod = document.getElementById('yeni-fon-kod').value;
        var ad = document.getElementById('yeni-fon-ad').value;
        
@@ -379,16 +394,21 @@
                  "&kod=" + encodeURIComponent(kod) +
                  "&ad=" + encodeURIComponent(ad);
 
+       isRequestActive = true; // Kilidi kapat
        document.getElementById('loading').style.display = 'block';
-       document.getElementById('loading').innerText = '⏳ Fon sisteme tanıtılıyor...';
+       document.getElementById('loading').innerText = '⏳ Fon sisteme tanıtılıyor... Lütfen bekleyin.';
 
        fetch(url).then(r=>r.json()).then(data => {
+           isRequestActive = false; // Kilidi aç
            if(data.basari) {
                alert("Tebrikler! Fon başarıyla sisteme (sözlüğe) eklendi.");
                document.getElementById('yeni-fon-kod').value = '';
                document.getElementById('yeni-fon-ad').value = '';
                document.getElementById('loading').style.display = 'none';
            } else { alert("Hata: " + data.hata); }
+       }).catch(err => {
+           isRequestActive = false; // Kilidi aç
+           alert("Bağlantı hatası oluştu.");
        });
     }
 
