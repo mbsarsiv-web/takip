@@ -131,6 +131,10 @@
     .bg-kirmizi-dolu { background-color: #DC2626 !important; color: #ffffff !important; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.6); }
 
     .alt-hesap-hucre { font-weight: bold; font-size: 12px; text-align: center; }
+    
+    /* Grupların arasını ayıran boşluk satırı (Hiçbir metin, renk veya çizgi olmadan sadece alan sağlar) */
+    .bosluk-satiri td { height: 25px !important; border: none !important; background-color: transparent !important; }
+    
     #loading { margin: 15px; font-weight: bold; color: #274e37; font-size: 13px; text-align: center; }
 
     #maliyet-hisse-tab table { margin-bottom: 8px !important; height: auto !important; }
@@ -445,7 +449,7 @@
       return select;
     }
 
-    // --- GRUPLANDIRMA MANTIĞI: BAŞLIKLAR KALDIRILDI ---
+    // --- GRUPLANDIRMA MANTIĞI: BAŞLIKLAR KALDIRILDI, SADECE BOŞLUK ---
     function tabloOlustur(dataObj, headersId, bodyId) {
       if (!dataObj || !dataObj.basliklar) return;
       var hRow = document.getElementById(headersId); hRow.innerHTML = '';
