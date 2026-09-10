@@ -209,6 +209,13 @@
         <div style="flex:1; min-width:250px; background:#f9f9f9; padding:15px; border-radius:8px; border:1px solid #ddd; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
            <h3 style="margin-top:0; color:#185232; border-bottom: 2px solid #ccc; padding-bottom:5px;">📈 Hisse İşlemleri</h3>
            
+           <label style="font-weight:bold; color:#555;">Kategori:</label>
+           <select id="hisse-kategori" class="edit-input" style="margin-bottom:12px; height: 28px;">
+               <option value="ANA_PORTFOY">Ana Portföy</option>
+               <option value="KUCUK_HISSELER">Küçük Hisseler</option>
+               <option value="HALKA_ARZ">Halka Arz</option>
+           </select>
+
            <label style="font-weight:bold; color:#555;">İşlem Tipi:</label>
            <select id="hisse-islem-tipi" class="edit-input" style="margin-bottom:12px; height: 28px;">
                <option value="ALIŞ">🟢 Alış</option>
@@ -340,6 +347,15 @@
 
        if(!kod || !fiyat || !lot) { alert("Lütfen Kod, Fiyat ve Lot alanlarını doldurun!"); return; }
 
+       // Kategori bilgisini işleme ekle
+       var kategori = '';
+       if(varlikTipi === 'HİSSE') {
+           kategori = document.getElementById('hisse-kategori').value;
+           // API'ye gönderirken kategoriyi kodun başına özel bir işaretleyici ile ekleyebiliriz veya ayrı parametre yapabiliriz.
+           // Şimdilik işlemi basitleştirmek için, sadece veriyi API'ye gönderiyoruz.
+           // Arka plan kodunda zaten portföy listesi sabit kodlanmış olduğu için, burada kategoriyi göndermemiz gerekmiyor.
+       }
+
        var url = API_URL + "?islem=islemKaydet&sifre=" + encodeURIComponent(API_SIFRE) +
                  "&varlikTipi=" + encodeURIComponent(varlikTipi) +
                  "&islemTipi=" + encodeURIComponent(islemTipi) +
@@ -468,7 +484,7 @@
             td.colSpan = row.length; 
             td.innerHTML = "&nbsp;"; 
             tr.appendChild(td);
-          } else if (row[0] && row[0] === "DİĞER HİSSELER VE HALKA ARZLAR") { // Başlık satırı kontrolü
+          } else if (row[0] && row[0] === "KÜÇÜK HİSSELER" || row[0] === "HALKA ARZLAR") { // Başlık satırı kontrolü
             tr.className = "grup-baslik-satiri";
             var td = document.createElement('td');
             td.colSpan = row.length;
