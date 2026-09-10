@@ -130,14 +130,25 @@
     .bg-yesil-dolu { background-color: #15803D !important; color: #ffffff !important; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.6); }
     .bg-kirmizi-dolu { background-color: #DC2626 !important; color: #ffffff !important; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.6); }
 
-    .alt-hesap-hucre { font-weight: bold; font-size: 12px; }
+    .alt-hesap-hucre { font-weight: bold; font-size: 12px; text-align: center; }
     .bosluk-satiri td { height: 18px !important; border: none !important; background-color: transparent !important; }
     #loading { margin: 15px; font-weight: bold; color: #274e37; font-size: 13px; text-align: center; }
 
     #maliyet-hisse-tab table { margin-bottom: 8px !important; height: auto !important; }
     #maliyet-hisse-tab th, #maliyet-hisse-tab td { padding: 1px 4px !important; height: 18px !important; font-size: 11px !important; line-height: 1.1 !important; box-sizing: border-box; white-space: nowrap; }
     #maliyet-hisse-tab .alt-hesap-hucre { font-size: 11px !important; height: 18px !important; }
-    #maliyet-hisse-tab .bosluk-satiri td { height: 10px !important; }
+    
+    /* İstenilen grup başlığı için yeni stil */
+    .grup-baslik-satiri td { 
+        background-color: #1e3c72 !important; 
+        color: white !important; 
+        font-weight: bold; 
+        text-align: center; 
+        height: 22px !important; 
+        font-size: 12px !important; 
+        letter-spacing: 1px;
+    }
+    
     #maliyet-hisse-tab.active { height: calc(100vh - 70px); display: flex; flex-direction: column; }
     #maliyet-hisse-tab .table-container { flex: 1; overflow-x: auto !important; overflow-y: auto !important; -webkit-overflow-scrolling: touch; }
   </style>
@@ -433,6 +444,7 @@
       return select;
     }
 
+    // --- GRUPLANDIRMA MANTIĞI BURADA DEVREYE GİRİYOR ---
     function tabloOlustur(dataObj, headersId, bodyId) {
       if (!dataObj || !dataObj.basliklar) return;
       var hRow = document.getElementById(headersId); hRow.innerHTML = '';
@@ -442,12 +454,26 @@
         var tb = turkceKarakterTemizle(b);
         if (tb.indexOf("DEGISIM") > -1) dsIdx.push(idx); else if (tb.indexOf("GUNLUK") > -1) gkzIdx.push(idx); else if (tb.indexOf("K/Z") > -1 || tb.indexOf("KAR/ZARAR") > -1 || tb.indexOf("KAR / ZARAR") > -1) kzIdx.push(idx);
       });
+      
       var body = document.getElementById(bodyId); body.innerHTML = '';
+      
       if (dataObj.satirlar) {
         dataObj.satirlar.forEach(function(row) {
-          var isBlankRow = row.join("").trim() === ""; var tr = document.createElement('tr');
+          var isBlankRow = row.join("").trim() === ""; 
+          var tr = document.createElement('tr');
+          
           if (isBlankRow) {
-            tr.className = "bosluk-satiri"; var td = document.createElement('td'); td.colSpan = row.length; td.innerHTML = "&nbsp;"; tr.appendChild(td);
+            tr.className = "bosluk-satiri"; 
+            var td = document.createElement('td'); 
+            td.colSpan = row.length; 
+            td.innerHTML = "&nbsp;"; 
+            tr.appendChild(td);
+          } else if (row[0] && row[0] === "DİĞER HİSSELER VE HALKA ARZLAR") { // Başlık satırı kontrolü
+            tr.className = "grup-baslik-satiri";
+            var td = document.createElement('td');
+            td.colSpan = row.length;
+            td.innerText = row[0];
+            tr.appendChild(td);
           } else {
             row.forEach(function(d, idx) {
               var td = document.createElement('td'); td.innerText = d; td.className = (idx === 0) ? "text-left" : "data-bold";
@@ -458,7 +484,9 @@
           body.appendChild(tr);
         });
       }
+      
       var bTr = document.createElement('tr'); bTr.className = 'bosluk-satiri'; var bTd = document.createElement('td'); bTd.colSpan = dataObj.basliklar.length; bTd.innerHTML = "&nbsp;"; bTr.appendChild(bTd); body.appendChild(bTr);
+      
       if (dataObj.altHesaplamalar) {
         dataObj.altHesaplamalar.forEach(function(alt) {
           var tr = document.createElement('tr');
