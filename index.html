@@ -83,7 +83,7 @@
     #genel-tablo-table { 
         width: 85% !important; 
         min-width: 750px;
-        margin: 25px auto 35px auto; 
+        margin: 25px auto 15px auto; 
         border-collapse: separate; 
         border-spacing: 0;
         border-radius: 10px; 
@@ -118,6 +118,59 @@
         padding-left: 20px !important;
     }
 
+    /* YENİ EKLENEN KAYAN BANT (TICKER) CSS KODLARI */
+    .ticker-wrap { 
+        width: 85%; 
+        min-width: 750px; 
+        margin: 0 auto 35px auto; 
+        background-color: #f8f9fa; 
+        border: 2px solid #eef2f5; 
+        border-radius: 10px; 
+        overflow: hidden; 
+        display: flex; 
+        align-items: center; 
+        height: 40px; 
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+    }
+    .ticker-title { 
+        background-color: #21438b; 
+        color: white; 
+        padding: 0 20px; 
+        font-weight: 800; 
+        font-size: 14px; 
+        height: 100%; 
+        display: flex; 
+        align-items: center; 
+        z-index: 2; 
+        white-space: nowrap; 
+        box-shadow: 2px 0 5px rgba(0,0,0,0.1); 
+    }
+    .ticker { 
+        display: inline-block; 
+        white-space: nowrap; 
+        padding-left: 100%; 
+        animation: ticker-anim 50s linear infinite; 
+    }
+    .ticker:hover { 
+        animation-play-state: paused; 
+        cursor: default; 
+    }
+    @keyframes ticker-anim { 
+        0% { transform: translate3d(0, 0, 0); } 
+        100% { transform: translate3d(-100%, 0, 0); } 
+    }
+    .ticker-item { 
+        display: inline-block; 
+        padding: 0 20px; 
+        font-size: 14px; 
+        font-weight: 700; 
+        border-right: 1px solid #ddd; 
+    }
+    .ticker-item:last-child { border-right: none; }
+    .t-up { color: #15803D; font-weight: 900;}
+    .t-down { color: #DC2626; font-weight: 900;}
+    .t-neutral { color: #555; font-weight: 900;}
+
     .hisse-cell { font-weight: bold; background-color: #ffffff !important; text-align: center !important; width: 1%; vertical-align: middle; }
     #anasayfa-tab .hisse-cell .edit-input { background-color: transparent !important; border: 1px solid #e0e0e0; cursor: pointer; }
     .bold-cell { font-weight: bold; }
@@ -132,7 +185,6 @@
 
     .alt-hesap-hucre { font-weight: bold; font-size: 12px; text-align: center; }
     
-    /* Grupların arasını ayıran boşluk satırı (Hiçbir metin, renk veya çizgi olmadan sadece alan sağlar) */
     .bosluk-satiri td { height: 25px !important; border: none !important; background-color: transparent !important; }
     
     #loading { margin: 15px; font-weight: bold; color: #274e37; font-size: 13px; text-align: center; }
@@ -191,13 +243,23 @@
 
     <div id="maliyet-hisse-tab" class="tab-content"><div class="table-container"><table><thead><tr id="maliyet-hisse-headers"></tr></thead><tbody id="maliyet-hisse-body"></tbody></table></div></div>
     <div id="maliyet-fon-tab" class="tab-content"><div class="table-container"><table><thead><tr id="maliyet-fon-headers"></tr></thead><tbody id="maliyet-fon-body"></tbody></table></div></div>
-    <div id="genel-tablo-tab" class="tab-content"><div class="table-container"><table id="genel-tablo-table"></table></div></div>
+    
+    <div id="genel-tablo-tab" class="tab-content">
+        <div class="table-container">
+            <table id="genel-tablo-table"></table>
+            <!-- EKLENEN KAYAN BANT -->
+            <div class="ticker-wrap" id="ticker-container" style="display:none;">
+                 <div class="ticker-title">CANLI PİYASA & PORTFÖY</div>
+                 <div class="ticker" id="ticker-content"></div>
+            </div>
+        </div>
+    </div>
+    
     <div id="temettu-tab" class="tab-content"><div id="temettu-tab-container" class="split-table-container"></div></div>
     
     <div id="veri-girisi-tab" class="tab-content">
       <div style="display:flex; flex-wrap:wrap; gap:15px; padding: 10px; font-size: 13px;">
         
-        <!-- HİSSE BÖLÜMÜ -->
         <div style="flex:1; min-width:250px; background:#f9f9f9; padding:15px; border-radius:8px; border:1px solid #ddd; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
            <h3 style="margin-top:0; color:#185232; border-bottom: 2px solid #ccc; padding-bottom:5px;">📈 Hisse İşlemleri</h3>
            
@@ -226,7 +288,6 @@
            <button onclick="islemGonder('HİSSE')" style="width:100%; padding:10px; background:#185232; color:white; font-size:14px; font-weight:bold; border:none; border-radius:4px; cursor:pointer;">HİSSEYİ İŞLE</button>
         </div>
 
-        <!-- FON ALIM SATIM BÖLÜMÜ -->
         <div style="flex:1; min-width:250px; background:#f9f9f9; padding:15px; border-radius:8px; border:1px solid #ddd; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
            <h3 style="margin-top:0; color:#d84315; border-bottom: 2px solid #ccc; padding-bottom:5px;">📊 Fon İşlemleri</h3>
            
@@ -248,7 +309,6 @@
            <button onclick="islemGonder('FON')" style="width:100%; padding:10px; background:#d84315; color:white; font-size:14px; font-weight:bold; border:none; border-radius:4px; cursor:pointer;">FONU İŞLE</button>
         </div>
 
-        <!-- SÖZLÜK TANITMA BÖLÜMÜ -->
         <div style="flex:1; min-width:250px; background:#f9f9f9; padding:15px; border-radius:8px; border:1px solid #ddd; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
            <h3 style="margin-top:0; color:#21438b; border-bottom: 2px solid #ccc; padding-bottom:5px;">📖 Yeni Fon Tanıt (Sözlük)</h3>
            <label style="font-weight:bold; color:#555;">Fon Kodu:</label>
@@ -262,7 +322,6 @@
       </div>
     </div>
     
-    <!-- YENİ İŞLEM GEÇMİŞİ VE DÜZENLEME MODÜLÜ -->
     <div id="islem-gecmisi-tab" class="tab-content">
       <div style="padding: 15px;">
         <h3 style="color:#185232; margin-top:0; border-bottom: 2px solid #ccc; padding-bottom:5px;">📜 Son 50 İşlem Geçmişi (Düzenle / Sil)</h3>
@@ -284,7 +343,6 @@
     const API_URL = "https://script.google.com/macros/s/AKfycbyKM3BYiKZmjZ40h4gMjccDYdQxm8eTuUqYyuKhUmdSgBoh-xsixPWUsyf-VZX5wBRi5Q/exec";
     let API_SIFRE = sessionStorage.getItem("pusu_sifre") || "";
     
-    // --- ÇİFT TIKLAMA KORUMASI KİLİDİ ---
     let isRequestActive = false;
 
     function girisYap() {
@@ -306,7 +364,7 @@
     }
     
     function islemGuncelleSil(satir, aksiyon) {
-       if (isRequestActive) return; // Çift tıklama engeli
+       if (isRequestActive) return; 
        
        if (aksiyon === 'SİL') {
            var kullaniciOnayi = confirm("DİKKAT: Bu işlemi kalıcı olarak silmek üzeresiniz. Bu işlem geri alınamaz.\n\nSilme işlemini onaylıyor musunuz?");
@@ -322,24 +380,24 @@
                  "&satir=" + satir + "&aksiyon=" + encodeURIComponent(aksiyon) + 
                  "&fiyat=" + encodeURIComponent(fiyat) + "&miktar=" + encodeURIComponent(lot);
 
-       isRequestActive = true; // Kilidi kapat
+       isRequestActive = true; 
        document.getElementById('loading').style.display = 'block';
        document.getElementById('loading').innerText = '⏳ İşlem ' + (aksiyon === 'SİL' ? 'siliniyor' : 'güncelleniyor') + ' ve portföy yeniden hesaplanıyor...';
 
        fetch(url).then(r=>r.json()).then(data => {
-           isRequestActive = false; // Kilidi aç
+           isRequestActive = false; 
            if(data.basari) {
                alert("İşlem başarıyla " + (aksiyon === 'SİL' ? 'silindi.' : 'güncellendi.'));
                verileriYukle();
            } else { alert("Hata oluştu: " + data.hata); }
        }).catch(err => {
-           isRequestActive = false; // Kilidi aç
+           isRequestActive = false; 
            alert("Bağlantı hatası oluştu."); verileriYukle();
        });
     }
 
     function islemGonder(varlikTipi) {
-       if (isRequestActive) return; // Çift tıklama engeli
+       if (isRequestActive) return; 
        
        var prefix = varlikTipi === 'HİSSE' ? 'hisse' : 'fon';
        var islemTipi = document.getElementById(prefix + '-islem-tipi').value;
@@ -362,12 +420,12 @@
                  "&lot=" + encodeURIComponent(lot) +
                  "&kategori=" + encodeURIComponent(kategori);
 
-       isRequestActive = true; // Kilidi kapat
+       isRequestActive = true; 
        document.getElementById('loading').style.display = 'block';
        document.getElementById('loading').innerText = '⏳ İşlem kaydediliyor ve portföy vitrinleri güncelleniyor... Lütfen bekleyin.';
 
        fetch(url).then(r=>r.json()).then(data => {
-           isRequestActive = false; // Kilidi aç
+           isRequestActive = false; 
            if(data.basari) {
                alert(varlikTipi + " işlemi başarıyla kaydedildi! Vitrinler otomatik güncellendi.");
                document.getElementById(prefix + '-kod').value = '';
@@ -376,14 +434,14 @@
                verileriYukle();
            } else { alert("Hata oluştu: " + data.hata); }
        }).catch(err => {
-           isRequestActive = false; // Kilidi aç
+           isRequestActive = false; 
            alert("Bağlantı koptu. Arka planda işlenmiş olabilir, sayfayı yenileyin.");
            verileriYukle();
        });
     }
 
     function fonTanitCagir() {
-       if (isRequestActive) return; // Çift tıklama engeli
+       if (isRequestActive) return; 
        
        var kod = document.getElementById('yeni-fon-kod').value;
        var ad = document.getElementById('yeni-fon-ad').value;
@@ -394,12 +452,12 @@
                  "&kod=" + encodeURIComponent(kod) +
                  "&ad=" + encodeURIComponent(ad);
 
-       isRequestActive = true; // Kilidi kapat
+       isRequestActive = true; 
        document.getElementById('loading').style.display = 'block';
        document.getElementById('loading').innerText = '⏳ Fon sisteme tanıtılıyor... Lütfen bekleyin.';
 
        fetch(url).then(r=>r.json()).then(data => {
-           isRequestActive = false; // Kilidi aç
+           isRequestActive = false; 
            if(data.basari) {
                alert("Tebrikler! Fon başarıyla sisteme (sözlüğe) eklendi.");
                document.getElementById('yeni-fon-kod').value = '';
@@ -407,7 +465,7 @@
                document.getElementById('loading').style.display = 'none';
            } else { alert("Hata: " + data.hata); }
        }).catch(err => {
-           isRequestActive = false; // Kilidi aç
+           isRequestActive = false; 
            alert("Bağlantı hatası oluştu.");
        });
     }
@@ -469,7 +527,6 @@
       return select;
     }
 
-    // --- GRUPLANDIRMA MANTIĞI: BAŞLIKLAR KALDIRILDI, SADECE BOŞLUK ---
     function tabloOlustur(dataObj, headersId, bodyId) {
       if (!dataObj || !dataObj.basliklar) return;
       var hRow = document.getElementById(headersId); hRow.innerHTML = '';
@@ -734,6 +791,60 @@
       container.appendChild(table1); container.appendChild(table2);
     }
 
+    // YENİ EKLENEN KAYAN BANT OLUŞTURMA FONKSİYONU
+    function tickerOlustur(data) {
+       var tickerContent = document.getElementById('ticker-content');
+       var tickerContainer = document.getElementById('ticker-container');
+       if(!tickerContent || !data) return;
+
+       var html = "";
+
+       // 1. Makro Veriler (BIST, Dolar, Euro, Altın)
+       if(data.makroVeriler && data.makroVeriler.length > 0) {
+         data.makroVeriler.forEach(function(m) {
+            var degisimYuzde = parseFloat(m.degisim) || 0;
+            var fiyatFormatted = m.fiyat.toLocaleString('tr-TR', {minimumFractionDigits:2, maximumFractionDigits:2});
+            var ok = degisimYuzde > 0 ? '▲' : (degisimYuzde < 0 ? '▼' : '-');
+            var renkClass = degisimYuzde > 0 ? 't-up' : (degisimYuzde < 0 ? 't-down' : 't-neutral');
+            var isaret = degisimYuzde > 0 ? '+' : '';
+            html += '<span class="ticker-item">' + m.ad + ' <span style="color:#333;">' + fiyatFormatted + '</span> <span class="' + renkClass + '">(' + ok + ' %' + isaret + Math.abs(degisimYuzde).toFixed(2) + ')</span></span>';
+         });
+       }
+
+       // 2. Fonlar (Portföydeki fonların Fiyat ve Günlük Değişimi)
+       if(data.maliyetFon && data.maliyetFon.satirlar) {
+          data.maliyetFon.satirlar.forEach(function(f) {
+             var ad = f[0], fiyat = f[1], degisimRaw = f[4];
+             if(ad && ad !== "TOPLAM") {
+                var dVal = parseFloat(degisimRaw.toString().replace('%','').replace(',','.'));
+                if(isNaN(dVal)) dVal = 0;
+                var ok = dVal > 0 ? '▲' : (dVal < 0 ? '▼' : '-');
+                var renkClass = dVal > 0 ? 't-up' : (dVal < 0 ? 't-down' : 't-neutral');
+                var isaret = dVal > 0 ? '+' : '';
+                html += '<span class="ticker-item">' + ad + ' <span style="color:#333;">' + fiyat + '</span> <span class="' + renkClass + '">(' + ok + ' %' + isaret + Math.abs(dVal).toFixed(2) + ')</span></span>';
+             }
+          });
+       }
+
+       // 3. Hisseler (Portföydeki hisselerin Fiyat ve Günlük Değişimi)
+       if(data.anasayfa && data.anasayfa.satirlar) {
+          data.anasayfa.satirlar.forEach(function(h) {
+             var ad = h[0], fiyat = h[1], degisimRaw = h[8];
+             if(ad && degisimRaw !== undefined && degisimRaw !== "" && ad !== "BIGEN") {
+                var dVal = parseFloat(degisimRaw.toString().replace('%','').replace(',','.'));
+                if(isNaN(dVal)) dVal = 0;
+                var ok = dVal > 0 ? '▲' : (dVal < 0 ? '▼' : '-');
+                var renkClass = dVal > 0 ? 't-up' : (dVal < 0 ? 't-down' : 't-neutral');
+                var isaret = dVal > 0 ? '+' : '';
+                html += '<span class="ticker-item">' + ad + ' <span style="color:#333;">' + fiyat + '</span> <span class="' + renkClass + '">(' + ok + ' %' + isaret + Math.abs(dVal).toFixed(2) + ')</span></span>';
+             }
+          });
+       }
+
+       tickerContent.innerHTML = html;
+       if(html.length > 0) tickerContainer.style.display = "flex";
+    }
+
     function verileriYukle() {
       if(!API_SIFRE) return;
 
@@ -826,7 +937,7 @@
 
                 var bGecerliMi     = !gecersizMi(r[1]); var rsiGecerliMi   = !gecersizMi(r[2]); var ortGecerliMi   = !gecersizMi(r[3]); var gunSGecerliMi  = !gecersizMi(r[4]); var tavsGecerliMi  = !gecersizMi(r[5]); var hedefGecerliMi = !gecersizMi(r[6]); var hacimGecerliMi = !gecersizMi(r[7]); var degisimGecerliMi = !gecersizMi(r[8]);
                 var bGoster       = bGecerliMi     ? r[1] : (onceki.b        !== undefined ? onceki.b       : r[1]);
-                var rsiGoster     = rsiGecerliMi   ? r[2] : (onceki.rsi      !== undefined ? onceki.rsi     : "Bekleniyor..");
+                var rsiGoster     = rsiGecerliMi   ? r[2] : (onceki.rsi       !== undefined ? onceki.rsi     : "Bekleniyor..");
                 var gunSGoster    = gunSGecerliMi  ? r[4] : (onceki.gunS     !== undefined ? onceki.gunS    : r[4]);
                 var tavsiyeGoster = tavsGecerliMi  ? r[5] : (onceki.tavs     !== undefined ? onceki.tavs    : "Bekleniyor..");
                 var hedefGoster   = hedefGecerliMi ? r[6] : (onceki.hedef    !== undefined ? onceki.hedef   : r[6]);
@@ -878,6 +989,9 @@
           if (data.maliyetFon) tabloOlustur(data.maliyetFon, 'maliyet-fon-headers', 'maliyet-fon-body');
           if (data.genelTablo) { genelTabloCiz(data.genelTablo, data.genelTabloDun, 'genel-tablo-table', data); }
           if (data.temettuHesaplama && !temettuOdakliMi) { temettuTablosuCiz(data.temettuHesaplama); }
+          
+          // Kayan bant çağrısı (Yeni Eklendi)
+          tickerOlustur(data);
 
           var simdi = new Date();
           document.getElementById('son-guncelleme').innerText = simdi.getHours().toString().padStart(2, '0') + ':' + simdi.getMinutes().toString().padStart(2, '0') + ':' + simdi.getSeconds().toString().padStart(2, '0');
