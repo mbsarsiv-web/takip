@@ -5,7 +5,7 @@
   <title>Portföy & Hisse İzleme</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    body { font-family: Arial, sans-serif; background-color: #ffffff; margin: 30px 10px 10px 10px; }
+    body { font-family: 'Google Sans Text', Arial, sans-serif; background-color: #ffffff; margin: 30px 10px 10px 10px; }
 
     #login-screen { position: fixed; top:0; left:0; width: 100%; height: 100%; background: #f0f2f5; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; }
     .login-box { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); text-align: center; }
@@ -118,7 +118,7 @@
         padding-left: 20px !important;
     }
 
-    /* YENİ EKLENEN KAYAN BANT (TICKER) CSS KODLARI */
+    /* KAYAN BANT (TICKER) - SÜRESİ YAVAŞLATILDI (90 Saniye) */
     .ticker-wrap { 
         width: 85%; 
         min-width: 750px; 
@@ -149,7 +149,7 @@
         display: inline-block; 
         white-space: nowrap; 
         padding-left: 100%; 
-        animation: ticker-anim 50s linear infinite; 
+        animation: ticker-anim 90s linear infinite; 
     }
     .ticker:hover { 
         animation-play-state: paused; 
@@ -791,7 +791,7 @@
       container.appendChild(table1); container.appendChild(table2);
     }
 
-    // YENİ EKLENEN KAYAN BANT OLUŞTURMA FONKSİYONU
+    // KAYAN BANT OLUŞTURMA FONKSİYONU
     function tickerOlustur(data) {
        var tickerContent = document.getElementById('ticker-content');
        var tickerContainer = document.getElementById('ticker-container');
@@ -799,7 +799,7 @@
 
        var html = "";
 
-       // 1. Makro Veriler (BIST, Dolar, Euro, Altın)
+       // 1. Makro Veriler (BIST 100, BIST 30, Dolar, Euro, Altın)
        if(data.makroVeriler && data.makroVeriler.length > 0) {
          data.makroVeriler.forEach(function(m) {
             var degisimYuzde = parseFloat(m.degisim) || 0;
@@ -807,37 +807,43 @@
             var ok = degisimYuzde > 0 ? '▲' : (degisimYuzde < 0 ? '▼' : '-');
             var renkClass = degisimYuzde > 0 ? 't-up' : (degisimYuzde < 0 ? 't-down' : 't-neutral');
             var isaret = degisimYuzde > 0 ? '+' : '';
-            var ek = m.ad === "BIST 100" ? "" : "₺"; 
+            var ek = (m.ad === "BIST 100" || m.ad === "BIST 30") ? "" : "₺"; 
             html += '<span class="ticker-item">' + m.ad + ' <span style="color:#333;">' + fiyatFormatted + ek + '</span> <span class="' + renkClass + '">(' + ok + ' %' + isaret + Math.abs(degisimYuzde).toFixed(2) + ')</span></span>';
          });
        }
 
-       // 2. Fonlar (Portföydeki fonların Fiyat ve Günlük Değişimi)
+       // 2. Fonlar (Sadece Maliyet Fon sekmesinden okunan portföy fonları)
        if(data.maliyetFon && data.maliyetFon.satirlar) {
           data.maliyetFon.satirlar.forEach(function(f) {
-             var ad = f[0], fiyat = f[1], degisimRaw = f[4];
-             if(ad && ad !== "TOPLAM") {
-                var dVal = parseFloat(degisimRaw.toString().replace('%','').replace(',','.'));
-                if(isNaN(dVal)) dVal = 0;
-                var ok = dVal > 0 ? '▲' : (dVal < 0 ? '▼' : '-');
-                var renkClass = dVal > 0 ? 't-up' : (dVal < 0 ? 't-down' : 't-neutral');
-                var isaret = dVal > 0 ? '+' : '';
-                html += '<span class="ticker-item">' + ad + ' <span style="color:#333;">' + fiyat + '</span> <span class="' + renkClass + '">(' + ok + ' %' + isaret + Math.abs(dVal).toFixed(2) + ')</span></span>';
+             var ad = f[0];
+             if(ad && ad.toString().trim() !== "" && ad !== "TOPLAM") {
+                var fiyat = f[1], degisimRaw = f[4];
+                if (fiyat !== undefined && degisimRaw !== undefined && degisimRaw !== "") {
+                   var dVal = parseFloat(degisimRaw.toString().replace('%','').replace(',','.'));
+                   if(isNaN(dVal)) dVal = 0;
+                   var ok = dVal > 0 ? '▲' : (dVal < 0 ? '▼' : '-');
+                   var renkClass = dVal > 0 ? 't-up' : (dVal < 0 ? 't-down' : 't-neutral');
+                   var isaret = dVal > 0 ? '+' : '';
+                   html += '<span class="ticker-item">' + ad + ' <span style="color:#333;">' + fiyat + '</span> <span class="' + renkClass + '">(' + ok + ' %' + isaret + Math.abs(dVal).toFixed(2) + ')</span></span>';
+                }
              }
           });
        }
 
-       // 3. Hisseler (Portföydeki hisselerin Fiyat ve Günlük Değişimi)
-       if(data.anasayfa && data.anasayfa.satirlar) {
-          data.anasayfa.satirlar.forEach(function(h) {
-             var ad = h[0], fiyat = h[1], degisimRaw = h[8];
-             if(ad && degisimRaw !== undefined && degisimRaw !== "" && ad !== "BIGEN") {
-                var dVal = parseFloat(degisimRaw.toString().replace('%','').replace(',','.'));
-                if(isNaN(dVal)) dVal = 0;
-                var ok = dVal > 0 ? '▲' : (dVal < 0 ? '▼' : '-');
-                var renkClass = dVal > 0 ? 't-up' : (dVal < 0 ? 't-down' : 't-neutral');
-                var isaret = dVal > 0 ? '+' : '';
-                html += '<span class="ticker-item">' + ad + ' <span style="color:#333;">' + fiyat + '</span> <span class="' + renkClass + '">(' + ok + ' %' + isaret + Math.abs(dVal).toFixed(2) + ')</span></span>';
+       // 3. Hisseler (Sadece Maliyet Hisse sekmesinden okunan portföy hisseleri)
+       if(data.maliyetHisse && data.maliyetHisse.satirlar) {
+          data.maliyetHisse.satirlar.forEach(function(h) {
+             var ad = h[0];
+             if(ad && ad.toString().trim() !== "" && ad !== "TOPLAM") {
+                var fiyat = h[1], degisimRaw = h[4];
+                if (fiyat !== undefined && degisimRaw !== undefined && degisimRaw !== "") {
+                   var dVal = parseFloat(degisimRaw.toString().replace('%','').replace(',','.'));
+                   if(isNaN(dVal)) dVal = 0;
+                   var ok = dVal > 0 ? '▲' : (dVal < 0 ? '▼' : '-');
+                   var renkClass = dVal > 0 ? 't-up' : (dVal < 0 ? 't-down' : 't-neutral');
+                   var isaret = dVal > 0 ? '+' : '';
+                   html += '<span class="ticker-item">' + ad + ' <span style="color:#333;">' + fiyat + '</span> <span class="' + renkClass + '">(' + ok + ' %' + isaret + Math.abs(dVal).toFixed(2) + ')</span></span>';
+                }
              }
           });
        }
@@ -991,7 +997,7 @@
           if (data.genelTablo) { genelTabloCiz(data.genelTablo, data.genelTabloDun, 'genel-tablo-table', data); }
           if (data.temettuHesaplama && !temettuOdakliMi) { temettuTablosuCiz(data.temettuHesaplama); }
           
-          // Kayan bant çağrısı (Yeni Eklendi)
+          // Kayan bant çağrısı
           tickerOlustur(data);
 
           var simdi = new Date();
