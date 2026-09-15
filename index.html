@@ -359,7 +359,7 @@
     function sekmeAc(evt, tabId) {
       var i, tc, tb;
       tc = document.getElementsByClassName("tab-content"); for (i = 0; i < tc.length; i++) tc[i].classList.remove("active");
-      tb = document.getElementsByClassName("tab-button"); for (i = 0; i < tb.length; i++) tb[i].classList.remove("active");
+      tb = document.getElementsByClassName("tab-button"); for (i = 0; i < tb.length; i++) tb[i].classList.removeactive");
       document.getElementById(tabId).classList.add("active"); evt.currentTarget.classList.add("active");
     }
     
@@ -791,7 +791,7 @@
       container.appendChild(table1); container.appendChild(table2);
     }
 
-    // KAYAN BANT OLUŞTURMA FONKSİYONU
+    // KAYAN BANT OLUŞTURMA FONKSİYONU (Duraksama Çözümü Eklendi)
     function tickerOlustur(data) {
        var tickerContent = document.getElementById('ticker-content');
        var tickerContainer = document.getElementById('ticker-container');
@@ -812,7 +812,7 @@
          });
        }
 
-       // 2. Fonlar (Sadece Maliyet Fon sekmesinden okunan portföy fonları)
+       // 2. Fonlar (Sadece Maliyet Fon sekmesinden)
        if(data.maliyetFon && data.maliyetFon.satirlar) {
           data.maliyetFon.satirlar.forEach(function(f) {
              var ad = f[0];
@@ -830,7 +830,7 @@
           });
        }
 
-       // 3. Hisseler (Sadece Maliyet Hisse sekmesinden okunan portföy hisseleri)
+       // 3. Hisseler (Sadece Maliyet Hisse sekmesinden)
        if(data.maliyetHisse && data.maliyetHisse.satirlar) {
           data.maliyetHisse.satirlar.forEach(function(h) {
              var ad = h[0];
@@ -848,7 +848,10 @@
           });
        }
 
-       tickerContent.innerHTML = html;
+       // SADECE VERİ DEĞİŞTİYSE GÜNCELLE (Titreşim ve başa sarma problemini çözer)
+       if (tickerContent.innerHTML !== html) {
+           tickerContent.innerHTML = html;
+       }
        if(html.length > 0) tickerContainer.style.display = "flex";
     }
 
@@ -997,7 +1000,7 @@
           if (data.genelTablo) { genelTabloCiz(data.genelTablo, data.genelTabloDun, 'genel-tablo-table', data); }
           if (data.temettuHesaplama && !temettuOdakliMi) { temettuTablosuCiz(data.temettuHesaplama); }
           
-          // Kayan bant çağrısı
+          // Kayan bant çağrısı (Yenilendi)
           tickerOlustur(data);
 
           var simdi = new Date();
