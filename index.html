@@ -807,7 +807,8 @@
             var ok = degisimYuzde > 0 ? '▲' : (degisimYuzde < 0 ? '▼' : '-');
             var renkClass = degisimYuzde > 0 ? 't-up' : (degisimYuzde < 0 ? 't-down' : 't-neutral');
             var isaret = degisimYuzde > 0 ? '+' : '';
-            html += '<span class="ticker-item">' + m.ad + ' <span style="color:#333;">' + fiyatFormatted + '</span> <span class="' + renkClass + '">(' + ok + ' %' + isaret + Math.abs(degisimYuzde).toFixed(2) + ')</span></span>';
+            var ek = m.ad === "BIST 100" ? "" : "₺"; 
+            html += '<span class="ticker-item">' + m.ad + ' <span style="color:#333;">' + fiyatFormatted + ek + '</span> <span class="' + renkClass + '">(' + ok + ' %' + isaret + Math.abs(degisimYuzde).toFixed(2) + ')</span></span>';
          });
        }
 
