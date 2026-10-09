@@ -338,7 +338,9 @@
   </div>
 
   <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbyKM3BYiKZmjZ40h4gMjccDYdQxm8eTuUqYyuKhUmdSgBoh-xsixPWUsyf-VZX5wBRi5Q/exec";
+    // DÜZELTME: İSTEDİĞİNİZ YENİ GÜNCEL API LİNKİ BURAYA EKLENDİ
+    const API_URL = "https://script.google.com/macros/s/AKfycbzt08Trm3ItUIceFbWZ5K7HuA6GMM5oCqTTE_s7iyoaTzDqNAKkCZfQSi6Ws7jtOmuCcA/exec";
+    
     let API_SIFRE = sessionStorage.getItem("pusu_sifre") || "";
     
     let isRequestActive = false;
@@ -503,7 +505,7 @@
     }
 
     function yuzdeFormatla(deger) {
-      if (!deger || deger === "Veri Bekleniyor..." || deger === "-" || deger === "Veri Az") return deger;
+      if (!deger || deger === "Veri Bekleniyor..." || deger === "-" || deger === "Veri Az" || deger === "#N/A") return deger;
       if (deger.toString().indexOf("%") > -1) return deger;
       var sayi = parseFloat(deger.toString().replace(/,/g, '.'));
       if (isNaN(sayi)) return deger;
@@ -648,9 +650,11 @@
           var dolarTutar = row[2] ? row[2].toString().trim() : "";
           var altinTutar = row[3] ? row[3].toString().trim() : "";
 
-          if (gecersizMi(tlTutar)) tlTutar = dunRow[1] || "0,00";
-          if (gecersizMi(dolarTutar)) dolarTutar = dunRow[2] || "0,00";
-          if (gecersizMi(altinTutar)) altinTutar = dunRow[3] || "0,00";
+          // DÜZELTME: "0,00" ve "-" checki
+          if (tlTutar === "" || tlTutar === "-") tlTutar = dunRow[1] || "0,00";
+          if (dolarTutar === "" || dolarTutar === "-") dolarTutar = dunRow[2] || "0,00";
+          if (altinTutar === "" || altinTutar === "-") altinTutar = dunRow[3] || "0,00";
+
           if (dolarTutar !== "0,00" && dolarTutar.indexOf("DOLAR") === -1) dolarTutar += " DOLAR";
           if (altinTutar !== "0,00" && altinTutar.indexOf("ALTIN") === -1) altinTutar += " ALTIN";
 
@@ -704,7 +708,7 @@
 
           var td4 = document.createElement('td');
           var v4 = row[4] ? row[4].toString().trim() : "";
-          if (gecersizMi(v4)) { v4 = dunRow[4] || "0,00"; }
+          if (v4 === "" || v4 === "-") { v4 = dunRow[4] || "0,00"; }
           td4.innerText = v4; td4.style.fontSize = "16px"; td4.style.fontWeight = "900";
           var bgClass4 = arkaPlanRenkSinifiAl(v4);
           if (v4 !== "0,00" && v4 !== "-") {
@@ -715,7 +719,7 @@
 
           var td5 = document.createElement('td');
           var v5 = row[5] ? row[5].toString().trim() : "";
-          if (gecersizMi(v5)) { v5 = dunRow[5] || "%0,00"; }
+          if (v5 === "" || v5 === "-") { v5 = dunRow[5] || "%0,00"; }
           td5.innerText = v5; td5.style.fontSize = "16px"; td5.style.fontWeight = "900";
           var bgClass5 = arkaPlanRenkSinifiAl(v5);
           if (v5 !== "%0,00" && v5 !== "-") {
@@ -852,7 +856,7 @@
                    var hKodTemiz = ad.toString().trim().toUpperCase();
                    var rsiDegeri = rsiLookup[hKodTemiz];
                    
-                   if (rsiDegeri && rsiDegeri !== "" && rsiDegeri !== "Bekleniyor.." && rsiDegeri !== "-" && rsiDegeri !== "Veri Az") {
+                   if (rsiDegeri && rsiDegeri !== "" && rsiDegeri !== "Bekleniyor.." && rsiDegeri !== "-" && rsiDegeri !== "Veri Az" && rsiDegeri !== "#N/A") {
                        var rsiRenk = "#f0f0f0";
                        var rsiMetinRenk = "#444";
                        var rsiSayi = parseFloat(rsiDegeri.toString().replace(',', '.'));
@@ -982,7 +986,6 @@
                 if (r[0] === "" && r[9] === -1) { dropdownGecildi = true; return; }
 
                 var hisseAdi = r[0]; 
-
                 var bGoster       = r[1];
                 var rsiGoster     = r[2];
                 var gunSGoster    = r[4];
