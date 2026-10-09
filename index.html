@@ -502,8 +502,6 @@
              d.indexOf("#NAME") > -1 || d === "-" || d === "VERİ AZ";
     }
 
-    window.sonGecerliVeriler = window.sonGecerliVeriler || {};
-
     function yuzdeFormatla(deger) {
       if (!deger || deger === "Veri Bekleniyor..." || deger === "-" || deger === "Veri Az") return deger;
       if (deger.toString().indexOf("%") > -1) return deger;
@@ -983,18 +981,15 @@
               data.anasayfa.satirlar.forEach(function(r) {
                 if (r[0] === "" && r[9] === -1) { dropdownGecildi = true; return; }
 
-                var hisseAdi = r[0]; var anahtarKey = hisseAdi + "_" + r[9]; var onceki = window.sonGecerliVeriler[anahtarKey] || {};
+                var hisseAdi = r[0]; 
 
-                var bGecerliMi     = !gecersizMi(r[1]); var rsiGecerliMi   = !gecersizMi(r[2]); var ortGecerliMi   = !gecersizMi(r[3]); var gunSGecerliMi  = !gecersizMi(r[4]); var tavsGecerliMi  = !gecersizMi(r[5]); var hedefGecerliMi = !gecersizMi(r[6]); var hacimGecerliMi = !gecersizMi(r[7]); var degisimGecerliMi = !gecersizMi(r[8]);
-                var bGoster       = bGecerliMi     ? r[1] : (onceki.b        !== undefined ? onceki.b       : r[1]);
-                var rsiGoster     = rsiGecerliMi   ? r[2] : (onceki.rsi        !== undefined ? onceki.rsi     : "Bekleniyor..");
-                var gunSGoster    = gunSGecerliMi  ? r[4] : (onceki.gunS       !== undefined ? onceki.gunS    : r[4]);
-                var tavsiyeGoster = tavsGecerliMi  ? r[5] : (onceki.tavs       !== undefined ? onceki.tavs    : "Bekleniyor..");
-                var hedefGoster   = hedefGecerliMi ? r[6] : (onceki.hedef    !== undefined ? onceki.hedef   : r[6]);
-                var hacimGoster   = hacimGecerliMi ? r[7] : (onceki.hacim    !== undefined ? onceki.hacim   : r[7]);
-                var degisimGoster = degisimGecerliMi ? r[8] : (onceki.degisim !== undefined ? onceki.degisim  : r[8]);
-
-                window.sonGecerliVeriler[anahtarKey] = { b: bGecerliMi ? r[1] : onceki.b, rsi: rsiGecerliMi ? r[2] : onceki.rsi, ort: ortGecerliMi ? r[3] : onceki.ort, gunS: gunSGecerliMi ? r[4] : onceki.gunS, tavs: tavsGecerliMi ? r[5] : onceki.tavs, hedef: hedefGecerliMi ? r[6] : onceki.hedef, hacim: hacimGecerliMi ? r[7] : onceki.hacim, degisim: degisimGecerliMi ? r[8] : onceki.degisim };
+                var bGoster       = r[1];
+                var rsiGoster     = r[2];
+                var gunSGoster    = r[4];
+                var tavsiyeGoster = r[5];
+                var hedefGoster   = r[6];
+                var hacimGoster   = r[7];
+                var degisimGoster = r[8];
 
                 var tr = document.createElement('tr');
                 var tdHisse = document.createElement('td'); tdHisse.className = "hisse-cell";
