@@ -118,7 +118,6 @@
         padding-left: 20px !important;
     }
 
-    /* KAYAN BANT (TICKER) */
     .ticker-wrap { 
         width: 85%; 
         min-width: 750px; 
@@ -247,7 +246,6 @@
     <div id="genel-tablo-tab" class="tab-content">
         <div class="table-container">
             <table id="genel-tablo-table"></table>
-            <!-- KAYAN BANT -->
             <div class="ticker-wrap" id="ticker-container" style="display:none;">
                  <div class="ticker-title">CANLI PİYASA & PORTFÖY</div>
                  <div class="ticker" id="ticker-content"></div>
@@ -369,7 +367,7 @@
       return (metin === null || metin === undefined ? "" : metin).toString()
         .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
     }
-    
+
     function islemGuncelleSil(satir, aksiyon) {
        if (isRequestActive) return; 
        
@@ -593,7 +591,6 @@
       return parseFloat(s) || 0;
     }
 
-    // Maliyet sekmesinin alt toplam satırlarından günlük K/Z değerini okur (sunucu değeri yoksa yedek olarak kullanılır).
     function altGunlukOku(blok) {
       if (!blok || !blok.altHesaplamalar || !blok.basliklar || blok.altHesaplamalar.length === 0) return null;
       var gIdx = -1;
@@ -615,7 +612,6 @@
       var thead = document.createElement('thead');
       var tbody = document.createElement('tbody');
 
-      // GÜNLÜK DEĞİŞİM KAYNAĞI: önce sunucunun aynı anlık görüntüden hesapladığı değer, yoksa alt toplam satırı
       var hisseFark = null, fonFark = null;
       if (tumVeri) {
         var gg = tumVeri.genelGunluk || {};
@@ -790,13 +786,11 @@
       container.appendChild(table1); container.appendChild(table2);
     }
 
-    // KAYAN BANT OLUŞTURMA FONKSİYONU (RSI ENTEGRASYONLU VE GELİŞMİŞ)
     function tickerOlustur(data) {
        var tickerContent = document.getElementById('ticker-content');
        var tickerContainer = document.getElementById('ticker-container');
        if(!tickerContent || !data) return;
 
-       // 0. ANASAYFA VEYA APPS SCRIPT'TEN GELEN CANLI RSI VERİLERİNİ TOPLA
        var rsiLookup = data.tvRsiMap || {};
        if (data.anasayfa && data.anasayfa.satirlar) {
            data.anasayfa.satirlar.forEach(function(row) {
@@ -811,7 +805,6 @@
 
        var html = "";
 
-       // 1. Makro Veriler (BIST 100, BIST 30, Dolar, Euro, Altın)
        if(data.makroVeriler && data.makroVeriler.length > 0) {
          data.makroVeriler.forEach(function(m) {
             var degisimYuzde = parseFloat(m.degisim) || 0;
@@ -824,7 +817,6 @@
          });
        }
 
-       // 2. Fonlar (Sadece Maliyet Fon sekmesinden)
        if(data.maliyetFon && data.maliyetFon.satirlar) {
           data.maliyetFon.satirlar.forEach(function(f) {
              var ad = f[0];
@@ -842,7 +834,6 @@
           });
        }
 
-       // 3. Hisseler (CANLI RSI VERİSİ İLE BİRLİKTE)
        if(data.maliyetHisse && data.maliyetHisse.satirlar) {
           data.maliyetHisse.satirlar.forEach(function(h) {
              var ad = h[0];
@@ -855,7 +846,6 @@
                    var renkClass = dVal > 0 ? 't-up' : (dVal < 0 ? 't-down' : 't-neutral');
                    var isaret = dVal > 0 ? '+' : '';
 
-                   // RSI Badgesi
                    var rsiHtml = "";
                    var hKodTemiz = ad.toString().trim().toUpperCase();
                    var rsiDegeri = rsiLookup[hKodTemiz];
@@ -867,9 +857,9 @@
                        
                        if (!isNaN(rsiSayi)) {
                            if (rsiSayi <= 35) { 
-                               rsiRenk = "#d4edda"; rsiMetinRenk = "#155724"; // Fırsat Bölgesi
+                               rsiRenk = "#d4edda"; rsiMetinRenk = "#155724";
                            } else if (rsiSayi >= 70) { 
-                               rsiRenk = "#f8d7da"; rsiMetinRenk = "#721c24"; // Şişkin Bölge
+                               rsiRenk = "#f8d7da"; rsiMetinRenk = "#721c24";
                            }
                        }
                        rsiHtml = ' <span style="font-size:10.5px; background-color:' + rsiRenk + '; color:' + rsiMetinRenk + '; padding:2px 6px; border-radius:12px; margin-left:4px; font-weight:800; border: 1px solid ' + rsiMetinRenk + '40;">RSI: ' + rsiDegeri + '</span>';
@@ -881,7 +871,6 @@
           });
        }
 
-       // SADECE VERİ DEĞİŞTİYSE GÜNCELLE
        if (tickerContent.innerHTML !== html) {
            tickerContent.innerHTML = html;
        }
@@ -895,7 +884,6 @@
         .then(response => response.json())
         .then(result => {
           if (!result || !result.basari) {
-            // Şifre hatalıysa oturumu temizle ve giriş ekranına dön
             if (result && result.hata && result.hata.indexOf("Yetkisiz") > -1) {
               sessionStorage.removeItem("pusu_sifre");
               alert(result.hata);
@@ -924,7 +912,6 @@
           var tBodyIslem = document.getElementById('islem-gecmisi-body');
           var gecmisOdakliMi = isEditing && tBodyIslem && tBodyIslem.contains(aktifEleman);
 
-          // Geçmiş tablosu: kullanıcı bir fiyat/lot kutusuna yazarken yeniden çizilmez (yazdığı değer silinmesin)
           if (data.islemGecmisi && tBodyIslem && !gecmisOdakliMi) {
               tBodyIslem.innerHTML = '';
               data.islemGecmisi.forEach(function(row) {
@@ -932,7 +919,6 @@
                  var islemMetni = (row.islem || "").toString();
                  var islemRenk = islemMetni.indexOf("AL") > -1 ? "#1b5e20" : "#b71c1c";
                  
-                 // Türk biçimli sayıları (82.866 gibi) doğru okumak için parseSayi kullanılır
                  var fiyatDeger = parseSayi(row.fiyat);
                  var lotDeger = parseSayi(row.miktar);
                  
@@ -1047,7 +1033,6 @@
           if (data.genelTablo) { genelTabloCiz(data.genelTablo, data.genelTabloDun, 'genel-tablo-table', data); }
           if (data.temettuHesaplama && !temettuOdakliMi) { temettuTablosuCiz(data.temettuHesaplama); }
           
-          // Kayan bant çağrısı (RSI dahil)
           tickerOlustur(data);
 
           var simdi = new Date();
