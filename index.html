@@ -381,7 +381,6 @@
        var fiyat = document.getElementById('fiyat_' + satir) ? document.getElementById('fiyat_' + satir).value : 0;
        var lot = document.getElementById('lot_' + satir) ? document.getElementById('lot_' + satir).value : 0;
        
-       // DÜZELTME: Tarayıcının önbelleğini zorla kırmak için zaman damgası
        var cacheBuster = "&t=" + new Date().getTime();
        var url = API_URL + "?islem=islemGuncelleSil&sifre=" + encodeURIComponent(API_SIFRE) +
                  "&satir=" + satir + "&aksiyon=" + encodeURIComponent(aksiyon) + 
@@ -500,13 +499,13 @@
              d.indexOf("#N/A") > -1 || d.indexOf("YOK") > -1 || d.indexOf("LOADING") > -1 ||
              d.indexOf("#REF") > -1 || d.indexOf("#VALUE") > -1 || d.indexOf("#DEĞER") > -1 ||
              d.indexOf("#BAŞV") > -1 || d.indexOf("#DIV/0") > -1 || d.indexOf("#ERROR") > -1 ||
-             d.indexOf("#NAME") > -1 || d === "-";
+             d.indexOf("#NAME") > -1 || d === "-" || d === "VERİ AZ";
     }
 
     window.sonGecerliVeriler = window.sonGecerliVeriler || {};
 
     function yuzdeFormatla(deger) {
-      if (!deger || deger === "Veri Bekleniyor..." || deger === "-") return deger;
+      if (!deger || deger === "Veri Bekleniyor..." || deger === "-" || deger === "Veri Az") return deger;
       if (deger.toString().indexOf("%") > -1) return deger;
       var sayi = parseFloat(deger.toString().replace(/,/g, '.'));
       if (isNaN(sayi)) return deger;
@@ -855,7 +854,7 @@
                    var hKodTemiz = ad.toString().trim().toUpperCase();
                    var rsiDegeri = rsiLookup[hKodTemiz];
                    
-                   if (rsiDegeri && rsiDegeri !== "" && rsiDegeri !== "Bekleniyor.." && rsiDegeri !== "-") {
+                   if (rsiDegeri && rsiDegeri !== "" && rsiDegeri !== "Bekleniyor.." && rsiDegeri !== "-" && rsiDegeri !== "Veri Az") {
                        var rsiRenk = "#f0f0f0";
                        var rsiMetinRenk = "#444";
                        var rsiSayi = parseFloat(rsiDegeri.toString().replace(',', '.'));
@@ -885,7 +884,6 @@
     function verileriYukle() {
       if(!API_SIFRE) return;
 
-      // DÜZELTME: Tarayıcının takılı kalmasını ve eski veri okumasını kökten engelleyen (Cache-Buster) eklendi
       var cacheBuster = "&t=" + new Date().getTime();
       var fetchUrl = API_URL + "?islem=veriGetir&sifre=" + encodeURIComponent(API_SIFRE) + cacheBuster;
 
