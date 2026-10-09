@@ -344,6 +344,7 @@
     let API_SIFRE = sessionStorage.getItem("pusu_sifre") || "";
     
     let isRequestActive = false;
+    let yenilemeZamanlayici = null;
 
     function girisYap() {
       const val = document.getElementById("sifre-input").value;
@@ -353,7 +354,8 @@
       document.getElementById("login-screen").style.display = "none";
       document.getElementById("main-app").style.display = "block";
       verileriYukle();
-      setInterval(verileriYukle, 10000); 
+      if (yenilemeZamanlayici) clearInterval(yenilemeZamanlayici);
+      yenilemeZamanlayici = setInterval(verileriYukle, 10000); 
     }
 
     function sekmeAc(evt, tabId) {
@@ -361,6 +363,11 @@
       tc = document.getElementsByClassName("tab-content"); for (i = 0; i < tc.length; i++) tc[i].classList.remove("active");
       tb = document.getElementsByClassName("tab-button"); for (i = 0; i < tb.length; i++) tb[i].classList.remove("active");
       document.getElementById(tabId).classList.add("active"); evt.currentTarget.classList.add("active");
+    }
+
+    function htmlKacis(metin) {
+      return (metin === null || metin === undefined ? "" : metin).toString()
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
     }
     
     function islemGuncelleSil(satir, aksiyon) {
@@ -389,7 +396,7 @@
            if(data.basari) {
                alert("İşlem başarıyla " + (aksiyon === 'SİL' ? 'silindi.' : 'güncellendi.'));
                verileriYukle();
-           } else { alert("Hata oluştu: " + data.hata); }
+           } else { alert("Hata oluştu: " + data.hata); document.getElementById('loading').style.display = 'none'; }
        }).catch(err => {
            isRequestActive = false; 
            alert("Bağlantı hatası oluştu."); verileriYukle();
@@ -432,7 +439,7 @@
                document.getElementById(prefix + '-fiyat').value = '';
                document.getElementById(prefix + '-lot').value = '';
                verileriYukle();
-           } else { alert("Hata oluştu: " + data.hata); }
+           } else { alert("Hata oluştu: " + data.hata); document.getElementById('loading').style.display = 'none'; }
        }).catch(err => {
            isRequestActive = false; 
            alert("Bağlantı koptu. Arka planda işlenmiş olabilir, sayfayı yenileyin.");
@@ -463,7 +470,7 @@
                document.getElementById('yeni-fon-kod').value = '';
                document.getElementById('yeni-fon-ad').value = '';
                document.getElementById('loading').style.display = 'none';
-           } else { alert("Hata: " + data.hata); }
+           } else { alert("Hata: " + data.hata); document.getElementById('loading').style.display = 'none'; }
        }).catch(err => {
            isRequestActive = false; 
            alert("Bağlantı hatası oluştu.");
@@ -586,6 +593,19 @@
       return parseFloat(s) || 0;
     }
 
+    // Maliyet sekmesinin alt toplam satırlarından günlük K/Z değerini okur (sunucu değeri yoksa yedek olarak kullanılır).
+    function altGunlukOku(blok) {
+      if (!blok || !blok.altHesaplamalar || !blok.basliklar || blok.altHesaplamalar.length === 0) return null;
+      var gIdx = -1;
+      blok.basliklar.forEach(function(baslik, i) { if (turkceKarakterTemizle(baslik).indexOf("GUNLUK") > -1) gIdx = i; });
+      if (gIdx < 0) return null;
+      for (var i = 0; i < blok.altHesaplamalar.length; i++) {
+        var h = blok.altHesaplamalar[i][gIdx];
+        if (h !== undefined && h !== null && h.toString().trim() !== "") return parseSayi(h);
+      }
+      return null;
+    }
+
     function genelTabloCiz(veriler, dunkuVeriler, tabloId, tumVeri) {
       var table = document.getElementById(tabloId);
       if (!table) return;
@@ -595,10 +615,20 @@
       var thead = document.createElement('thead');
       var tbody = document.createElement('tbody');
 
+      // GÜNLÜK DEĞİŞİM KAYNAĞI: önce sunucunun aynı anlık görüntüden hesapladığı değer, yoksa alt toplam satırı
+      var hisseFark = null, fonFark = null;
+      if (tumVeri) {
+        var gg = tumVeri.genelGunluk || {};
+        if (gg.hisse !== null && gg.hisse !== undefined && !isNaN(Number(gg.hisse))) hisseFark = Number(gg.hisse);
+        else hisseFark = altGunlukOku(tumVeri.maliyetHisse);
+        if (gg.fon !== null && gg.fon !== undefined && !isNaN(Number(gg.fon))) fonFark = Number(gg.fon);
+        else fonFark = altGunlukOku(tumVeri.maliyetFon);
+      }
+
       veriler.forEach(function(row, rIdx) {
         var dunRow = (dunkuVeriler && dunkuVeriler[rIdx]) ? dunkuVeriler[rIdx] : [];
         var tr = document.createElement('tr');
-        var satirIsmi = row[0] ? row[0].toString().trim().toUpperCase() : "";
+        var satirIsmi = turkceKarakterTemizle(row[0]);
 
         if (rIdx === 0) {
           tr.innerHTML = '<th>' + (row[0] || "") + '</th>' +
@@ -638,43 +668,12 @@
           var farkTL = b - d; 
           var gercekDegisimBulundu = false;
 
-          if (tumVeri) {
-              var hisseFark = 0, fonFark = 0;
-              
-              if (tumVeri.maliyetHisse && tumVeri.maliyetHisse.altHesaplamalar) {
-                  var gkzSutunHisse = -1;
-                  tumVeri.maliyetHisse.basliklar.forEach(function(baslik, i) { if (turkceKarakterTemizle(baslik).indexOf("GUNLUK") > -1) gkzSutunHisse = i; });
-                  if (gkzSutunHisse > -1 && tumVeri.maliyetHisse.altHesaplamalar.length > 0) {
-                      for (var mh = 0; mh < tumVeri.maliyetHisse.altHesaplamalar.length; mh++) {
-                          if (tumVeri.maliyetHisse.altHesaplamalar[mh][gkzSutunHisse] && tumVeri.maliyetHisse.altHesaplamalar[mh][gkzSutunHisse].toString().trim() !== "") {
-                              hisseFark = parseSayi(tumVeri.maliyetHisse.altHesaplamalar[mh][gkzSutunHisse]);
-                              break;
-                          }
-                      }
-                  }
-              }
-              
-              if (tumVeri.maliyetFon && tumVeri.maliyetFon.altHesaplamalar) {
-                  var gkzSutunFon = -1;
-                  tumVeri.maliyetFon.basliklar.forEach(function(baslik, i) { if (turkceKarakterTemizle(baslik).indexOf("GUNLUK") > -1) gkzSutunFon = i; });
-                  if (gkzSutunFon > -1 && tumVeri.maliyetFon.altHesaplamalar.length > 0) {
-                      for (var mf = 0; mf < tumVeri.maliyetFon.altHesaplamalar.length; mf++) {
-                          if (tumVeri.maliyetFon.altHesaplamalar[mf][gkzSutunFon] && tumVeri.maliyetFon.altHesaplamalar[mf][gkzSutunFon].toString().trim() !== "") {
-                              fonFark = parseSayi(tumVeri.maliyetFon.altHesaplamalar[mf][gkzSutunFon]);
-                              break;
-                          }
-                      }
-                  }
-              }
-
-              if (satirIsmi === "HİSSELER" && hisseFark !== 0) {
-                  farkTL = hisseFark; gercekDegisimBulundu = true;
-              } else if (satirIsmi === "FONLAR" && fonFark !== 0) {
-                  farkTL = fonFark; gercekDegisimBulundu = true;
-              } else if (satirIsmi === "TOPLAM") {
-                  farkTL = hisseFark + fonFark;
-                  if (farkTL !== 0) gercekDegisimBulundu = true;
-              }
+          if (satirIsmi === "HISSELER" && hisseFark !== null) {
+              farkTL = hisseFark; gercekDegisimBulundu = true;
+          } else if (satirIsmi === "FONLAR" && fonFark !== null) {
+              farkTL = fonFark; gercekDegisimBulundu = true;
+          } else if (satirIsmi === "TOPLAM" && (hisseFark !== null || fonFark !== null)) {
+              farkTL = (hisseFark || 0) + (fonFark || 0); gercekDegisimBulundu = true;
           }
 
           if (!gercekDegisimBulundu && (d === 0 || b === d)) {
@@ -895,7 +894,15 @@
       fetch(API_URL + "?islem=veriGetir&sifre=" + encodeURIComponent(API_SIFRE))
         .then(response => response.json())
         .then(result => {
-          if (!result || !result.basari) { return; }
+          if (!result || !result.basari) {
+            // Şifre hatalıysa oturumu temizle ve giriş ekranına dön
+            if (result && result.hata && result.hata.indexOf("Yetkisiz") > -1) {
+              sessionStorage.removeItem("pusu_sifre");
+              alert(result.hata);
+              location.reload();
+            }
+            return;
+          }
           var data = result.veri;
 
           document.getElementById('loading').style.display = 'none';
@@ -914,27 +921,33 @@
           
           var temettuOdakliMi = document.getElementById('temettu-tab-container') && document.getElementById('temettu-tab-container').contains(aktifEleman) && isEditing;
 
-          if (data.islemGecmisi && (!isEditing || document.getElementById('islem-gecmisi-tab').style.display !== 'block')) {
-              var tBodyIslem = document.getElementById('islem-gecmisi-body');
-              if(tBodyIslem) {
-                  tBodyIslem.innerHTML = '';
-                  data.islemGecmisi.forEach(function(row) {
-                     var tr = document.createElement('tr');
-                     var islemRenk = row.islem.indexOf("AL") > -1 ? "#1b5e20" : "#b71c1c";
-                     
-                     tr.innerHTML = '<td>' + row.tarih + '</td>' +
-                                    '<td>' + row.varlik + '</td>' +
-                                    '<td style="color:' + islemRenk + '; font-weight:bold;">' + row.islem + '</td>' +
-                                    '<td style="font-weight:bold;">' + row.kod + '</td>' +
-                                    '<td><input type="number" id="fiyat_' + row.satir + '" value="' + parseFloat(row.fiyat.toString().replace(',','.')) + '" class="edit-input" style="width:80px; font-weight:normal;"></td>' +
-                                    '<td><input type="number" id="lot_' + row.satir + '" value="' + parseFloat(row.miktar.toString().replace(',','.')) + '" class="edit-input" style="width:80px; font-weight:normal;"></td>' +
-                                    '<td>' +
-                                      '<button onclick="islemGuncelleSil(' + row.satir + ', \'GÜNCELLE\')" style="background:#185232; color:white; border:none; padding:4px 8px; border-radius:3px; cursor:pointer; font-size:11px; margin-right:5px; font-weight:bold;">Kaydet</button>' +
-                                      '<button onclick="islemGuncelleSil(' + row.satir + ', \'SİL\')" style="background:#b71c1c; color:white; border:none; padding:4px 8px; border-radius:3px; cursor:pointer; font-size:11px; font-weight:bold;">Sil</button>' +
-                                    '</td>';
-                     tBodyIslem.appendChild(tr);
-                  });
-              }
+          var tBodyIslem = document.getElementById('islem-gecmisi-body');
+          var gecmisOdakliMi = isEditing && tBodyIslem && tBodyIslem.contains(aktifEleman);
+
+          // Geçmiş tablosu: kullanıcı bir fiyat/lot kutusuna yazarken yeniden çizilmez (yazdığı değer silinmesin)
+          if (data.islemGecmisi && tBodyIslem && !gecmisOdakliMi) {
+              tBodyIslem.innerHTML = '';
+              data.islemGecmisi.forEach(function(row) {
+                 var tr = document.createElement('tr');
+                 var islemMetni = (row.islem || "").toString();
+                 var islemRenk = islemMetni.indexOf("AL") > -1 ? "#1b5e20" : "#b71c1c";
+                 
+                 // Türk biçimli sayıları (82.866 gibi) doğru okumak için parseSayi kullanılır
+                 var fiyatDeger = parseSayi(row.fiyat);
+                 var lotDeger = parseSayi(row.miktar);
+                 
+                 tr.innerHTML = '<td>' + htmlKacis(row.tarih) + '</td>' +
+                                '<td>' + htmlKacis(row.varlik) + '</td>' +
+                                '<td style="color:' + islemRenk + '; font-weight:bold;">' + htmlKacis(islemMetni) + '</td>' +
+                                '<td style="font-weight:bold;">' + htmlKacis(row.kod) + '</td>' +
+                                '<td><input type="number" step="any" id="fiyat_' + row.satir + '" value="' + fiyatDeger + '" class="edit-input" style="width:80px; font-weight:normal;"></td>' +
+                                '<td><input type="number" step="any" id="lot_' + row.satir + '" value="' + lotDeger + '" class="edit-input" style="width:80px; font-weight:normal;"></td>' +
+                                '<td>' +
+                                  '<button onclick="islemGuncelleSil(' + row.satir + ', \'GÜNCELLE\')" style="background:#185232; color:white; border:none; padding:4px 8px; border-radius:3px; cursor:pointer; font-size:11px; margin-right:5px; font-weight:bold;">Kaydet</button>' +
+                                  '<button onclick="islemGuncelleSil(' + row.satir + ', \'SİL\')" style="background:#b71c1c; color:white; border:none; padding:4px 8px; border-radius:3px; cursor:pointer; font-size:11px; font-weight:bold;">Sil</button>' +
+                                '</td>';
+                 tBodyIslem.appendChild(tr);
+              });
           }
 
           if (data.anasayfa && data.anasayfa.basliklar && !anasayfaOdakliMi) {
@@ -1044,7 +1057,7 @@
 
     window.onload = function() {
       if(!API_SIFRE) { document.getElementById("login-screen").style.display = "flex"; document.getElementById("main-app").style.display = "none"; } 
-      else { document.getElementById("login-screen").style.display = "none"; document.getElementById("main-app").style.display = "block"; verileriYukle(); setInterval(verileriYukle, 10000); }
+      else { document.getElementById("login-screen").style.display = "none"; document.getElementById("main-app").style.display = "block"; verileriYukle(); yenilemeZamanlayici = setInterval(verileriYukle, 10000); }
     };
   </script>
 </body>
