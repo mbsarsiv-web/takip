@@ -381,9 +381,11 @@
        var fiyat = document.getElementById('fiyat_' + satir) ? document.getElementById('fiyat_' + satir).value : 0;
        var lot = document.getElementById('lot_' + satir) ? document.getElementById('lot_' + satir).value : 0;
        
+       // DÜZELTME: Tarayıcının önbelleğini zorla kırmak için zaman damgası
+       var cacheBuster = "&t=" + new Date().getTime();
        var url = API_URL + "?islem=islemGuncelleSil&sifre=" + encodeURIComponent(API_SIFRE) +
                  "&satir=" + satir + "&aksiyon=" + encodeURIComponent(aksiyon) + 
-                 "&fiyat=" + encodeURIComponent(fiyat) + "&miktar=" + encodeURIComponent(lot);
+                 "&fiyat=" + encodeURIComponent(fiyat) + "&miktar=" + encodeURIComponent(lot) + cacheBuster;
 
        isRequestActive = true; 
        document.getElementById('loading').style.display = 'block';
@@ -417,13 +419,14 @@
            kategori = document.getElementById('hisse-kategori').value;
        }
 
+       var cacheBuster = "&t=" + new Date().getTime();
        var url = API_URL + "?islem=islemKaydet&sifre=" + encodeURIComponent(API_SIFRE) +
                  "&varlikTipi=" + encodeURIComponent(varlikTipi) +
                  "&islemTipi=" + encodeURIComponent(islemTipi) +
                  "&kod=" + encodeURIComponent(kod) +
                  "&fiyat=" + encodeURIComponent(fiyat) +
                  "&lot=" + encodeURIComponent(lot) +
-                 "&kategori=" + encodeURIComponent(kategori);
+                 "&kategori=" + encodeURIComponent(kategori) + cacheBuster;
 
        isRequestActive = true; 
        document.getElementById('loading').style.display = 'block';
@@ -453,9 +456,10 @@
        
        if(!kod || !ad) { alert("Lütfen fon kodu ve uzun adını boş bırakmayın!"); return; }
 
+       var cacheBuster = "&t=" + new Date().getTime();
        var url = API_URL + "?islem=fonTanit&sifre=" + encodeURIComponent(API_SIFRE) +
                  "&kod=" + encodeURIComponent(kod) +
-                 "&ad=" + encodeURIComponent(ad);
+                 "&ad=" + encodeURIComponent(ad) + cacheBuster;
 
        isRequestActive = true; 
        document.getElementById('loading').style.display = 'block';
@@ -511,7 +515,8 @@
     }
 
     function uzakHucreGuncelle(sekmeAdi, satir, sutun, deger) {
-      var url = API_URL + "?islem=hucreGuncelle&sekme=" + encodeURIComponent(sekmeAdi) + "&satir=" + satir + "&sutun=" + sutun + "&deger=" + encodeURIComponent(deger) + "&sifre=" + encodeURIComponent(API_SIFRE);
+      var cacheBuster = "&t=" + new Date().getTime();
+      var url = API_URL + "?islem=hucreGuncelle&sekme=" + encodeURIComponent(sekmeAdi) + "&satir=" + satir + "&sutun=" + sutun + "&deger=" + encodeURIComponent(deger) + "&sifre=" + encodeURIComponent(API_SIFRE) + cacheBuster;
       fetch(url).then(res => res.json()).then(data => { 
             if (!data.basari && data.hata && data.hata.indexOf("Yetkisiz") > -1) {
                 alert("Şifre Hatalı! Lütfen tekrar giriş yapın.");
@@ -880,7 +885,11 @@
     function verileriYukle() {
       if(!API_SIFRE) return;
 
-      fetch(API_URL + "?islem=veriGetir&sifre=" + encodeURIComponent(API_SIFRE))
+      // DÜZELTME: Tarayıcının takılı kalmasını ve eski veri okumasını kökten engelleyen (Cache-Buster) eklendi
+      var cacheBuster = "&t=" + new Date().getTime();
+      var fetchUrl = API_URL + "?islem=veriGetir&sifre=" + encodeURIComponent(API_SIFRE) + cacheBuster;
+
+      fetch(fetchUrl)
         .then(response => response.json())
         .then(result => {
           if (!result || !result.basari) {
