@@ -15,15 +15,16 @@
 
     #main-app { display: none; }
 
-    .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 2px solid #274e37; padding-bottom: 4px; flex-wrap: wrap; gap:10px; }
+    /* ÜST BAŞLIK SATIRI (DARALTILDI - SAAT ALT SATIRA KIRILMAZ) */
+    .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; border-bottom: 2px solid #274e37; padding-bottom: 2px; flex-wrap: nowrap; gap: 6px; }
     
-    .tab-bar { display: flex; gap: 5px; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; -webkit-overflow-scrolling: touch; max-width: 100%; }
+    .tab-bar { display: flex; gap: 3px; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 2px; -webkit-overflow-scrolling: touch; flex: 1; min-width: 0; }
     .tab-bar::-webkit-scrollbar { height: 5px; }
     .tab-bar::-webkit-scrollbar-thumb { background-color: #274e37; border-radius: 4px; }
-    .tab-button { white-space: nowrap; flex-shrink: 0; padding: 8px 16px; background-color: #f3f3f3; border: 1px solid #ccc; border-bottom: none; font-size: 12.5px; font-weight: bold; color: #333; cursor: pointer; border-radius: 4px 4px 0 0; }
+    .tab-button { white-space: nowrap; flex-shrink: 0; padding: 5px 10px; background-color: #f3f3f3; border: 1px solid #ccc; border-bottom: none; font-size: 11.5px; font-weight: bold; color: #333; cursor: pointer; border-radius: 4px 4px 0 0; }
     .tab-button.active { background-color: #274e37; color: #ffffff; border-color: #274e37; }
 
-    .live-indicator { display: flex; align-items: center; gap: 8px; font-size: 11.5px; font-weight: bold; color: #555; background-color: #f9f9f9; padding: 4px 10px; border-radius: 20px; border: 1px solid #e0e0e0; }
+    .live-indicator { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: bold; color: #555; background-color: #f9f9f9; padding: 3px 8px; border-radius: 20px; border: 1px solid #e0e0e0; white-space: nowrap; flex-shrink: 0; }
     .pulse-dot { width: 8px; height: 8px; background-color: #00ff00; border-radius: 50%; box-shadow: 0 0 0 0 rgba(0, 255, 0, 0.7); animation: pulse 1.5s infinite; }
 
     @keyframes pulse {
@@ -80,18 +81,22 @@
 
     #temettu-tab-container .edit-input { width: 60px; height: 19px; font-size: 11px; padding: 1px; }
     
-    /* HİSSE ALIMI KOMPAKT (DARALTILMIŞ) STİL */
-    #hisse-alimi-tab table { width: 100%; max-width: 600px; margin: 10px auto; border-radius: 6px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-collapse: collapse; }
-    #hisse-alimi-tab th { background-color: #1a4231 !important; color: #ffffff; padding: 4px; font-size: 11.5px; font-weight: 800; border: 1px solid #133324; text-align: center; white-space: nowrap; height: 22px; }
-    #hisse-alimi-tab td { padding: 2px 4px; font-size: 11.5px; font-weight: bold; border: 1px solid #ccc; background-color: #fff; text-align: center; vertical-align: middle; height: 26px; }
-    #hisse-alimi-tab .edit-input { font-size: 11px; height: 22px; border: 1px solid #aaa; background-color: #fffde7; width: 100%; box-sizing: border-box; padding: 1px; text-align: center; font-weight: bold; margin: 0; }
-    .ha-toplam-satiri { background-color: #f8f9fa !important; font-size: 13px !important; height: 26px !important; }
+    /* HİSSE ALIMI - TEK EKRANA SIĞAN (KAYDIRMA ÇUBUKSUZ) SMART TV DOSTU STİL
+       Satır yüksekliği ekran yüksekliğine göre otomatik hesaplanır: 15 satır + başlık + toplam = 17 satır */
+    #hisse-alimi-tab { --ha-row: max(20px, calc((100vh - 125px) / 17)); }
+    #hisse-alimi-tab .table-container { overflow: visible !important; }
+    #hisse-alimi-tab table { width: 100%; max-width: 1000px; table-layout: fixed; margin: 4px auto; border-radius: 6px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-collapse: collapse; }
+    #hisse-alimi-tab th { background-color: #1a4231 !important; color: #ffffff; padding: 0 4px; font-size: clamp(11px, calc(var(--ha-row) * 0.5), 22px); font-weight: 800; border: 1px solid #133324; text-align: center; white-space: nowrap; height: var(--ha-row); box-sizing: border-box; }
+    #hisse-alimi-tab td { padding: 0 4px; font-size: clamp(11px, calc(var(--ha-row) * 0.5), 22px); font-weight: bold; border: 1px solid #ccc; background-color: #fff; text-align: center; vertical-align: middle; height: var(--ha-row); box-sizing: border-box; overflow: hidden; text-overflow: ellipsis; }
+    #hisse-alimi-tab .edit-input { font-size: clamp(11px, calc(var(--ha-row) * 0.46), 20px); height: calc(var(--ha-row) - 6px); min-height: 16px; border: 1px solid #aaa; background-color: #fffde7; width: 100%; box-sizing: border-box; padding: 0 2px; text-align: center; font-weight: bold; margin: 0; }
+    .ha-toplam-satiri { background-color: #f8f9fa !important; }
+    #hisse-alimi-tab .ha-toplam-satiri td { font-size: clamp(12px, calc(var(--ha-row) * 0.55), 24px) !important; height: var(--ha-row) !important; }
     
-    #hisse-alimi-tab th:nth-child(1), #hisse-alimi-tab td:nth-child(1) { width: 5%; }
-    #hisse-alimi-tab th:nth-child(2), #hisse-alimi-tab td:nth-child(2) { width: 22%; }
-    #hisse-alimi-tab th:nth-child(3), #hisse-alimi-tab td:nth-child(3) { width: 18%; }
-    #hisse-alimi-tab th:nth-child(4), #hisse-alimi-tab td:nth-child(4) { width: 18%; }
-    #hisse-alimi-tab th:nth-child(5), #hisse-alimi-tab td:nth-child(5) { width: 15%; }
+    #hisse-alimi-tab th:nth-child(1), #hisse-alimi-tab td:nth-child(1) { width: 6%; }
+    #hisse-alimi-tab th:nth-child(2), #hisse-alimi-tab td:nth-child(2) { width: 20%; }
+    #hisse-alimi-tab th:nth-child(3), #hisse-alimi-tab td:nth-child(3) { width: 19%; }
+    #hisse-alimi-tab th:nth-child(4), #hisse-alimi-tab td:nth-child(4) { width: 16%; }
+    #hisse-alimi-tab th:nth-child(5), #hisse-alimi-tab td:nth-child(5) { width: 17%; }
     #hisse-alimi-tab th:nth-child(6), #hisse-alimi-tab td:nth-child(6) { width: 22%; }
 
     #genel-tablo-table { 
