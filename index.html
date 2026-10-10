@@ -79,6 +79,14 @@
     input[type=checkbox] { width: 14px; height: 14px; cursor: pointer; margin: 0; vertical-align: middle; }
 
     #temettu-tab-container .edit-input { width: 60px; height: 19px; font-size: 11px; padding: 1px; }
+    
+    /* HİSSE ALIMI SEKME STİLLERİ */
+    #hisse-alimi-tab table { width: 60%; min-width: 500px; margin-top: 15px; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-collapse: separate; border-spacing: 0; }
+    #hisse-alimi-tab th { background-color: #1a4231 !important; color: #ffffff; padding: 10px; font-size: 13px; font-weight: 800; border: none; text-align: center; }
+    #hisse-alimi-tab td { padding: 6px; font-size: 13px; font-weight: bold; border-bottom: 1px solid #ddd; background-color: #fff; text-align: center; vertical-align: middle; }
+    #hisse-alimi-tab tr:last-child td { border-bottom: none; }
+    #hisse-alimi-tab .edit-input { font-size: 12px; height: 26px; border: 1px solid #aaa; background-color: #fffde7; }
+    .ha-toplam-satiri { background-color: #f8f9fa !important; font-size: 14px !important; }
 
     #genel-tablo-table { 
         width: 85% !important; 
@@ -213,6 +221,7 @@
         <button class="tab-button active" onclick="sekmeAc(event, 'anasayfa-tab')">📊 Anasayfa</button>
         <button class="tab-button" onclick="sekmeAc(event, 'maliyet-hisse-tab')">💼 Hisseler</button>
         <button class="tab-button" onclick="sekmeAc(event, 'maliyet-fon-tab')">📈 Fonlar</button>
+        <button class="tab-button" onclick="sekmeAc(event, 'hisse-alimi-tab')">🛒 Hisse Alımı</button>
         <button class="tab-button" onclick="sekmeAc(event, 'genel-tablo-tab')">🌐 Genel Tablo</button>
         <button class="tab-button" onclick="sekmeAc(event, 'temettu-tab')">💸 Temettü</button>
         <button class="tab-button" onclick="sekmeAc(event, 'veri-girisi-tab')">📥 Veri Girişi</button>
@@ -243,6 +252,15 @@
     <div id="maliyet-hisse-tab" class="tab-content"><div class="table-container"><table><thead><tr id="maliyet-hisse-headers"></tr></thead><tbody id="maliyet-hisse-body"></tbody></table></div></div>
     <div id="maliyet-fon-tab" class="tab-content"><div class="table-container"><table><thead><tr id="maliyet-fon-headers"></tr></thead><tbody id="maliyet-fon-body"></tbody></table></div></div>
     
+    <div id="hisse-alimi-tab" class="tab-content">
+       <div class="table-container">
+          <table id="hisse-alimi-table">
+            <thead id="hisse-alimi-headers"></thead>
+            <tbody id="hisse-alimi-body"></tbody>
+          </table>
+       </div>
+    </div>
+
     <div id="genel-tablo-tab" class="tab-content">
         <div class="table-container">
             <table id="genel-tablo-table"></table>
@@ -338,7 +356,6 @@
   </div>
 
   <script>
-    // DÜZELTME: İSTEDİĞİNİZ YENİ GÜNCEL API LİNKİ BURAYA EKLENDİ
     const API_URL = "https://script.google.com/macros/s/AKfycbzt08Trm3ItUIceFbWZ5K7HuA6GMM5oCqTTE_s7iyoaTzDqNAKkCZfQSi6Ws7jtOmuCcA/exec";
     
     let API_SIFRE = sessionStorage.getItem("pusu_sifre") || "";
@@ -587,6 +604,71 @@
       }
     }
 
+    function hisseAlimiTablosuCiz(hisseAlimiVerisi) {
+       var thead = document.getElementById('hisse-alimi-headers');
+       var tbody = document.getElementById('hisse-alimi-body');
+       if (!thead || !tbody) return;
+
+       thead.innerHTML = '';
+       tbody.innerHTML = '';
+
+       if (!hisseAlimiVerisi || !hisseAlimiVerisi.basliklar || hisseAlimiVerisi.basliklar.length === 0) return;
+
+       var trH = document.createElement('tr');
+       hisseAlimiVerisi.basliklar.forEach(function(baslik) {
+          var th = document.createElement('th');
+          th.innerText = baslik;
+          trH.appendChild(th);
+       });
+       thead.appendChild(trH);
+
+       if (hisseAlimiVerisi.satirlar) {
+          hisseAlimiVerisi.satirlar.forEach(function(row) {
+             var tr = document.createElement('tr');
+             var rIdx = row[row.length - 1]; 
+
+             for (var i = 0; i < row.length - 1; i++) {
+                var td = document.createElement('td');
+                var val = row[i];
+                
+                if (i === 1) { 
+                   var select = createHisseDropdown(val, "HİSSE ALIMI", rIdx, 2);
+                   td.appendChild(select);
+                } else if (i === 4) { 
+                   var inp = document.createElement('input');
+                   inp.type = 'number';
+                   inp.className = 'edit-input';
+                   inp.value = val;
+                   inp.onchange = function() { uzakHucreGuncelle("HİSSE ALIMI", rIdx, 5, this.value); };
+                   td.appendChild(inp);
+                } else {
+                   td.innerText = val;
+                   if (i === 0) td.style.color = "#777"; 
+                }
+                tr.appendChild(td);
+             }
+             tbody.appendChild(tr);
+          });
+       }
+
+       if (hisseAlimiVerisi.toplamMetni) {
+          var tTr = document.createElement('tr');
+          tTr.className = "ha-toplam-satiri";
+          var tTdL = document.createElement('td');
+          tTdL.colSpan = hisseAlimiVerisi.basliklar.length - 1;
+          tTdL.style.textAlign = "right";
+          tTdL.style.fontWeight = "900";
+          tTdL.innerText = hisseAlimiVerisi.toplamMetni;
+          tTr.appendChild(tTdL);
+
+          var tTdR = document.createElement('td');
+          tTdR.style.fontWeight = "900";
+          tTdR.innerText = hisseAlimiVerisi.toplamDegeri;
+          tTr.appendChild(tTdR);
+          tbody.appendChild(tTr);
+       }
+    }
+
     function parseSayi(val) {
       if(!val) return 0;
       var s = val.toString().replace(/[^0-9,\.-]/g, '');
@@ -650,7 +732,6 @@
           var dolarTutar = row[2] ? row[2].toString().trim() : "";
           var altinTutar = row[3] ? row[3].toString().trim() : "";
 
-          // DÜZELTME: "0,00" ve "-" checki
           if (tlTutar === "" || tlTutar === "-") tlTutar = dunRow[1] || "0,00";
           if (dolarTutar === "" || dolarTutar === "-") dolarTutar = dunRow[2] || "0,00";
           if (altinTutar === "" || altinTutar === "-") altinTutar = dunRow[3] || "0,00";
@@ -917,6 +998,7 @@
           );
           
           var temettuOdakliMi = document.getElementById('temettu-tab-container') && document.getElementById('temettu-tab-container').contains(aktifEleman) && isEditing;
+          var hisseAlimiOdakliMi = document.getElementById('hisse-alimi-body') && document.getElementById('hisse-alimi-body').contains(aktifEleman) && isEditing;
 
           var tBodyIslem = document.getElementById('islem-gecmisi-body');
           var gecmisOdakliMi = isEditing && tBodyIslem && tBodyIslem.contains(aktifEleman);
@@ -944,6 +1026,8 @@
                  tBodyIslem.appendChild(tr);
               });
           }
+
+          window.sonGecerliVeriler = {}; 
 
           if (data.anasayfa && data.anasayfa.basliklar && !anasayfaOdakliMi) {
             
@@ -1038,6 +1122,8 @@
           if (data.genelTablo) { genelTabloCiz(data.genelTablo, data.genelTabloDun, 'genel-tablo-table', data); }
           if (data.temettuHesaplama && !temettuOdakliMi) { temettuTablosuCiz(data.temettuHesaplama); }
           
+          if (data.hisseAlimi && !hisseAlimiOdakliMi) { hisseAlimiTablosuCiz(data.hisseAlimi); }
+
           tickerOlustur(data);
 
           var simdi = new Date();
