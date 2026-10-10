@@ -80,13 +80,19 @@
 
     #temettu-tab-container .edit-input { width: 60px; height: 19px; font-size: 11px; padding: 1px; }
     
-    /* HİSSE ALIMI SEKME STİLLERİ */
-    #hisse-alimi-tab table { width: 60%; min-width: 500px; margin-top: 15px; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-collapse: separate; border-spacing: 0; }
-    #hisse-alimi-tab th { background-color: #1a4231 !important; color: #ffffff; padding: 10px; font-size: 13px; font-weight: 800; border: none; text-align: center; }
-    #hisse-alimi-tab td { padding: 6px; font-size: 13px; font-weight: bold; border-bottom: 1px solid #ddd; background-color: #fff; text-align: center; vertical-align: middle; }
-    #hisse-alimi-tab tr:last-child td { border-bottom: none; }
-    #hisse-alimi-tab .edit-input { font-size: 12px; height: 26px; border: 1px solid #aaa; background-color: #fffde7; }
+    /* HİSSE ALIMI DÜZENLENMİŞ CSS */
+    #hisse-alimi-tab table { width: 100%; max-width: 850px; margin: 15px auto; border-radius: 6px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-collapse: collapse; }
+    #hisse-alimi-tab th { background-color: #1a4231 !important; color: #ffffff; padding: 6px; font-size: 12px; font-weight: 800; border: 1px solid #133324; text-align: center; white-space: nowrap; }
+    #hisse-alimi-tab td { padding: 4px; font-size: 12.5px; font-weight: bold; border: 1px solid #ccc; background-color: #fff; text-align: center; vertical-align: middle; }
+    #hisse-alimi-tab .edit-input { font-size: 12.5px; height: 26px; border: 1px solid #aaa; background-color: #fffde7; width: 100%; box-sizing: border-box; }
     .ha-toplam-satiri { background-color: #f8f9fa !important; font-size: 14px !important; }
+    
+    #hisse-alimi-tab th:nth-child(1), #hisse-alimi-tab td:nth-child(1) { width: 5%; }
+    #hisse-alimi-tab th:nth-child(2), #hisse-alimi-tab td:nth-child(2) { width: 22%; }
+    #hisse-alimi-tab th:nth-child(3), #hisse-alimi-tab td:nth-child(3) { width: 18%; }
+    #hisse-alimi-tab th:nth-child(4), #hisse-alimi-tab td:nth-child(4) { width: 18%; }
+    #hisse-alimi-tab th:nth-child(5), #hisse-alimi-tab td:nth-child(5) { width: 17%; }
+    #hisse-alimi-tab th:nth-child(6), #hisse-alimi-tab td:nth-child(6) { width: 20%; }
 
     #genel-tablo-table { 
         width: 85% !important; 
@@ -357,7 +363,6 @@
 
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbzt08Trm3ItUIceFbWZ5K7HuA6GMM5oCqTTE_s7iyoaTzDqNAKkCZfQSi6Ws7jtOmuCcA/exec";
-    
     let API_SIFRE = sessionStorage.getItem("pusu_sifre") || "";
     
     let isRequestActive = false;
@@ -392,9 +397,7 @@
        
        if (aksiyon === 'SİL') {
            var kullaniciOnayi = confirm("DİKKAT: Bu işlemi kalıcı olarak silmek üzeresiniz. Bu işlem geri alınamaz.\n\nSilme işlemini onaylıyor musunuz?");
-           if (!kullaniciOnayi) {
-               return; 
-           }
+           if (!kullaniciOnayi) { return; }
        }
        
        var fiyat = document.getElementById('fiyat_' + satir) ? document.getElementById('fiyat_' + satir).value : 0;
@@ -541,14 +544,25 @@
       }).catch(err => console.error("Güncelleme başarısız oldu:", err));
     }
 
+    // DÜZELTME: AÇILIR LİSTEYE BOŞ SEÇENEK EKLENDİ
     function createHisseDropdown(currentValue, sekmeAdi, rIdx, colIdx) {
       var select = document.createElement('select'); select.className = 'edit-input'; 
       var options = (window.tümHisseler || []).slice();
+      
+      var bosOpt = document.createElement('option');
+      bosOpt.value = ""; bosOpt.innerText = "Hisse Seç...";
+      select.appendChild(bosOpt);
+
       if (currentValue && !options.includes(currentValue)) { options.unshift(currentValue); }
+      
       options.forEach(function(hisse) {
         var opt = document.createElement('option'); opt.value = hisse; opt.innerText = hisse;
-        if (hisse === currentValue) opt.selected = true; select.appendChild(opt);
+        if (hisse === currentValue) opt.selected = true; 
+        select.appendChild(opt);
       });
+      
+      if (!currentValue) select.value = ""; 
+
       select.onchange = function() { uzakHucreGuncelle(sekmeAdi, rIdx, colIdx, this.value); };
       return select;
     }
