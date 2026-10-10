@@ -80,19 +80,19 @@
 
     #temettu-tab-container .edit-input { width: 60px; height: 19px; font-size: 11px; padding: 1px; }
     
-    /* HİSSE ALIMI DÜZENLENMİŞ CSS */
-    #hisse-alimi-tab table { width: 100%; max-width: 850px; margin: 15px auto; border-radius: 6px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-collapse: collapse; }
-    #hisse-alimi-tab th { background-color: #1a4231 !important; color: #ffffff; padding: 6px; font-size: 12px; font-weight: 800; border: 1px solid #133324; text-align: center; white-space: nowrap; }
-    #hisse-alimi-tab td { padding: 4px; font-size: 12.5px; font-weight: bold; border: 1px solid #ccc; background-color: #fff; text-align: center; vertical-align: middle; }
-    #hisse-alimi-tab .edit-input { font-size: 12.5px; height: 26px; border: 1px solid #aaa; background-color: #fffde7; width: 100%; box-sizing: border-box; }
-    .ha-toplam-satiri { background-color: #f8f9fa !important; font-size: 14px !important; }
+    /* HİSSE ALIMI KOMPAKT (DARALTILMIŞ) STİL */
+    #hisse-alimi-tab table { width: 100%; max-width: 600px; margin: 10px auto; border-radius: 6px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-collapse: collapse; }
+    #hisse-alimi-tab th { background-color: #1a4231 !important; color: #ffffff; padding: 4px; font-size: 11.5px; font-weight: 800; border: 1px solid #133324; text-align: center; white-space: nowrap; height: 22px; }
+    #hisse-alimi-tab td { padding: 2px 4px; font-size: 11.5px; font-weight: bold; border: 1px solid #ccc; background-color: #fff; text-align: center; vertical-align: middle; height: 26px; }
+    #hisse-alimi-tab .edit-input { font-size: 11px; height: 22px; border: 1px solid #aaa; background-color: #fffde7; width: 100%; box-sizing: border-box; padding: 1px; text-align: center; font-weight: bold; margin: 0; }
+    .ha-toplam-satiri { background-color: #f8f9fa !important; font-size: 13px !important; height: 26px !important; }
     
     #hisse-alimi-tab th:nth-child(1), #hisse-alimi-tab td:nth-child(1) { width: 5%; }
     #hisse-alimi-tab th:nth-child(2), #hisse-alimi-tab td:nth-child(2) { width: 22%; }
     #hisse-alimi-tab th:nth-child(3), #hisse-alimi-tab td:nth-child(3) { width: 18%; }
     #hisse-alimi-tab th:nth-child(4), #hisse-alimi-tab td:nth-child(4) { width: 18%; }
-    #hisse-alimi-tab th:nth-child(5), #hisse-alimi-tab td:nth-child(5) { width: 17%; }
-    #hisse-alimi-tab th:nth-child(6), #hisse-alimi-tab td:nth-child(6) { width: 20%; }
+    #hisse-alimi-tab th:nth-child(5), #hisse-alimi-tab td:nth-child(5) { width: 15%; }
+    #hisse-alimi-tab th:nth-child(6), #hisse-alimi-tab td:nth-child(6) { width: 22%; }
 
     #genel-tablo-table { 
         width: 85% !important; 
@@ -544,7 +544,6 @@
       }).catch(err => console.error("Güncelleme başarısız oldu:", err));
     }
 
-    // DÜZELTME: AÇILIR LİSTEYE BOŞ SEÇENEK EKLENDİ
     function createHisseDropdown(currentValue, sekmeAdi, rIdx, colIdx) {
       var select = document.createElement('select'); select.className = 'edit-input'; 
       var options = (window.tümHisseler || []).slice();
