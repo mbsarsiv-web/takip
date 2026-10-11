@@ -165,16 +165,12 @@
     .ticker { 
         display: inline-block; 
         white-space: nowrap; 
-        padding-left: 100%; 
-        animation: ticker-anim 90s linear infinite; 
+        flex-shrink: 0;
+        will-change: transform;
+        transform: translate3d(100vw, 0, 0);
     }
     .ticker:hover { 
-        animation-play-state: paused; 
         cursor: default; 
-    }
-    @keyframes ticker-anim { 
-        0% { transform: translate3d(0, 0, 0); } 
-        100% { transform: translate3d(-100%, 0, 0); } 
     }
     .ticker-item { 
         display: inline-block; 
@@ -285,7 +281,6 @@
     body.tv-mode .tab-button { padding: 8px 14px; font-size: 13.5px; }
     body.tv-mode .live-indicator { font-size: 13px; }
     body.tv-mode .top-header { position: sticky; top: 0; z-index: 60; background: #ffffff; }
-    body.tv-mode .ticker { animation-duration: 120s; }
     body.tv-mode #maliyet-hisse-tab.active { height: calc(100vh - 110px); }
     body.tv-mode #mod-btn { opacity: 0.8; width: 40px; height: 40px; font-size: 20px; }
     /* Uzaktan kumanda (D-pad) için belirgin odak çerçevesi */
@@ -1089,9 +1084,57 @@
        }
 
        if (tickerContent.innerHTML !== html) {
-           tickerContent.innerHTML = html;
+           var gecici = document.createElement('div');
+           gecici.innerHTML = html;
+           var yeniOgeler = gecici.children;
+           var mevcutOgeler = tickerContent.children;
+           if (mevcutOgeler.length > 0 && mevcutOgeler.length === yeniOgeler.length) {
+               // Öğe sayısı aynı: yalnızca değişen öğeleri yerinde güncelle (akış kesilmez)
+               for (var ti = 0; ti < yeniOgeler.length; ti++) {
+                   if (mevcutOgeler[ti].innerHTML !== yeniOgeler[ti].innerHTML) {
+                       mevcutOgeler[ti].innerHTML = yeniOgeler[ti].innerHTML;
+                   }
+               }
+           } else {
+               tickerContent.innerHTML = html;
+           }
        }
        if(html.length > 0) tickerContainer.style.display = "flex";
+    }
+
+    /* ===== YENİ: KESİNTİSİZ KAYAN YAZI (veri yenilense de konum korunur) ===== */
+    var tickerKonum = null;
+    var tickerSonZaman = 0;
+    var tickerDurdur = false;
+
+    function tickerAkisBaslat() {
+      var wrap = document.getElementById('ticker-container');
+      var tick = document.getElementById('ticker-content');
+      if (!wrap || !tick) return;
+      wrap.addEventListener('mouseenter', function() { tickerDurdur = true; });
+      wrap.addEventListener('mouseleave', function() { tickerDurdur = false; });
+
+      function kare(zaman) {
+        var wGen = wrap.clientWidth;
+        var tGen = tick.offsetWidth;
+        // Sekme gizliyse ya da içerik yoksa konumu bozmadan bekle
+        if (wGen === 0 || tGen === 0) {
+          tickerSonZaman = zaman;
+          requestAnimationFrame(kare);
+          return;
+        }
+        if (tickerKonum === null) tickerKonum = wGen;
+        var dt = (zaman - tickerSonZaman) / 1000;
+        tickerSonZaman = zaman;
+        if (dt > 0.1) dt = 0.1;
+        if (dt < 0) dt = 0;
+        var hiz = document.body.classList.contains('tv-mode') ? 45 : 65; // px/sn
+        if (!tickerDurdur) tickerKonum -= hiz * dt;
+        if (tickerKonum < -tGen) tickerKonum = wGen;
+        tick.style.transform = 'translate3d(' + tickerKonum.toFixed(1) + 'px,0,0)';
+        requestAnimationFrame(kare);
+      }
+      requestAnimationFrame(kare);
     }
 
     function verileriYukle() {
@@ -1263,6 +1306,7 @@
 
     window.onload = function() {
       tvModuUygula(tvModuAlgila());
+      tickerAkisBaslat();
       if(!API_SIFRE) { document.getElementById("login-screen").style.display = "flex"; document.getElementById("main-app").style.display = "none"; } 
       else { document.getElementById("login-screen").style.display = "none"; document.getElementById("main-app").style.display = "block"; verileriYukle(); yenilemeZamanlayici = setInterval(verileriYukle, 10000); }
     };
