@@ -212,6 +212,90 @@
     
     #maliyet-hisse-tab.active { height: calc(100vh - 70px); display: flex; flex-direction: column; }
     #maliyet-hisse-tab .table-container { flex: 1; overflow-x: auto !important; overflow-y: auto !important; -webkit-overflow-scrolling: touch; }
+
+    /* =====================================================================
+       YENİ: GÖRÜNÜM / MOD DÜĞMESİ (PC'de çok silik, rahatsız etmez)
+       ===================================================================== */
+    #mod-btn { position: fixed; right: 8px; bottom: 8px; z-index: 10000; width: 34px; height: 34px; border-radius: 50%; border: 1px solid #bbb; background: rgba(255,255,255,0.85); font-size: 16px; line-height: 1; cursor: pointer; opacity: 0.35; padding: 0; }
+    #mod-btn:hover, #mod-btn:focus { opacity: 1; }
+
+    /* =====================================================================
+       YENİ: MOBİL (yalnızca ekran genişliği 768px ve altı - PC etkilenmez)
+       ===================================================================== */
+    @media (max-width: 768px) {
+      html { -webkit-text-size-adjust: 100%; }
+      body { margin: 6px 3px 3px 3px; -webkit-tap-highlight-color: transparent; }
+      button, select, a { touch-action: manipulation; }
+
+      .login-box { width: 88%; max-width: 360px; padding: 22px 16px; box-sizing: border-box; }
+      .login-box input, .login-box button { width: 100%; font-size: 16px; padding: 12px; }
+
+      /* Üst başlık: yapışkan, sekmeler büyük ve kaydırılabilir */
+      .top-header { position: sticky; top: 0; z-index: 60; background: #ffffff; padding-top: 4px; }
+      .tab-button { padding: 11px 13px; font-size: 13px; }
+      .live-indicator { font-size: 10.5px; padding: 3px 6px; }
+
+      /* Anasayfa: iki tablo alt alta, satırlar içeriğe göre uzar */
+      #anasayfa-tab .split-table-container { flex-direction: column; overflow-x: visible; gap: 8px; padding-bottom: 4px; }
+      #anasayfa-tab .split-table { min-width: 0; width: 100%; flex: none; }
+      #anasayfa-tab .split-table tr { height: auto !important; }
+      #anasayfa-tab .split-table th, #anasayfa-tab .split-table td { height: auto !important; padding: 5px 2px !important; font-size: 12px !important; line-height: 1.2 !important; }
+      #anasayfa-tab .split-table th { font-size: 10.5px !important; }
+      #anasayfa-tab .top-split-table td:nth-child(6), #anasayfa-tab .top-split-table .tavsiye-cell { white-space: normal; word-break: break-word; }
+      #anasayfa-tab .hisse-cell .edit-input { font-size: 16px; height: 34px; min-width: 70px; }
+
+      /* Maliyet sekmeleri: ilk sütun sabit, kaydırma rahat */
+      #maliyet-hisse-tab.active { height: calc(100vh - 100px); height: calc(100dvh - 100px); }
+      #maliyet-hisse-tab th, #maliyet-hisse-tab td { padding: 5px 6px !important; height: auto !important; font-size: 12px !important; }
+      #maliyet-fon-tab th, #maliyet-fon-tab td { padding: 5px 6px; font-size: 12px; }
+      #maliyet-hisse-tab th:first-child, #maliyet-fon-tab th:first-child { position: sticky; left: 0; z-index: 3; }
+      #maliyet-hisse-tab td:first-child, #maliyet-fon-tab td:first-child { position: sticky; left: 0; z-index: 2; background-color: #f4f7f5; }
+
+      /* Hisse alımı: tablo dar ekranda yatay kaydırılır, dokunma alanları büyür */
+      #hisse-alimi-tab { --ha-row: 38px; }
+      #hisse-alimi-tab table { min-width: 560px; max-width: none; }
+      #hisse-alimi-tab .edit-input { font-size: 16px; height: 32px; min-height: 30px; }
+
+      /* Genel tablo: ekrana sığar */
+      #genel-tablo-table { width: 100% !important; min-width: 0; margin: 10px 0 12px 0; border-radius: 8px; }
+      #genel-tablo-table th { padding: 10px 4px !important; font-size: 11px !important; letter-spacing: 0; }
+      #genel-tablo-table td { padding: 8px 4px !important; font-size: 12px !important; }
+      #genel-tablo-table td:first-child { padding-left: 8px !important; }
+      .ticker-wrap { width: 100%; min-width: 0; margin: 0 0 20px 0; height: 38px; }
+      .ticker-title { padding: 0 10px; font-size: 11px; }
+      .ticker-item { font-size: 13px; padding: 0 14px; }
+
+      /* Temettü: yatay kaydırma kalır, giriş kutuları parmağa uygun */
+      #temettu-tab-container .edit-input { width: 76px; height: 30px; font-size: 16px; }
+      #temettu-tab-container input[type=checkbox] { width: 22px; height: 22px; }
+
+      /* Veri girişi / Geçmiş: iOS yakınlaştırmasını önlemek için 16px, büyük düğmeler */
+      #veri-girisi-tab .edit-input, #islem-gecmisi-tab .edit-input { font-size: 16px; height: 40px !important; }
+      #veri-girisi-tab button { min-height: 46px; font-size: 15px !important; }
+      #islem-gecmisi-tab button { min-height: 36px; font-size: 13px !important; padding: 6px 10px !important; }
+      #islem-gecmisi-tab th, #islem-gecmisi-tab td { padding: 6px 5px; font-size: 12px; }
+      #islem-gecmisi-tab .edit-input { width: 90px !important; }
+    }
+
+    /* =====================================================================
+       YENİ: SMART TV MODU (yalnızca <body class="tv-mode"> iken çalışır)
+       Otomatik algılanır; ?tv=1 ile ya da sağ alttaki düğmeyle de açılır.
+       ===================================================================== */
+    body.tv-mode { zoom: 1.45; margin: 24px 36px 14px 36px; cursor: default; }
+    body.tv-mode .tab-button { padding: 8px 14px; font-size: 13.5px; }
+    body.tv-mode .live-indicator { font-size: 13px; }
+    body.tv-mode .top-header { position: sticky; top: 0; z-index: 60; background: #ffffff; }
+    body.tv-mode .ticker { animation-duration: 120s; }
+    body.tv-mode #maliyet-hisse-tab.active { height: calc(100vh - 110px); }
+    body.tv-mode #mod-btn { opacity: 0.8; width: 40px; height: 40px; font-size: 20px; }
+    /* Uzaktan kumanda (D-pad) için belirgin odak çerçevesi */
+    body.tv-mode button:focus, body.tv-mode select:focus, body.tv-mode input:focus, body.tv-mode .tab-button:focus {
+      outline: 4px solid #ffb300 !important; outline-offset: 2px; position: relative; z-index: 5;
+    }
+    body.tv-mode .edit-input { min-height: 26px; font-size: 13px; }
+    body.tv-mode #veri-girisi-tab button, body.tv-mode #islem-gecmisi-tab button { min-height: 40px; }
+    body.tv-mode #veri-girisi-tab .edit-input { height: 36px !important; font-size: 15px; }
+    body.tv-mode .login-box { padding: 40px 50px; }
   </style>
 </head>
 <body>
@@ -365,12 +449,39 @@
 
   </div>
 
+  <button id="mod-btn" type="button" onclick="modDegistir()" title="Görünümü değiştir (TV / Normal)">📺</button>
+
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbzt08Trm3ItUIceFbWZ5K7HuA6GMM5oCqTTE_s7iyoaTzDqNAKkCZfQSi6Ws7jtOmuCcA/exec";
     let API_SIFRE = sessionStorage.getItem("pusu_sifre") || "";
     
     let isRequestActive = false;
     let yenilemeZamanlayici = null;
+
+    /* ===== YENİ: SMART TV / GÖRÜNÜM MODU ===== */
+    function tvModuAlgila() {
+      var kayit = null;
+      try {
+        if (/[?&]tv=1/.test(location.search)) localStorage.setItem("pusu_tv", "1");
+        else if (/[?&]tv=0/.test(location.search)) localStorage.setItem("pusu_tv", "0");
+        kayit = localStorage.getItem("pusu_tv");
+      } catch (e) { }
+      if (kayit === "1") return true;
+      if (kayit === "0") return false;
+      return /SmartTV|SMART-TV|Tizen|Web0S|WebOS|NetCast|HbbTV|BRAVIA|AFTT|AFTM|AFTS|CrKey|GoogleTV|Android TV|VIDAA|Hisense|AppleTV/i.test(navigator.userAgent);
+    }
+
+    function tvModuUygula(acik) {
+      if (acik) document.body.classList.add("tv-mode"); else document.body.classList.remove("tv-mode");
+      var b = document.getElementById("mod-btn");
+      if (b) b.innerText = acik ? "🖥️" : "📺";
+    }
+
+    function modDegistir() {
+      var acik = !document.body.classList.contains("tv-mode");
+      try { localStorage.setItem("pusu_tv", acik ? "1" : "0"); } catch (e) { }
+      tvModuUygula(acik);
+    }
 
     function girisYap() {
       const val = document.getElementById("sifre-input").value;
@@ -389,6 +500,7 @@
       tc = document.getElementsByClassName("tab-content"); for (i = 0; i < tc.length; i++) tc[i].classList.remove("active");
       tb = document.getElementsByClassName("tab-button"); for (i = 0; i < tb.length; i++) tb[i].classList.remove("active");
       document.getElementById(tabId).classList.add("active"); evt.currentTarget.classList.add("active");
+      try { evt.currentTarget.scrollIntoView({ inline: "center", block: "nearest" }); } catch (e) { }
     }
 
     function htmlKacis(metin) {
@@ -1150,6 +1262,7 @@
     }
 
     window.onload = function() {
+      tvModuUygula(tvModuAlgila());
       if(!API_SIFRE) { document.getElementById("login-screen").style.display = "flex"; document.getElementById("main-app").style.display = "none"; } 
       else { document.getElementById("login-screen").style.display = "none"; document.getElementById("main-app").style.display = "block"; verileriYukle(); yenilemeZamanlayici = setInterval(verileriYukle, 10000); }
     };
