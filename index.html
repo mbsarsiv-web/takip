@@ -441,6 +441,14 @@
     let isRequestActive = false;
     let yenilemeZamanlayici = null;
 
+    /* ===== V16: HÜCRE YAZMA KUYRUĞU / İSTEK SIRALAMA DEĞİŞKENLERİ ===== */
+    var yazmaKuyrugu = [];        // Gönderilmeyi bekleyen hücre yazmaları (sırayla gider)
+    var yazmaAktif = false;       // Şu an sunucuya bir yazma isteği gidiyor mu?
+    var sonYazmaZamani = 0;       // Son yazmanın bittiği an (ms)
+    var veriIstekNo = 0;          // Her veriGetir isteğine artan numara
+    var sonUygulananIstekNo = 0;  // Ekrana uygulanmış en yeni isteğin numarası
+    var yenidenYuklemeZamanlayici = null;
+
     /* ===== SMART TV / GÖRÜNÜM MODU ===== */
     function tvModuAlgila() {
       var kayit = null;
@@ -632,15 +640,79 @@
       return isaret + (sayi * 100).toFixed(2).replace(/\./g, ',') + "%";
     }
 
+    /* ===================== V16: HÜCRE YAZMA (SIRALI KUYRUK) ===================== */
+    function durumGoster(metin) {
+      var el = document.getElementById('son-guncelleme');
+      if (el) el.innerText = metin;
+    }
+
     function uzakHucreGuncelle(sekmeAdi, satir, sutun, deger) {
+      var anahtar = sekmeAdi + "|" + satir + "|" + sutun;
+      var degerMetni = (deger === null || deger === undefined) ? "" : String(deger);
+
+      // Aynı hücre için henüz gönderilmemiş bir kayıt varsa, sadece değerini güncelle (son değer kazanır)
+      for (var i = 0; i < yazmaKuyrugu.length; i++) {
+        if (yazmaKuyrugu[i].anahtar === anahtar && !yazmaKuyrugu[i].gonderiliyor) {
+          yazmaKuyrugu[i].deger = degerMetni;
+          yazmaIsle();
+          return;
+        }
+      }
+      yazmaKuyrugu.push({ anahtar: anahtar, sekme: sekmeAdi, satir: satir, sutun: sutun, deger: degerMetni, deneme: 0, gonderiliyor: false });
+      durumGoster("💾 Kaydediliyor...");
+      yazmaIsle();
+    }
+
+    function yazmaIsle() {
+      if (yazmaAktif || yazmaKuyrugu.length === 0) return;
+
+      var is = yazmaKuyrugu[0];
+      yazmaAktif = true;
+      is.gonderiliyor = true;
+
       var cacheBuster = "&t=" + new Date().getTime();
-      var url = API_URL + "?islem=hucreGuncelle&sekme=" + encodeURIComponent(sekmeAdi) + "&satir=" + satir + "&sutun=" + sutun + "&deger=" + encodeURIComponent(deger) + "&sifre=" + encodeURIComponent(API_SIFRE) + cacheBuster;
-      fetch(url).then(res => res.json()).then(data => { 
-            if (!data.basari && data.hata && data.hata.indexOf("Yetkisiz") > -1) {
-                alert("Şifre Hatalı! Lütfen tekrar giriş yapın.");
-                sessionStorage.removeItem("pusu_sifre"); location.reload();
-            }
-      }).catch(err => console.error("Güncelleme başarısız oldu:", err));
+      var url = API_URL + "?islem=hucreGuncelle&sekme=" + encodeURIComponent(is.sekme) +
+                "&satir=" + is.satir + "&sutun=" + is.sutun +
+                "&deger=" + encodeURIComponent(is.deger) +
+                "&sifre=" + encodeURIComponent(API_SIFRE) + cacheBuster;
+
+      fetch(url).then(function (res) { return res.json(); }).then(function (data) {
+        yazmaAktif = false;
+        yazmaKuyrugu.shift();
+
+        if (data && data.basari) {
+          sonYazmaZamani = Date.now();
+          durumGoster("✔ Kaydedildi");
+        } else {
+          var hata = (data && data.hata) ? data.hata : "Bilinmeyen hata";
+          if (hata.indexOf("Yetkisiz") > -1) {
+            alert("Şifre Hatalı! Lütfen tekrar giriş yapın.");
+            sessionStorage.removeItem("pusu_sifre"); location.reload();
+            return;
+          }
+          alert("⚠️ Kaydedilemedi: " + hata);
+          sonYazmaZamani = Date.now();
+        }
+
+        if (yazmaKuyrugu.length > 0) {
+          yazmaIsle();
+        } else {
+          // Kuyruk boşaldı: sunucudaki GERÇEK değerleri hemen çekip ekrana yansıt
+          verileriYukle();
+        }
+      }).catch(function (err) {
+        yazmaAktif = false;
+        is.gonderiliyor = false;
+        is.deneme++;
+        if (is.deneme >= 4) {
+          yazmaKuyrugu.shift();
+          alert("⚠️ Bağlantı hatası: Değişiklik kaydedilemedi (" + is.sekme + " satır " + is.satir + "). Lütfen tekrar deneyin.");
+          sonYazmaZamani = Date.now();
+          if (yazmaKuyrugu.length > 0) { yazmaIsle(); } else { verileriYukle(); }
+        } else {
+          setTimeout(yazmaIsle, 1500);
+        }
+      });
     }
 
     function createHisseDropdown(currentValue, sekmeAdi, rIdx, colIdx) {
@@ -716,69 +788,135 @@
       }
     }
 
+    /* ===================== V16: HİSSE ALIMI TABLOSU ===================== */
+    function hisseAlimiToplamiYenile() {
+      var tbody = document.getElementById('hisse-alimi-body');
+      if (!tbody) return;
+      var hucreler = tbody.querySelectorAll('td[data-tutar-hucre="1"]');
+      var toplam = 0;
+      for (var i = 0; i < hucreler.length; i++) {
+        toplam += parseFloat(hucreler[i].getAttribute('data-tutar')) || 0;
+      }
+      var tHucre = document.getElementById('ha-toplam-deger');
+      if (tHucre) {
+        tHucre.innerText = toplam.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + "TL";
+      }
+    }
+
     function hisseAlimiTablosuCiz(hisseAlimiVerisi) {
-       var thead = document.getElementById('hisse-alimi-headers');
-       var tbody = document.getElementById('hisse-alimi-body');
-       if (!thead || !tbody) return;
+      var thead = document.getElementById('hisse-alimi-headers');
+      var tbody = document.getElementById('hisse-alimi-body');
+      if (!thead || !tbody) return;
 
-       thead.innerHTML = '';
-       tbody.innerHTML = '';
+      thead.innerHTML = '';
+      tbody.innerHTML = '';
 
-       if (!hisseAlimiVerisi || !hisseAlimiVerisi.basliklar || hisseAlimiVerisi.basliklar.length === 0) return;
+      if (!hisseAlimiVerisi || !hisseAlimiVerisi.basliklar || hisseAlimiVerisi.basliklar.length === 0) return;
 
-       var trH = document.createElement('tr');
-       hisseAlimiVerisi.basliklar.forEach(function(baslik) {
-          var th = document.createElement('th');
-          th.innerText = baslik;
-          trH.appendChild(th);
-       });
-       thead.appendChild(trH);
+      var trH = document.createElement('tr');
+      hisseAlimiVerisi.basliklar.forEach(function (baslik) {
+        var th = document.createElement('th');
+        th.innerText = baslik;
+        trH.appendChild(th);
+      });
+      thead.appendChild(trH);
 
-       if (hisseAlimiVerisi.satirlar) {
-          hisseAlimiVerisi.satirlar.forEach(function(row) {
-             var tr = document.createElement('tr');
-             var rIdx = row[row.length - 1]; 
+      if (hisseAlimiVerisi.satirlar) {
+        hisseAlimiVerisi.satirlar.forEach(function (row) {
+          var tr = document.createElement('tr');
+          var rIdx = row[row.length - 1];
+          var fiyatSayi = parseSayi(row[3]);   // FİYAT sütunu
+          var tutarHucresi = null;
 
-             for (var i = 0; i < row.length - 1; i++) {
-                var td = document.createElement('td');
-                var val = row[i];
-                
-                if (i === 1) { 
-                   var select = createHisseDropdown(val, "HİSSE ALIMI", rIdx, 2);
-                   td.appendChild(select);
-                } else if (i === 4) { 
-                   var inp = document.createElement('input');
-                   inp.type = 'number';
-                   inp.className = 'edit-input';
-                   inp.value = val;
-                   inp.onchange = function() { uzakHucreGuncelle("HİSSE ALIMI", rIdx, 5, this.value); };
-                   td.appendChild(inp);
-                } else {
-                   td.innerText = val;
-                   if (i === 0) td.style.color = "#777"; 
+          for (var i = 0; i < row.length - 1; i++) {
+            var td = document.createElement('td');
+            var val = row[i];
+
+            if (i === 1) {
+              var select = createHisseDropdown(val, "HİSSE ALIMI", rIdx, 2);
+              td.appendChild(select);
+
+            } else if (i === 4) {
+              // ALINACAK LOT: kayıt kuyruğa alınır, toplam anında hesaplanır
+              var inp = document.createElement('input');
+              inp.type = 'number';
+              inp.step = 'any';
+              inp.min = '0';
+              inp.setAttribute('inputmode', 'decimal');
+              inp.className = 'edit-input';
+
+              var baslangicSayi = parseSayi(val);
+              inp.value = baslangicSayi > 0 ? String(baslangicSayi) : '';
+              inp._sonGonderilen = inp.value;
+              inp._zamanlayici = null;
+
+              (function (girdi, satirNo, fiyat, getTutarHucresi) {
+                function anlikHesapla() {
+                  var lot = parseFloat((girdi.value || "").toString().replace(',', '.')) || 0;
+                  var hucre = getTutarHucresi();
+                  if (!hucre) return;
+                  var tutar = (lot > 0 && fiyat > 0) ? lot * fiyat : 0;
+                  hucre.setAttribute('data-tutar', tutar);
+                  hucre.innerText = tutar > 0 ? tutar.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + "TL" : "";
+                  hisseAlimiToplamiYenile();
                 }
-                tr.appendChild(td);
-             }
-             tbody.appendChild(tr);
-          });
-       }
 
-       if (hisseAlimiVerisi.toplamMetni) {
-          var tTr = document.createElement('tr');
-          tTr.className = "ha-toplam-satiri";
-          var tTdL = document.createElement('td');
-          tTdL.colSpan = hisseAlimiVerisi.basliklar.length - 1;
-          tTdL.style.textAlign = "right";
-          tTdL.style.fontWeight = "900";
-          tTdL.innerText = hisseAlimiVerisi.toplamMetni;
-          tTr.appendChild(tTdL);
+                function kaydet() {
+                  if (girdi._zamanlayici) { clearTimeout(girdi._zamanlayici); girdi._zamanlayici = null; }
+                  var yeniDeger = (girdi.value || "").toString().replace(',', '.').trim();
+                  if (yeniDeger === girdi._sonGonderilen) return;   // değişmediyse tekrar gönderme
+                  girdi._sonGonderilen = yeniDeger;
+                  uzakHucreGuncelle("HİSSE ALIMI", satirNo, 5, yeniDeger);
+                }
 
-          var tTdR = document.createElement('td');
-          tTdR.style.fontWeight = "900";
-          tTdR.innerText = hisseAlimiVerisi.toplamDegeri;
-          tTr.appendChild(tTdR);
-          tbody.appendChild(tTr);
-       }
+                girdi.addEventListener('input', function () {
+                  anlikHesapla();                                   // ekranda ANINDA güncelle
+                  if (girdi._zamanlayici) clearTimeout(girdi._zamanlayici);
+                  girdi._zamanlayici = setTimeout(kaydet, 700);     // yazmayı bırakınca otomatik kaydet
+                });
+                girdi.addEventListener('change', kaydet);           // odaktan çıkınca hemen kaydet
+                girdi.addEventListener('blur', kaydet);
+                girdi.addEventListener('keydown', function (ev) {
+                  if (ev.key === 'Enter') { kaydet(); girdi.blur(); }
+                });
+              })(inp, rIdx, fiyatSayi, function () { return tutarHucresi; });
+
+              td.appendChild(inp);
+
+            } else if (i === 5) {
+              // TOPLAM TUTAR: sunucu değeri gösterilir, lot değişince tarayıcıda anında yeniden hesaplanır
+              td.innerText = val;
+              td.setAttribute('data-tutar-hucre', '1');
+              td.setAttribute('data-tutar', parseSayi(val));
+              tutarHucresi = td;
+
+            } else {
+              td.innerText = val;
+              if (i === 0) td.style.color = "#777";
+            }
+            tr.appendChild(td);
+          }
+          tbody.appendChild(tr);
+        });
+      }
+
+      if (hisseAlimiVerisi.toplamMetni) {
+        var tTr = document.createElement('tr');
+        tTr.className = "ha-toplam-satiri";
+        var tTdL = document.createElement('td');
+        tTdL.colSpan = hisseAlimiVerisi.basliklar.length - 1;
+        tTdL.style.textAlign = "right";
+        tTdL.style.fontWeight = "900";
+        tTdL.innerText = hisseAlimiVerisi.toplamMetni;
+        tTr.appendChild(tTdL);
+
+        var tTdR = document.createElement('td');
+        tTdR.id = 'ha-toplam-deger';
+        tTdR.style.fontWeight = "900";
+        tTdR.innerText = hisseAlimiVerisi.toplamDegeri;
+        tTr.appendChild(tTdR);
+        tbody.appendChild(tTr);
+      }
     }
 
     function parseSayi(val) {
@@ -1071,8 +1209,16 @@
       requestAnimationFrame(kare);
     }
 
+    /* ===================== V16: VERİLERİ YÜKLE ===================== */
     function verileriYukle() {
       if(!API_SIFRE) return;
+
+      // Bekleyen / giden bir yazma varken veri çekme: eski değer ekrandaki girişi ezmesin.
+      // (Kuyruk bitince yazmaIsle zaten verileriYukle'yi tekrar çağırır.)
+      if (yazmaAktif || yazmaKuyrugu.length > 0) return;
+
+      var istekNo = ++veriIstekNo;
+      var baslangic = Date.now();
 
       var cacheBuster = "&t=" + new Date().getTime();
       var fetchUrl = API_URL + "?islem=veriGetir&sifre=" + encodeURIComponent(API_SIFRE) + cacheBuster;
@@ -1080,6 +1226,20 @@
       fetch(fetchUrl)
         .then(response => response.json())
         .then(result => {
+          // 1) Daha yeni bir istek zaten ekrana uygulandıysa bu eski yanıtı at
+          if (istekNo < sonUygulananIstekNo) return;
+
+          // 2) Bu istek sırasında bir yazma başladıysa/bittiyse yanıt ESKİ olabilir: ekrana uygulama
+          if (yazmaAktif || yazmaKuyrugu.length > 0) return;
+          if (baslangic < sonYazmaZamani) {
+            if (!yenidenYuklemeZamanlayici) {
+              yenidenYuklemeZamanlayici = setTimeout(function () { yenidenYuklemeZamanlayici = null; verileriYukle(); }, 800);
+            }
+            return;
+          }
+
+          sonUygulananIstekNo = istekNo;
+
           if (!result || !result.basari) {
             if (result && result.hata && result.hata.indexOf("Yetkisiz") > -1) {
               sessionStorage.removeItem("pusu_sifre");
@@ -1209,8 +1369,8 @@
                   var tdDegisim = document.createElement('td'); tdDegisim.className = "bold-cell"; tdDegisim.innerText = yuzdeFormatla(degisimGoster); 
                   var bgClass = arkaPlanRenkSinifiAl(degisimGoster); if (bgClass) tdDegisim.classList.add(bgClass); tr.appendChild(tdDegisim);
                   
-                  var tdC = document.createElement('td'); tdC.className = "bold-cell"; tdC.innerText = rsiGoster; tr.appendChild(tdC);
-                  var tdI = document.createElement('td'); tdI.className = "gunort-cell"; tdI.innerText = gunSGoster; tr.appendChild(tdI);
+                  var tdC2 = document.createElement('td'); tdC2.className = "bold-cell"; tdC2.innerText = rsiGoster; tr.appendChild(tdC2);
+                  var tdI2 = document.createElement('td'); tdI2.className = "gunort-cell"; tdI2.innerText = gunSGoster; tr.appendChild(tdI2);
                   
                   var tdHacim = document.createElement('td'); tdHacim.className = "bold-cell"; tdHacim.innerText = hacimGoster; tr.appendChild(tdHacim);
                   
