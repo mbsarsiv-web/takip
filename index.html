@@ -76,22 +76,26 @@
     .edit-input:disabled { background-color: #f0f0f0; border-color: #ccc; color: #888; }
     input[type=checkbox] { width: 14px; height: 14px; cursor: pointer; margin: 0; vertical-align: middle; }
     
-    /* HİSSE ALIMI - KOMPAKT TABLO (yatayda ~620px, satır yüksekliği 24px) */
+    /* HİSSE ALIMI - TEK KOMPAKT TABLO (8 sütun: SIRA, HİSSE, RSI, GÜN. ORT., ..., FİYAT, LOT, TUTAR) */
     #hisse-alimi-tab { --ha-row: 24px; }
     #hisse-alimi-tab .table-container { overflow-x: auto !important; }
-    #hisse-alimi-tab table { width: 100%; max-width: 620px; table-layout: fixed; margin: 4px auto; border-radius: 6px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.1); border-collapse: collapse; }
+    #hisse-alimi-tab table { width: 100%; max-width: 760px; table-layout: fixed; margin: 4px auto; border-radius: 6px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.1); border-collapse: collapse; }
     #hisse-alimi-tab th { background-color: #1a4231 !important; color: #ffffff; padding: 0 3px; font-size: 11.5px; font-weight: 800; border: 1px solid #133324; text-align: center; white-space: nowrap; height: var(--ha-row); box-sizing: border-box; }
     #hisse-alimi-tab td { padding: 0 3px; font-size: 12px; font-weight: bold; border: 1px solid #ccc; background-color: #fff; text-align: center; vertical-align: middle; height: var(--ha-row); box-sizing: border-box; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     #hisse-alimi-tab .edit-input { font-size: 11.5px; height: 20px; min-height: 18px; border: 1px solid #aaa; background-color: #fffde7; width: 100%; box-sizing: border-box; padding: 0 2px; text-align: center; font-weight: bold; margin: 0; }
     .ha-toplam-satiri { background-color: #f8f9fa !important; }
     #hisse-alimi-tab .ha-toplam-satiri td { font-size: 12.5px !important; height: var(--ha-row) !important; }
 
-    #hisse-alimi-tab th:nth-child(1), #hisse-alimi-tab td:nth-child(1) { width: 7%; }
-    #hisse-alimi-tab th:nth-child(2), #hisse-alimi-tab td:nth-child(2) { width: 19%; }
-    #hisse-alimi-tab th:nth-child(3), #hisse-alimi-tab td:nth-child(3) { width: 19%; }
-    #hisse-alimi-tab th:nth-child(4), #hisse-alimi-tab td:nth-child(4) { width: 16%; }
-    #hisse-alimi-tab th:nth-child(5), #hisse-alimi-tab td:nth-child(5) { width: 17%; }
-    #hisse-alimi-tab th:nth-child(6), #hisse-alimi-tab td:nth-child(6) { width: 22%; }
+    #hisse-alimi-tab th:nth-child(1), #hisse-alimi-tab td:nth-child(1) { width: 6%; }
+    #hisse-alimi-tab th:nth-child(2), #hisse-alimi-tab td:nth-child(2) { width: 16%; }
+    #hisse-alimi-tab th:nth-child(3), #hisse-alimi-tab td:nth-child(3) { width: 10%; }
+    #hisse-alimi-tab th:nth-child(4), #hisse-alimi-tab td:nth-child(4) { width: 11%; }
+    #hisse-alimi-tab th:nth-child(5), #hisse-alimi-tab td:nth-child(5) { width: 14%; }
+    #hisse-alimi-tab th:nth-child(6), #hisse-alimi-tab td:nth-child(6) { width: 13%; }
+    #hisse-alimi-tab th:nth-child(7), #hisse-alimi-tab td:nth-child(7) { width: 14%; }
+    #hisse-alimi-tab th:nth-child(8), #hisse-alimi-tab td:nth-child(8) { width: 16%; }
+    #hisse-alimi-tab .ha-toplam-satiri td:first-child { width: auto; }
+    #hisse-alimi-tab .ha-toplam-satiri td:last-child { width: auto; }
 
     #genel-tablo-table { 
         width: 85% !important; 
@@ -244,7 +248,7 @@
 
       /* Hisse alımı: tablo dar ekranda yatay kaydırılır, dokunma alanları büyür */
       #hisse-alimi-tab { --ha-row: 38px; }
-      #hisse-alimi-tab table { min-width: 560px; max-width: none; }
+      #hisse-alimi-tab table { min-width: 700px; max-width: none; }
       #hisse-alimi-tab .edit-input { font-size: 16px; height: 32px; min-height: 30px; }
 
       /* Genel tablo: ekrana sığar */
@@ -448,6 +452,49 @@
     var veriIstekNo = 0;          // Her veriGetir isteğine artan numara
     var sonUygulananIstekNo = 0;  // Ekrana uygulanmış en yeni isteğin numarası
     var yenidenYuklemeZamanlayici = null;
+
+    /* ===== HİSSE ALIMI İÇİN ANASAYFA RSI / GÜN. ORT. HARİTASI ===== */
+    window.anasayfaHisseHaritasi = {};
+
+    function anasayfaHaritasiOlustur(anasayfaVerisi) {
+      var harita = {};
+      if (anasayfaVerisi && anasayfaVerisi.satirlar) {
+        anasayfaVerisi.satirlar.forEach(function (r) {
+          if (!r || !r[0]) return;
+          var kod = r[0].toString().trim().toUpperCase();
+          if (!kod) return;
+          harita[kod] = { rsi: (r[2] === undefined || r[2] === null) ? "" : r[2].toString().trim(),
+                          gun: (r[4] === undefined || r[4] === null) ? "" : r[4].toString().trim() };
+        });
+      }
+      window.anasayfaHisseHaritasi = harita;
+    }
+
+    function bilgiDegeriTemiz(v) {
+      if (v === undefined || v === null) return "-";
+      var s = v.toString().trim();
+      if (s === "" || s === "0" || s === "-" || s === "#N/A" || s === "Veri Az" || s.indexOf("Bekleniyor") > -1) return "-";
+      return s;
+    }
+
+    function hisseAlimiBilgiDoldur(rsiTd, gunTd, kod) {
+      if (!rsiTd || !gunTd) return;
+      var k = (kod || "").toString().trim().toUpperCase();
+      var kayit = k ? window.anasayfaHisseHaritasi[k] : null;
+      var rsiMetin = kayit ? bilgiDegeriTemiz(kayit.rsi) : "-";
+      var gunMetin = kayit ? bilgiDegeriTemiz(kayit.gun) : "-";
+
+      rsiTd.innerText = rsiMetin;
+      gunTd.innerText = gunMetin;
+
+      rsiTd.style.backgroundColor = "#ffffff";
+      rsiTd.style.color = "#000000";
+      var rsiSayi = parseFloat(rsiMetin.replace(',', '.'));
+      if (!isNaN(rsiSayi)) {
+        if (rsiSayi <= 35) { rsiTd.style.backgroundColor = "#d4edda"; rsiTd.style.color = "#155724"; }
+        else if (rsiSayi >= 70) { rsiTd.style.backgroundColor = "#f8d7da"; rsiTd.style.color = "#721c24"; }
+      }
+    }
 
     /* ===== SMART TV / GÖRÜNÜM MODU ===== */
     function tvModuAlgila() {
@@ -715,7 +762,7 @@
       });
     }
 
-    function createHisseDropdown(currentValue, sekmeAdi, rIdx, colIdx) {
+    function createHisseDropdown(currentValue, sekmeAdi, rIdx, colIdx, secimSonrasi) {
       var select = document.createElement('select'); select.className = 'edit-input'; 
       var options = (window.tümHisseler || []).slice();
       
@@ -733,7 +780,10 @@
       
       if (!currentValue) select.value = ""; 
 
-      select.onchange = function() { uzakHucreGuncelle(sekmeAdi, rIdx, colIdx, this.value); };
+      select.onchange = function() {
+        if (typeof secimSonrasi === "function") secimSonrasi(this.value);
+        uzakHucreGuncelle(sekmeAdi, rIdx, colIdx, this.value);
+      };
       return select;
     }
 
@@ -788,7 +838,7 @@
       }
     }
 
-    /* ===================== V16: HİSSE ALIMI TABLOSU ===================== */
+    /* ===================== HİSSE ALIMI TABLOSU (RSI + GÜN. ORT. EKLİ, TEK TABLO) ===================== */
     function hisseAlimiToplamiYenile() {
       var tbody = document.getElementById('hisse-alimi-body');
       if (!tbody) return;
@@ -813,12 +863,22 @@
 
       if (!hisseAlimiVerisi || !hisseAlimiVerisi.basliklar || hisseAlimiVerisi.basliklar.length === 0) return;
 
+      // Başlıklar: orijinal sütunlar + HİSSE sütunundan hemen sonra RSI ve GÜN. ORT.
       var trH = document.createElement('tr');
-      hisseAlimiVerisi.basliklar.forEach(function (baslik) {
+      hisseAlimiVerisi.basliklar.forEach(function (baslik, bi) {
         var th = document.createElement('th');
         th.innerText = baslik;
         trH.appendChild(th);
+        if (bi === 1) {
+          var thR = document.createElement('th'); thR.innerText = "RSI"; trH.appendChild(thR);
+          var thG = document.createElement('th'); thG.innerText = "GÜN. ORT."; trH.appendChild(thG);
+        }
       });
+      // Tek sütunlu/boş başlık gibi uç durumlarda yine de ekle
+      if (hisseAlimiVerisi.basliklar.length < 2) {
+        var thR2 = document.createElement('th'); thR2.innerText = "RSI"; trH.appendChild(thR2);
+        var thG2 = document.createElement('th'); thG2.innerText = "GÜN. ORT."; trH.appendChild(thG2);
+      }
       thead.appendChild(trH);
 
       if (hisseAlimiVerisi.satirlar) {
@@ -827,14 +887,28 @@
           var rIdx = row[row.length - 1];
           var fiyatSayi = parseSayi(row[3]);   // FİYAT sütunu
           var tutarHucresi = null;
+          var rsiHucresi = null, gunHucresi = null;
 
           for (var i = 0; i < row.length - 1; i++) {
             var td = document.createElement('td');
             var val = row[i];
 
             if (i === 1) {
-              var select = createHisseDropdown(val, "HİSSE ALIMI", rIdx, 2);
+              // RSI / GÜN. ORT. hücreleri önce oluşturulur ki dropdown seçiminde anında güncellenebilsin
+              var tdRsi = document.createElement('td');
+              var tdGun = document.createElement('td');
+              rsiHucresi = tdRsi; gunHucresi = tdGun;
+
+              var select = createHisseDropdown(val, "HİSSE ALIMI", rIdx, 2, function (yeniKod) {
+                hisseAlimiBilgiDoldur(rsiHucresi, gunHucresi, yeniKod);
+              });
               td.appendChild(select);
+              hisseAlimiBilgiDoldur(tdRsi, tdGun, val);
+
+              tr.appendChild(td);
+              tr.appendChild(tdRsi);
+              tr.appendChild(tdGun);
+              continue;
 
             } else if (i === 4) {
               // ALINACAK LOT: kayıt kuyruğa alınır, toplam anında hesaplanır
@@ -904,7 +978,8 @@
         var tTr = document.createElement('tr');
         tTr.className = "ha-toplam-satiri";
         var tTdL = document.createElement('td');
-        tTdL.colSpan = hisseAlimiVerisi.basliklar.length - 1;
+        // 2 yeni sütun eklendiği için: (orijinal sütun sayısı - 1) + 2
+        tTdL.colSpan = hisseAlimiVerisi.basliklar.length + 1;
         tTdL.style.textAlign = "right";
         tTdL.style.fontWeight = "900";
         tTdL.innerText = hisseAlimiVerisi.toplamMetni;
@@ -1253,6 +1328,10 @@
           document.getElementById('loading').style.display = 'none';
 
           window.tümHisseler = (data.acilirListe && data.acilirListe.length > 0) ? data.acilirListe : [];
+
+          // Hisse Alımı sekmesinin RSI / GÜN. ORT. verisi için Anasayfa haritasını güncelle
+          anasayfaHaritasiOlustur(data.anasayfa);
+
           var aktifEleman = document.activeElement; 
           var aktifTag = aktifEleman ? aktifEleman.tagName.toUpperCase() : ""; 
           var isEditing = (aktifTag === 'INPUT' || aktifTag === 'SELECT');
