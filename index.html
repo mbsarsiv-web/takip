@@ -71,7 +71,7 @@
     .table1-header { background-color: #217346 !important; color: #ffffff !important; border-left: 1px solid #185232 !important; border-right: 1px solid #185232 !important; }
     .table2-header { background-color: #2b5797 !important; color: #ffffff !important; border-left: 1px solid #1e3f6e !important; border-right: 1px solid #1e3f6e !important; }
 
-    .edit-input { width: 100%; text-align: center; font-weight: bold; padding: 2px; border: 1px solid #274e37; border-radius: 3px; background-color: #ffffe0; height: 22px; box-sizing: border-box; font-size: 11.5px; }
+    .edit-input { width: 100%; text-align: center; font-weight: bold; padding: 2px; border: 1px solid #274e37; border-radius: 3px; background-color: #ffffe0; height: 22px; box-sizing: border-box; font-size: 11.5px; font-family: inherit; }
     .split-table .edit-input { padding: 0px 2px; font-size: 11px; } 
     .edit-input:disabled { background-color: #f0f0f0; border-color: #ccc; color: #888; }
     input[type=checkbox] { width: 14px; height: 14px; cursor: pointer; margin: 0; vertical-align: middle; }
@@ -183,8 +183,28 @@
     .t-down { color: #DC2626; font-weight: 900;}
     .t-neutral { color: #555; font-weight: 900;}
 
-    .hisse-cell { font-weight: bold; background-color: #ffffff !important; text-align: center !important; width: 1%; vertical-align: middle; }
+    .hisse-cell { font-weight: 800; background-color: #ffffff !important; text-align: center !important; width: 1%; vertical-align: middle; }
     #anasayfa-tab .hisse-cell .edit-input { background-color: transparent !important; border: 1px solid #e0e0e0; cursor: pointer; }
+
+    /* ANASAYFA HİSSE AÇILIR LİSTESİ: düz metinli hisse adlarıyla AYNI font, boyut, kalınlık ve hiza */
+    #anasayfa-tab select.edit-input {
+      -webkit-appearance: none; -moz-appearance: none; appearance: none;
+      font-family: inherit;
+      font-weight: 800;
+      color: #000000;
+      line-height: 1.1;
+      text-align: center;
+      text-align-last: center;
+      -moz-text-align-last: center;
+      text-overflow: clip;
+      padding: 0 11px 0 3px;
+      background-color: transparent !important;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='8' height='5' viewBox='0 0 8 5'><path d='M0 0l4 5 4-5z' fill='%23555555'/></svg>");
+      background-repeat: no-repeat;
+      background-position: right 3px center;
+      background-size: 7px 4px;
+    }
+
     .bold-cell { font-weight: bold; }
     .ortalamalar-cell { color: #0b5394; text-align: left; font-weight: bold; width: 1%; }
     .gunort-cell { font-weight: bold; text-align: center; }
@@ -234,10 +254,18 @@
       #anasayfa-tab .split-table-container { flex-direction: column; overflow-x: visible; gap: 8px; padding-bottom: 4px; }
       #anasayfa-tab .split-table { min-width: 0; width: 100%; flex: none; }
       #anasayfa-tab .split-table tr { height: auto !important; }
-      #anasayfa-tab .split-table th, #anasayfa-tab .split-table td { height: auto !important; padding: 5px 2px !important; font-size: 12px !important; line-height: 1.2 !important; }
-      #anasayfa-tab .split-table th { font-size: 10.5px !important; }
+      #anasayfa-tab .split-table th, #anasayfa-tab .split-table td { height: auto !important; padding: 5px 2px !important; font-size: 12px !important; line-height: 1.2 !important; vertical-align: middle; }
+
+      /* Başlıklar kesilmesin: gerekirse alt satıra sarsın */
+      #anasayfa-tab .split-table th { font-size: 10.5px !important; white-space: normal !important; overflow: visible !important; text-overflow: clip !important; line-height: 1.15 !important; word-break: break-word; }
+
+      /* Üst tablo tavsiye + alt tablo hedef sütunu: metin kesilmesin, sarsın */
       #anasayfa-tab .top-split-table td:nth-child(6), #anasayfa-tab .top-split-table .tavsiye-cell { white-space: normal; word-break: break-word; }
-      #anasayfa-tab .hisse-cell .edit-input { font-size: 16px; height: 34px; min-width: 70px; }
+      #anasayfa-tab #anasayfa-split-container .split-table td:nth-child(7) { white-space: normal !important; word-break: break-word; overflow: visible !important; text-overflow: clip !important; }
+
+      /* HİSSE HÜCRELERİ: üst (düz metin) ve alt (açılır liste) tamamen aynı görünsün */
+      #anasayfa-tab .split-table td.hisse-cell { font-size: 12px !important; font-weight: 800 !important; padding: 3px 2px !important; text-align: center !important; vertical-align: middle; }
+      #anasayfa-tab .hisse-cell .edit-input { font-size: 12px !important; font-weight: 800 !important; height: 28px; min-width: 0; width: 100%; padding: 0 11px 0 3px; }
 
       /* Maliyet sekmeleri: ilk sütun sabit, kaydırma rahat */
       #maliyet-hisse-tab.active { height: calc(100vh - 100px); height: calc(100dvh - 100px); }
